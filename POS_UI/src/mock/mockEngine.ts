@@ -15,8 +15,15 @@ import {
   StockMovement,
   CashReconciliation,
   ShiftExpense,
+  Category,
+  Product,
+  ProductSize,
+  Topping,
+  Ingredient,
+  ProductSizeIngredient,
+  ToppingIngredient,
 } from '../types/entities';
-import { User, PermissionCode, AuthSession } from '../types/auth';
+import { User, PermissionCode, AuthSession, RoleCode } from '../types/auth';
 
 export class MockEngine {
   // --- AUTH & CONTEXT ---
@@ -851,14 +858,17 @@ export class MockEngine {
   }
 
   // --- PLATFORM ADMIN ACTIONS (BR-78, BR-81, BR-82, BR-83, BR-84, BR-96, BR-103) ---
-  public static createStore(name: string, code: string): Store {
+  // --- PLATFORM ADMIN ACTIONS (BR-78, BR-81, BR-82, BR-83, BR-84, BR-96, BR-103) ---
+  public static createStore(name: string, phone?: string, address?: string, email?: string): Store {
     const user = this.getCurrentUser();
     if (user.role_code !== 'PLATFORM_ADMIN') throw new Error('Chỉ Quản trị nền tảng mới được tạo cửa hàng');
 
     const newStore: Store = {
       id: `store-${Date.now()}`,
       name: name.trim(),
-      code: code.trim().toUpperCase(),
+      phone: phone?.trim(),
+      address: address?.trim(),
+      email: email?.trim(),
       status: 'ACTIVE',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -965,21 +975,735 @@ export class MockEngine {
     }));
   }
 
-  // --- DAILY REPORT (BR-62, BR-63, BR-64, BR-65, BR-77) ---
-  public static getDailyReport(branchId?: string, dateStr?: string) {
+  // --- BRANCH & TABLE MANAGEMENT (BR-07, BR-08, BR-09, BR-10, BR-70, BR-95, BR-99) ---
+  public static createBranch(name: string, code: string, address?: string, initialCash: bigint = 1500000n): Branch {
+    const user = this.getCurrentUser();
+    if (!this.hasPermission('branch.manage')) {
+      throw new Error('Bạn không có quyền quản lý chi nhánh');
+    }
     const state = mockStorage.getState();
-    const effectiveBranch = branchId || this.getEffectiveBranchId();
-    const targetDate = dateStr || new Date().toISOString().slice(0, 10);
+    const cleanCode = code.trim().toUpperCase();
+    if (state.branches.some((b) => b.store_id === user.store_id && b.code === cleanCode)) {
+      throw new Error(`Mã chi nhánh "${cleanCode}" đã tồn tại trong cửa hàng`);
+    }
+
+    const newBranch: Branch = {
+      id: `branch-${Date.now()}`,
+      store_id: user.store_id || '',
+      name: name.trim(),
+      code: cleanCode,
+      initial_cash: initialCash,
+      is_active: true,
+      address: address?.trim() || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    mockStorage.setState((prev) => ({
+      branches: [...prev.branches, newBranch],
+    }));
+
+    return newBranch;
+  }
+
+  public static updateBranch(branchId: string, updates: { name?: string; address?: string; initial_cash?: bigint }): Branch {
+    if (!this.hasPermission('branch.manage')) {
+      throw new Error('Bạn không có quyền quản lý chi nhánh');
+    }
+    const state = mockStorage.getState();
+    const branch = state.branches.find((b) => b.id === branchId);
+    if (!branch) throw new Error('Chi nhánh không tồn tại');
+
+    const updated: Branch = {
+      ...branch,
+      name: updates.name !== undefined ? updates.name.trim() : branch.name,
+      address: updates.address !== undefined ? updates.address.trim() : branch.address,
+      initial_cash: updates.initial_cash !== undefined ? updates.initial_cash : branch.initial_cash,
+      updated_at: new Date().toISOString(),
+    };
+
+    mockStorage.setState((prev) => ({
+      branches: prev.branches.map((b) => (b.id === branchId ? updated : b)),
+    }));
+
+    return updated;
+  }
+
+  public static toggleBranchActive(branchId: string): Branch {
+    if (!this.hasPermission('branch.manage')) {
+      throw new Error('Bạn không có quyền quản lý chi nhánh');
+    }
+    const state = mockStorage.getState();
+    const branch = state.branches.find((b) => b.id === branchId);
+    if (!branch) throw new Error('Chi nhánh không tồn tại');
+
+    // Nếu đang hoạt động mà muốn ngưng, kiểm tra xem có ca đang mở không
+    if (branch.is_active) {
+      const hasOpenShift = state.workShifts.some((s) => s.branch_id === branchId && s.status === 'OPEN');
+      if (hasOpenShift) {
+        throw new Error('Không thể ngưng hoạt động chi nhánh đang có ca làm việc mở (BR-10)');
+      }
+    }
+
+    const updated: Branch = {
+      ...branch,
+      is_active: !branch.is_active,
+      updated_at: new Date().toISOString(),
+    };
+
+    mockStorage.setState((prev) => ({
+      branches: prev.branches.map((b) => (b.id === branchId ? updated : b)),
+    }));
+
+    return updated;
+  }
+
+  public static isTableOccupied(tableId: string): boolean {
+    const state = mockStorage.getState();
+    return state.invoices.some((inv) => inv.dining_table_id === tableId && inv.status === 'OPEN');
+  }
+
+  public static createTable(branchId: string, name: string, area: string, seatCount: number = 4): DiningTable {
+    if (!this.hasPermission('table.manage')) {
+      throw new Error('Bạn không có quyền quản lý bàn');
+    }
+    const newTable: DiningTable = {
+      id: `tb-${Date.now()}`,
+      branch_id: branchId,
+      name: name.trim(),
+      area: area.trim(),
+      seat_count: seatCount,
+      is_active: true,
+      created_at: new Date().toISOString(),
+    };
+
+    mockStorage.setState((prev) => ({
+      tables: [...prev.tables, newTable],
+    }));
+
+    return newTable;
+  }
+
+  public static updateTable(tableId: string, updates: { name?: string; area?: string; seat_count?: number }): DiningTable {
+    if (!this.hasPermission('table.manage')) {
+      throw new Error('Bạn không có quyền quản lý bàn');
+    }
+    const state = mockStorage.getState();
+    const table = state.tables.find((t) => t.id === tableId);
+    if (!table) throw new Error('Bàn không tồn tại');
+
+    const updated: DiningTable = {
+      ...table,
+      name: updates.name !== undefined ? updates.name.trim() : table.name,
+      area: updates.area !== undefined ? updates.area.trim() : table.area,
+      seat_count: updates.seat_count !== undefined ? updates.seat_count : table.seat_count,
+    };
+
+    mockStorage.setState((prev) => ({
+      tables: prev.tables.map((t) => (t.id === tableId ? updated : t)),
+    }));
+
+    return updated;
+  }
+
+  public static toggleTableActive(tableId: string): DiningTable {
+    if (!this.hasPermission('table.manage')) {
+      throw new Error('Bạn không có quyền quản lý bàn');
+    }
+    const state = mockStorage.getState();
+    const table = state.tables.find((t) => t.id === tableId);
+    if (!table) throw new Error('Bàn không tồn tại');
+
+    if (table.is_active && this.isTableOccupied(tableId)) {
+      throw new Error('Không thể ngưng dùng bàn đang có khách ngồi / có đơn chưa thanh toán (BR-95)');
+    }
+
+    const updated: DiningTable = {
+      ...table,
+      is_active: !table.is_active,
+    };
+
+    mockStorage.setState((prev) => ({
+      tables: prev.tables.map((t) => (t.id === tableId ? updated : t)),
+    }));
+
+    return updated;
+  }
+
+  // --- STAFF USER MANAGEMENT (BR-06, BR-70, BR-84, BR-85, BR-97) ---
+  public static createStaffUser(
+    branchId: string,
+    username: string,
+    fullName: string,
+    roleCode: 'MANAGER' | 'CASHIER'
+  ): { user: User; tempPassword: string } {
+    const currentUser = this.getCurrentUser();
+    if (!this.hasPermission('branch.manage')) {
+      throw new Error('Bạn không có quyền quản lý nhân viên');
+    }
+    const state = mockStorage.getState();
+    if (state.users.some((u) => u.username.toLowerCase() === username.trim().toLowerCase())) {
+      throw new Error('Tên đăng nhập đã tồn tại trong hệ thống (BR-97)');
+    }
+
+    const tempPassword = `Pass@${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const newUser: User = {
+      id: `user-${Date.now()}`,
+      store_id: currentUser.store_id,
+      branch_id: branchId,
+      role_code: roleCode,
+      username: username.trim(),
+      full_name: fullName.trim(),
+      must_change_password: true, // BR-84: Phải đổi mật khẩu ở lần đăng nhập đầu
+      is_active: true,
+      created_at: new Date().toISOString(),
+    };
+
+    mockStorage.setState((prev) => ({
+      users: [...prev.users, newUser],
+    }));
+
+    return { user: newUser, tempPassword };
+  }
+
+  public static toggleUserActive(userId: string): User {
+    const currentUser = this.getCurrentUser();
+    if (!this.hasPermission('branch.manage') && currentUser.role_code !== 'PLATFORM_ADMIN') {
+      throw new Error('Bạn không có quyền quản lý nhân viên');
+    }
+    if (currentUser.id === userId) {
+      throw new Error('Bạn không được tự khóa tài khoản của chính mình (BR-06)');
+    }
+
+    const state = mockStorage.getState();
+    const targetUser = state.users.find((u) => u.id === userId);
+    if (!targetUser) throw new Error('Không tìm thấy tài khoản người dùng');
+
+    // BR-85: Không được khóa OWNER cuối cùng của store
+    if (targetUser.role_code === 'OWNER' && targetUser.is_active) {
+      const activeOwners = state.users.filter((u) => u.store_id === targetUser.store_id && u.role_code === 'OWNER' && u.is_active);
+      if (activeOwners.length <= 1) {
+        throw new Error('Không được khóa tài khoản Chủ cửa hàng (OWNER) cuối cùng đang hoạt động (BR-85)');
+      }
+    }
+
+    const updatedUser: User = {
+      ...targetUser,
+      is_active: !targetUser.is_active,
+    };
+
+    mockStorage.setState((prev) => ({
+      users: prev.users.map((u) => (u.id === userId ? updatedUser : u)),
+    }));
+
+    return updatedUser;
+  }
+
+  public static updateUserRole(userId: string, newRole: RoleCode): User {
+    const currentUser = this.getCurrentUser();
+    if (!this.hasPermission('branch.manage') && currentUser.role_code !== 'PLATFORM_ADMIN') {
+      throw new Error('Bạn không có quyền thay đổi vai trò nhân viên');
+    }
+    const state = mockStorage.getState();
+    const targetUser = state.users.find((u) => u.id === userId);
+    if (!targetUser) throw new Error('Không tìm thấy tài khoản người dùng');
+
+    // BR-85: Không được giáng chức OWNER cuối cùng
+    if (targetUser.role_code === 'OWNER' && newRole !== 'OWNER' && targetUser.is_active) {
+      const activeOwners = state.users.filter((u) => u.store_id === targetUser.store_id && u.role_code === 'OWNER' && u.is_active);
+      if (activeOwners.length <= 1) {
+        throw new Error('Không được giáng chức tài khoản Chủ cửa hàng (OWNER) cuối cùng đang hoạt động (BR-85)');
+      }
+    }
+
+    const updatedUser: User = {
+      ...targetUser,
+      role_code: newRole,
+    };
+
+    mockStorage.setState((prev) => ({
+      users: prev.users.map((u) => (u.id === userId ? updatedUser : u)),
+    }));
+
+    return updatedUser;
+  }
+
+  public static resetUserPassword(userId: string): { user: User; tempPassword: string } {
+    const currentUser = this.getCurrentUser();
+    if (!this.hasPermission('branch.manage') && currentUser.role_code !== 'PLATFORM_ADMIN') {
+      throw new Error('Bạn không có quyền đặt lại mật khẩu nhân viên');
+    }
+    const state = mockStorage.getState();
+    const targetUser = state.users.find((u) => u.id === userId);
+    if (!targetUser) throw new Error('Không tìm thấy tài khoản người dùng');
+
+    const tempPassword = `Pass@${Math.floor(100000 + Math.random() * 900000)}`;
+    const updatedUser: User = {
+      ...targetUser,
+      must_change_password: true, // BR-84: Buộc đổi mật khẩu ở lần đăng nhập tiếp theo
+    };
+
+    mockStorage.setState((prev) => ({
+      users: prev.users.map((u) => (u.id === userId ? updatedUser : u)),
+    }));
+
+    return { user: updatedUser, tempPassword };
+  }
+
+  // --- MENU & PRODUCTS & TOPPINGS & PROMOTIONS (BR-11, BR-12, BR-36..BR-41, BR-48) ---
+  public static createCategory(name: string, sortOrder: number = 1): Category {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    const user = this.getCurrentUser();
+    const newCat: Category = {
+      id: `cat-${Date.now()}`,
+      store_id: user.store_id || '',
+      name: name.trim(),
+      sort_order: sortOrder,
+      is_active: true,
+    };
+    mockStorage.setState((prev) => ({ categories: [...prev.categories, newCat] }));
+    return newCat;
+  }
+
+  public static updateCategory(categoryId: string, updates: Partial<Category>): Category {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    const state = mockStorage.getState();
+    const cat = state.categories.find((c) => c.id === categoryId);
+    if (!cat) throw new Error('Nhóm món không tồn tại');
+    const updated = { ...cat, ...updates };
+    mockStorage.setState((prev) => ({
+      categories: prev.categories.map((c) => (c.id === categoryId ? updated : c)),
+    }));
+    return updated;
+  }
+
+  public static toggleCategoryActive(categoryId: string): Category {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    const state = mockStorage.getState();
+    const cat = state.categories.find((c) => c.id === categoryId);
+    if (!cat) throw new Error('Nhóm món không tồn tại');
+    const updated = { ...cat, is_active: !cat.is_active };
+    mockStorage.setState((prev) => ({
+      categories: prev.categories.map((c) => (c.id === categoryId ? updated : c)),
+    }));
+    return updated;
+  }
+
+  public static createProduct(categoryId: string, name: string, description?: string): Product {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    const newProd: Product = {
+      id: `prod-${Date.now()}`,
+      category_id: categoryId,
+      name: name.trim(),
+      description: description?.trim(),
+      is_active: true,
+    };
+    mockStorage.setState((prev) => ({ products: [...prev.products, newProd] }));
+    return newProd;
+  }
+
+  public static updateProduct(productId: string, updates: Partial<Product>): Product {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    const state = mockStorage.getState();
+    const prod = state.products.find((p) => p.id === productId);
+    if (!prod) throw new Error('Món không tồn tại');
+    const updated = { ...prod, ...updates };
+    mockStorage.setState((prev) => ({
+      products: prev.products.map((p) => (p.id === productId ? updated : p)),
+    }));
+    return updated;
+  }
+
+  public static toggleProductActive(productId: string): Product {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    const state = mockStorage.getState();
+    const prod = state.products.find((p) => p.id === productId);
+    if (!prod) throw new Error('Món không tồn tại');
+    const updated = { ...prod, is_active: !prod.is_active };
+    mockStorage.setState((prev) => ({
+      products: prev.products.map((p) => (p.id === productId ? updated : p)),
+    }));
+    return updated;
+  }
+
+  public static updateProductSizePrice(productSizeId: string, price: bigint): ProductSize {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý giá món');
+    const state = mockStorage.getState();
+    const ps = state.productSizes.find((p) => p.id === productSizeId);
+    if (!ps) throw new Error('Kích cỡ món không tồn tại');
+    const updated = { ...ps, price };
+    mockStorage.setState((prev) => ({
+      productSizes: prev.productSizes.map((p) => (p.id === productSizeId ? updated : p)),
+    }));
+    return updated;
+  }
+
+  public static createTopping(name: string, price: bigint): Topping {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    const user = this.getCurrentUser();
+    const newTop: Topping = {
+      id: `top-${Date.now()}`,
+      store_id: user.store_id || '',
+      name: name.trim(),
+      price,
+      is_active: true,
+    };
+    mockStorage.setState((prev) => ({ toppings: [...prev.toppings, newTop] }));
+    return newTop;
+  }
+
+  public static updateTopping(toppingId: string, updates: Partial<Topping>): Topping {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    const state = mockStorage.getState();
+    const top = state.toppings.find((t) => t.id === toppingId);
+    if (!top) throw new Error('Topping không tồn tại');
+    const updated = { ...top, ...updates };
+    mockStorage.setState((prev) => ({
+      toppings: prev.toppings.map((t) => (t.id === toppingId ? updated : t)),
+    }));
+    return updated;
+  }
+
+  public static toggleToppingActive(toppingId: string): Topping {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    const state = mockStorage.getState();
+    const top = state.toppings.find((t) => t.id === toppingId);
+    if (!top) throw new Error('Topping không tồn tại');
+    const updated = { ...top, is_active: !top.is_active };
+    mockStorage.setState((prev) => ({
+      toppings: prev.toppings.map((t) => (t.id === toppingId ? updated : t)),
+    }));
+    return updated;
+  }
+
+  public static linkToppingToCategory(categoryId: string, toppingId: string): void {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    const state = mockStorage.getState();
+    const exists = state.categoryToppings.some((ct) => ct.category_id === categoryId && ct.topping_id === toppingId);
+    if (!exists) {
+      mockStorage.setState((prev) => ({
+        categoryToppings: [...prev.categoryToppings, { category_id: categoryId, topping_id: toppingId }],
+      }));
+    }
+  }
+
+  public static unlinkToppingFromCategory(categoryId: string, toppingId: string): void {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý thực đơn');
+    mockStorage.setState((prev) => ({
+      categoryToppings: prev.categoryToppings.filter(
+        (ct) => !(ct.category_id === categoryId && ct.topping_id === toppingId)
+      ),
+    }));
+  }
+
+  public static createPromotion(promo: Omit<PromotionCode, 'id' | 'used_count'>): PromotionCode {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý khuyến mãi');
+    const newPromo: PromotionCode = {
+      ...promo,
+      id: `promo-${Date.now()}`,
+      code: promo.code.trim().toUpperCase(),
+      used_count: 0,
+    };
+    mockStorage.setState((prev) => ({
+      promotions: [...prev.promotions, newPromo],
+    }));
+    return newPromo;
+  }
+
+  public static updatePromotion(promoId: string, updates: Partial<PromotionCode>): PromotionCode {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý khuyến mãi');
+    const state = mockStorage.getState();
+    const promo = state.promotions.find((p) => p.id === promoId);
+    if (!promo) throw new Error('Khuyến mãi không tồn tại');
+    const updated = { ...promo, ...updates };
+    mockStorage.setState((prev) => ({
+      promotions: prev.promotions.map((p) => (p.id === promoId ? updated : p)),
+    }));
+    return updated;
+  }
+
+  public static togglePromotionActive(promoId: string): PromotionCode {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý khuyến mãi');
+    const state = mockStorage.getState();
+    const promo = state.promotions.find((p) => p.id === promoId);
+    if (!promo) throw new Error('Khuyến mãi không tồn tại');
+    const updated = { ...promo, is_active: !promo.is_active };
+    mockStorage.setState((prev) => ({
+      promotions: prev.promotions.map((p) => (p.id === promoId ? updated : p)),
+    }));
+    return updated;
+  }
+
+  // --- INGREDIENTS & RECIPES (BR-48, BR-49) ---
+  public static createIngredient(name: string, unit: string): Ingredient {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý nguyên liệu');
+    const user = this.getCurrentUser();
+    const newIng: Ingredient = {
+      id: `ing-${Date.now()}`,
+      store_id: user.store_id || '',
+      name: name.trim(),
+      unit: unit.trim(),
+      is_active: true,
+    };
+    mockStorage.setState((prev) => ({
+      ingredients: [...prev.ingredients, newIng],
+    }));
+    return newIng;
+  }
+
+  public static updateIngredient(ingredientId: string, updates: Partial<Ingredient>): Ingredient {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý nguyên liệu');
+    const state = mockStorage.getState();
+    const ing = state.ingredients.find((i) => i.id === ingredientId);
+    if (!ing) throw new Error('Nguyên liệu không tồn tại');
+    const updated = { ...ing, ...updates };
+    mockStorage.setState((prev) => ({
+      ingredients: prev.ingredients.map((i) => (i.id === ingredientId ? updated : i)),
+    }));
+    return updated;
+  }
+
+  public static toggleIngredientActive(ingredientId: string): Ingredient {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý nguyên liệu');
+    const state = mockStorage.getState();
+    const ing = state.ingredients.find((i) => i.id === ingredientId);
+    if (!ing) throw new Error('Nguyên liệu không tồn tại');
+    const updated = { ...ing, is_active: !ing.is_active };
+    mockStorage.setState((prev) => ({
+      ingredients: prev.ingredients.map((i) => (i.id === ingredientId ? updated : i)),
+    }));
+    return updated;
+  }
+
+  public static saveProductSizeRecipe(
+    productSizeId: string,
+    ingredients: { ingredient_id: string; quantity: number }[]
+  ): void {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý công thức');
+    mockStorage.setState((prev) => {
+      const remaining = prev.recipes.filter((r) => r.product_size_id !== productSizeId);
+      const newItems: ProductSizeIngredient[] = ingredients.map((item) => ({
+        product_size_id: productSizeId,
+        ingredient_id: item.ingredient_id,
+        quantity: item.quantity,
+      }));
+      return { recipes: [...remaining, ...newItems] };
+    });
+  }
+
+  public static saveToppingRecipe(
+    toppingId: string,
+    ingredients: { ingredient_id: string; quantity: number }[]
+  ): void {
+    if (!this.hasPermission('product.manage')) throw new Error('Bạn không có quyền quản lý công thức');
+    mockStorage.setState((prev) => {
+      const remaining = prev.toppingRecipes.filter((r) => r.topping_id !== toppingId);
+      const newItems: ToppingIngredient[] = ingredients.map((item) => ({
+        topping_id: toppingId,
+        ingredient_id: item.ingredient_id,
+        quantity: item.quantity,
+      }));
+      return { toppingRecipes: [...remaining, ...newItems] };
+    });
+  }
+
+  // --- STAFF SHIFTS & FORCE CLOSE (BR-15, BR-18, BR-19, BR-20, BR-88) ---
+  public static checkInStaffShift(userId: string, branchId: string): WorkShift {
+    const user = this.getCurrentUser();
+    const state = mockStorage.getState();
+    const activeShift = state.workShifts.find((s) => s.user_id === userId && s.status === 'OPEN');
+    if (activeShift) {
+      throw new Error('Nhân viên này đã có một ca làm việc đang mở (BR-18)');
+    }
+
+    const newShift: WorkShift = {
+      id: `shift-staff-${Date.now()}`,
+      store_id: user.store_id || '',
+      branch_id: branchId,
+      user_id: userId,
+      shift_type: 'STAFF', // BR-15: ca phục vụ/pha chế không gắn với két tiền
+      status: 'OPEN',
+      started_at: new Date().toISOString(),
+    };
+
+    mockStorage.setState((prev) => ({
+      workShifts: [newShift, ...prev.workShifts],
+    }));
+
+    return newShift;
+  }
+
+  public static checkOutStaffShift(shiftId: string): WorkShift {
+    const state = mockStorage.getState();
+    const shift = state.workShifts.find((s) => s.id === shiftId);
+    if (!shift || shift.status !== 'OPEN') {
+      throw new Error('Ca làm việc này đã kết thúc hoặc không tồn tại');
+    }
+
+    const updatedShift: WorkShift = {
+      ...shift,
+      status: 'CLOSED',
+      ended_at: new Date().toISOString(),
+    };
+
+    mockStorage.setState((prev) => ({
+      workShifts: prev.workShifts.map((s) => (s.id === shiftId ? updatedShift : s)),
+    }));
+
+    return updatedShift;
+  }
+
+  public static getOpenInvoicesForShift(shiftId: string): (Invoice & { tableName?: string })[] {
+    const state = mockStorage.getState();
+    return state.invoices
+      .filter((inv) => inv.work_shift_id === shiftId && inv.status === 'OPEN')
+      .map((inv) => {
+        const table = state.tables.find((t) => t.id === inv.dining_table_id);
+        return {
+          ...inv,
+          tableName: table ? `${table.name} (${table.area})` : 'Mang đi',
+        };
+      });
+  }
+
+  public static forceCloseShift(
+    shiftId: string,
+    managerId: string,
+    countedCash: bigint,
+    reason: string
+  ): { reconciliation: CashReconciliation; shift: WorkShift } {
+    if (!this.hasPermission('shift.force_close')) {
+      throw new Error('Bạn không có quyền đóng cưỡng chế ca của người khác (BR-20)');
+    }
+    if (!reason || !reason.trim()) {
+      throw new Error('Bắt buộc phải nhập lý do khi đóng cưỡng chế ca (BR-20, BR-88)');
+    }
+
+    const state = mockStorage.getState();
+    const shift = state.workShifts.find((s) => s.id === shiftId);
+    if (!shift || shift.status !== 'OPEN') {
+      throw new Error('Ca làm việc này đã đóng hoặc không tồn tại');
+    }
+
+    // BR-19: Phải kiểm tra đơn OPEN
+    const openInvoices = this.getOpenInvoicesForShift(shiftId);
+    if (openInvoices.length > 0) {
+      throw new Error(`Còn ${openInvoices.length} đơn chưa thanh toán thuộc ca này. Phải giải quyết xong các đơn này trước khi đóng ca (BR-19)`);
+    }
+
+    // Tính toán đối soát két tiền
+    const openingInfo = this.getExpectedOpeningCash(shift.branch_id);
+    const opening_cash = openingInfo.amount;
+
+    const paidInvoices = state.invoices.filter((inv) => inv.work_shift_id === shiftId && inv.status === 'PAID');
+    let cash_sales_amount = 0n;
+    paidInvoices.forEach((inv) => {
+      inv.payments.forEach((p) => {
+        if (p.method === 'CASH') cash_sales_amount += p.amount;
+      });
+    });
+
+    const expenses = state.shiftExpenses.filter((e) => e.work_shift_id === shiftId && e.paid_from_drawer);
+    const expense_amount = expenses.reduce((sum, e) => sum + e.amount, 0n);
+
+    const expected_cash = opening_cash + cash_sales_amount - expense_amount;
+    const difference = countedCash - expected_cash;
+
+    let reconStatus: CashReconciliation['status'] = 'MATCHED';
+    if (difference < 0n) reconStatus = 'SHORTAGE';
+    else if (difference > 0n) reconStatus = 'OVERAGE';
+
+    const reconciliation: CashReconciliation = {
+      id: `recon-${Date.now()}`,
+      work_shift_id: shiftId,
+      opening_cash,
+      cash_sales_amount,
+      expense_amount,
+      expected_cash,
+      counted_cash: countedCash,
+      difference,
+      status: reconStatus,
+      note: `[Đóng cưỡng chế bởi Quản lý ${managerId}]: ${reason.trim()}`,
+      created_at: new Date().toISOString(),
+    };
+
+    const updatedShift: WorkShift = {
+      ...shift,
+      status: 'CLOSED',
+      ended_at: new Date().toISOString(),
+    };
+
+    mockStorage.setState((prev) => ({
+      workShifts: prev.workShifts.map((s) => (s.id === shiftId ? updatedShift : s)),
+      cashReconciliations: [reconciliation, ...prev.cashReconciliations],
+    }));
+
+    return { reconciliation, shift: updatedShift };
+  }
+
+  // Helper chuyển đổi múi giờ sang Asia/Ho_Chi_Minh (UTC+7)
+  public static toVnDateString(isoDateStr: string): string {
+    const d = new Date(isoDateStr);
+    const vnTime = new Date(d.getTime() + 7 * 60 * 60 * 1000);
+    return vnTime.toISOString().slice(0, 10);
+  }
+
+  // Định dạng ngày Việt Nam dd/MM/yyyy
+  public static formatVnDate(dateStr: string): string {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  }
+
+  // --- DAILY REPORT (BR-62, BR-63, BR-64, BR-65, BR-77, BR-81) ---
+  public static getDailyReport(branchId?: string, dateStr?: string, customUser?: User) {
+    const user = customUser || this.getCurrentUser();
+    const state = mockStorage.getState();
+
+    // BR-81: Quản trị nền tảng không được xem dữ liệu vận hành
+    if (user.role_code === 'PLATFORM_ADMIN') {
+      throw new Error('Quản trị viên nền tảng không có quyền xem dữ liệu vận hành (BR-81)');
+    }
+
+    // Phân quyền theo vai trò (BR-77)
+    let effectiveBranch = branchId;
+    if (user.role_code === 'CASHIER') {
+      if (!this.hasPermission('report.view_shift')) {
+        throw new Error('Bạn không có quyền xem báo cáo ca');
+      }
+      effectiveBranch = user.branch_id || '';
+    } else if (user.role_code === 'MANAGER') {
+      if (!this.hasPermission('report.view_branch')) {
+        throw new Error('Bạn không có quyền xem báo cáo chi nhánh');
+      }
+      effectiveBranch = user.branch_id || ''; // Quản lý bị khóa cố định vào chi nhánh mình
+    } else if (user.role_code === 'OWNER') {
+      if (!this.hasPermission('report.view_all')) {
+        throw new Error('Bạn không có quyền xem báo cáo toàn cửa hàng');
+      }
+      if (!effectiveBranch || effectiveBranch === 'ALL') {
+        effectiveBranch = 'ALL';
+      }
+    }
+
+    const targetDate = dateStr || this.toVnDateString(new Date().toISOString());
 
     // BR-62: Chỉ tính hóa đơn PAID
-    // BR-63: Gom theo paid_at ở múi giờ VN
+    // BR-63: Gom theo paid_at ở múi giờ Việt Nam Asia/Ho_Chi_Minh
     let paidInvoices = state.invoices.filter((inv) => {
       if (inv.status !== 'PAID' || !inv.paid_at) return false;
-      const invDate = inv.paid_at.slice(0, 10);
+      if (inv.store_id !== user.store_id) return false;
+      const invDate = this.toVnDateString(inv.paid_at);
       return invDate === targetDate;
     });
 
-    if (effectiveBranch) {
+    // Phạm vi Thu ngân: chỉ xem hóa đơn thuộc ca/tài khoản mình
+    if (user.role_code === 'CASHIER') {
+      paidInvoices = paidInvoices.filter((inv) => inv.user_id === user.id);
+    } else if (effectiveBranch && effectiveBranch !== 'ALL') {
       paidInvoices = paidInvoices.filter((inv) => inv.branch_id === effectiveBranch);
     }
 
@@ -995,37 +1719,16 @@ export class MockEngine {
 
     const totalRevenue = cashRevenue + transferRevenue;
 
-    // Phân bổ doanh thu theo từng khung giờ bán hàng 07:00 -> 22:00 (BR-62, BR-63)
-    const hourlyMap: Record<number, { revenue: bigint; count: number }> = {};
-    for (let h = 7; h <= 22; h++) {
-      hourlyMap[h] = { revenue: 0n, count: 0 };
-    }
-
-    paidInvoices.forEach((inv) => {
-      if (inv.paid_at) {
-        const d = new Date(inv.paid_at);
-        const vnHour = (d.getUTCHours() + 7) % 24;
-        if (hourlyMap[vnHour]) {
-          hourlyMap[vnHour].revenue += inv.total_amount;
-          hourlyMap[vnHour].count += 1;
-        }
-      }
-    });
-
-    const hourlyRevenue = Object.entries(hourlyMap).map(([hStr, data]) => ({
-      hour: Number(hStr),
-      revenue: data.revenue,
-      count: data.count,
-    }));
-
     return {
       date: targetDate,
+      dateFormatted: this.formatVnDate(targetDate),
       totalRevenue,
       cashRevenue,
       transferRevenue,
       invoiceCount: paidInvoices.length,
       invoices: paidInvoices,
-      hourlyRevenue,
+      branch_id: effectiveBranch,
+      role_scope: user.role_code,
     };
   }
 }

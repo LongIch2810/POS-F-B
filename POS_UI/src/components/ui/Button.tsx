@@ -2,7 +2,7 @@ import { ButtonHTMLAttributes, forwardRef, ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'text';
-export type ButtonSize = 'md' | 'lg'; // md: 48px (min touch), lg: 56px (main actions)
+export type ButtonSize = 'sm' | 'md' | 'lg'; // sm: 36px, md: 48px (min touch), lg: 56px (main actions)
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -31,7 +31,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const height = size === 'lg' ? 56 : 48;
+    const height = size === 'lg' ? 56 : size === 'sm' ? 36 : 48;
+    const fontSize = size === 'lg' ? 17 : size === 'sm' ? 13 : 15;
+    const padding = size === 'sm' ? '0 12px' : '0 20px';
     const isDisabled = disabled || isLoading || !!disabledReason;
 
     // Màu sắc theo token
@@ -67,12 +69,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={`touch-press ${className || ''}`}
         style={{
           height,
-          padding: '0 20px',
+          padding,
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
-          fontSize: size === 'lg' ? 17 : 15,
+          fontSize,
           fontWeight: 600,
           borderRadius: 'var(--radius-control)',
           background: bg,

@@ -81,6 +81,32 @@ export const authService = {
     return MockEngine.getAuthSession();
   },
 
+  login(username: string, _password?: string): Promise<AuthSession> {
+    const state = mockStorage.getState();
+    const user = state.users.find((u) => u.username.toLowerCase() === username.trim().toLowerCase());
+    if (!user) {
+      throw new Error('Tài khoản hoặc mật khẩu không chính xác');
+    }
+    if (!user.is_active) {
+      throw new Error('Tài khoản này đã bị tạm khóa (BR-06)');
+    }
+    if (user.store_id) {
+      const store = state.stores.find((s) => s.id === user.store_id);
+      if (store && store.status === 'SUSPENDED') {
+        throw new Error(`Cửa hàng "${store.name}" đang bị tạm khóa. Vui lòng liên hệ Quản trị nền tảng (BR-82)`);
+      }
+    }
+    mockStorage.setState((prev) => ({
+      currentUserId: user.id,
+      selectedBranchId: user.branch_id || prev.selectedBranchId,
+    }));
+    return Promise.resolve(MockEngine.getAuthSession());
+  },
+
+  logout(): Promise<void> {
+    return Promise.resolve();
+  },
+
   switchDemoUser(userId: string): Promise<AuthSession> {
     const user = mockStorage.getState().users.find((u) => u.id === userId);
     if (!user) throw new Error('Tài khoản demo không tồn tại');

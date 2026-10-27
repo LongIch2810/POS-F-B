@@ -7,6 +7,7 @@ import { DemoSwitcher } from './components/common/DemoSwitcher';
 import { OfflineBar } from './components/common/OfflineBar';
 import { AppShell, NavTab } from './components/common/AppShell';
 import { ForcePasswordModal } from './features/auth/ForcePasswordModal';
+import { LoginScreen } from './features/auth/LoginScreen';
 
 // Features
 import { PosScreen } from './features/pos/PosScreen';
@@ -19,13 +20,24 @@ import { SettingsScreen } from './features/settings/SettingsScreen';
 import { PlatformAdminScreen } from './features/platform/PlatformAdminScreen';
 
 const MainRouter: React.FC = () => {
-  const { session } = useAuth();
+  const { session, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoginScreen />;
+  }
+
   const isPlatformAdmin = session.user.role_code === 'PLATFORM_ADMIN';
 
   // Quản trị nền tảng chỉ vào tab platform
   const [currentTab, setCurrentTab] = useState<NavTab>(
     isPlatformAdmin ? 'platform_stores' : 'pos'
   );
+  const [targetInvoiceId, setTargetInvoiceId] = useState<string | null>(null);
+
+  const handleNavigateToInvoice = (invoiceId: string) => {
+    setTargetInvoiceId(invoiceId);
+    setCurrentTab('pos');
+  };
 
   useEffect(() => {
     if (isPlatformAdmin) {
@@ -53,6 +65,7 @@ const MainRouter: React.FC = () => {
         return (
           <PosScreen
             activeMode="pos"
+            initialInvoiceId={targetInvoiceId}
             onSwitchToTables={() => setCurrentTab('tables')}
             onSwitchToPos={() => setCurrentTab('pos')}
           />
@@ -61,6 +74,7 @@ const MainRouter: React.FC = () => {
         return (
           <PosScreen
             activeMode="tables"
+            initialInvoiceId={targetInvoiceId}
             onSwitchToTables={() => setCurrentTab('tables')}
             onSwitchToPos={() => setCurrentTab('pos')}
           />
@@ -68,7 +82,7 @@ const MainRouter: React.FC = () => {
       case 'invoices':
         return <InvoicesScreen />;
       case 'shifts':
-        return <ShiftsScreen />;
+        return <ShiftsScreen onNavigateToInvoice={handleNavigateToInvoice} />;
       case 'products':
         return <ProductsScreen />;
       case 'inventory':

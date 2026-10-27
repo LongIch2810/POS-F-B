@@ -72,7 +72,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
     try {
       if (method === 'CASH') {
         if (!isSufficient) {
-          setErrorMsg('Khách đưa chưa đủ tiền (BR-32)');
+          setErrorMsg('Khách đưa chưa đủ tiền');
           setIsSubmitting(false);
           return;
         }
@@ -97,10 +97,10 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={`Thanh toán đơn ${invoice.invoice_code}`}
-      maxWidth={580}
+      maxWidth={720}
       footer={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          <Button variant="secondary" size="md" onClick={onClose} disabled={isSubmitting}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 12 }}>
+          <Button variant="secondary" size="lg" onClick={onClose} disabled={isSubmitting} style={{ minWidth: 120 }}>
             Quay lại
           </Button>
           <Button
@@ -113,19 +113,20 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
               (method === 'CASH' && !isSufficient) ||
               (method === 'TRANSFER' && !transferConfirmed)
             }
+            style={{ height: 56, minWidth: 220, fontSize: 16 }}
           >
             Xác nhận thanh toán
           </Button>
         </div>
       }
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {/* Tab Phương thức thanh toán: Tiền mặt hoặc Chuyển khoản (BR-30, BR-31) */}
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: 10,
+            gap: 8,
             background: 'var(--color-surface-sunken)',
             padding: 4,
             borderRadius: 'var(--radius-control)',
@@ -180,70 +181,84 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
           </button>
         </div>
 
-        {/* Số tiền cần thanh toán (text-3xl) per DESIGN.md §5.4 */}
-        <div
-          style={{
-            padding: '12px 16px',
-            background: 'var(--color-brand-50)',
-            borderRadius: 'var(--radius-control)',
-            display: 'flex',
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-          }}
-        >
-          <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text-muted)' }}>
-            Cần thanh toán:
-          </span>
-          <span
-            className="money"
+        {/* Luồng TIỀN MẶT - 2 CỘT TỐI ƯU TABLET */}
+        {method === 'CASH' && (
+          <div
             style={{
-              fontSize: 32,
-              fontWeight: 700,
-              color: 'var(--color-brand-800)',
+              display: 'grid',
+              gridTemplateColumns: '1.05fr 0.95fr',
+              gap: 16,
+              alignItems: 'start',
             }}
           >
-            {formatVND(totalAmount)}
-          </span>
-        </div>
-
-        {/* Luồng TIỀN MẶT */}
-        {method === 'CASH' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {/* Gợi ý mệnh giá */}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {suggestionValues.map((sug, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setTenderedStr(sug.value.toString())}
-                  className="touch-press"
+            {/* Cột trái: Số tiền cần thanh toán, Mệnh giá gợi ý, Khách đưa & Tiền thối */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Số tiền cần thanh toán */}
+              <div
+                style={{
+                  padding: '10px 14px',
+                  background: 'var(--color-brand-50)',
+                  borderRadius: 'var(--radius-control)',
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  justifyContent: 'space-between',
+                  border: '1px solid var(--color-brand-200)',
+                }}
+              >
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-muted)' }}>
+                  Cần thanh toán:
+                </span>
+                <span
+                  className="money"
                   style={{
-                    height: 44,
-                    padding: '0 16px',
-                    borderRadius: 'var(--radius-control)',
-                    border: '1px solid var(--color-border-control)',
-                    background: tenderedAmount === sug.value ? 'var(--color-brand-100)' : 'var(--color-surface)',
-                    color: tenderedAmount === sug.value ? 'var(--color-brand-800)' : 'var(--color-text)',
-                    fontSize: 15,
-                    fontWeight: 600,
-                    cursor: 'pointer',
+                    fontSize: 26,
+                    fontWeight: 700,
+                    color: 'var(--color-brand-800)',
                   }}
                 >
-                  {sug.label}
-                </button>
-              ))}
-            </div>
+                  {formatVND(totalAmount)}
+                </span>
+              </div>
 
-            {/* Khối hiển thị: Khách đưa & Tiền thối */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              {/* Gợi ý mệnh giá tròn tiền */}
               <div>
-                <label style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 500, display: 'block', marginBottom: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: 6 }}>
+                  Gợi ý tiền đưa nhanh:
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {suggestionValues.map((sug, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setTenderedStr(sug.value.toString())}
+                      className="touch-press"
+                      style={{
+                        height: 38,
+                        padding: '0 12px',
+                        borderRadius: 'var(--radius-control)',
+                        border: '1px solid var(--color-border-control)',
+                        background: tenderedAmount === sug.value ? 'var(--color-brand-100)' : 'var(--color-surface)',
+                        color: tenderedAmount === sug.value ? 'var(--color-brand-800)' : 'var(--color-text)',
+                        fontSize: 14,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {sug.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Khối Khách đưa */}
+              <div>
+                <label style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 600, display: 'block', marginBottom: 4 }}>
                   Khách đưa:
                 </label>
                 <div
                   className="money"
                   style={{
-                    height: 52,
+                    height: 48,
                     padding: '0 14px',
                     background: 'var(--color-surface)',
                     border: '2px solid var(--color-brand-600)',
@@ -251,7 +266,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-end',
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: 700,
                     color: 'var(--color-text)',
                   }}
@@ -260,18 +275,18 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
                 </div>
               </div>
 
+              {/* Khối Tiền thối trả khách / Thiếu */}
               <div>
-                <label style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 500, display: 'block', marginBottom: 4 }}>
+                <label style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 600, display: 'block', marginBottom: 4 }}>
                   {isSufficient ? 'Tiền thối trả khách:' : 'Khách đưa còn thiếu:'}
                 </label>
-                {/* Tiền thối là chữ lớn nhất (text-3xl / 32px) per DESIGN.md §5.4 */}
                 <div
                   className="money"
                   style={{
                     height: 52,
                     padding: '0 14px',
                     borderRadius: 'var(--radius-control)',
-                    border: `1px solid ${isSufficient ? 'var(--color-success)' : 'var(--color-danger)'}`,
+                    border: `2px solid ${isSufficient ? 'var(--color-success)' : 'var(--color-danger)'}`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-end',
@@ -284,20 +299,38 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
                   {isSufficient ? formatVND(changeAmount) : formatVND(shortageAmount)}
                 </div>
               </div>
+
+              {/* Báo lỗi nếu có */}
+              {errorMsg && (
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: 'var(--radius-control)',
+                    background: 'var(--color-danger-bg)',
+                    color: 'var(--color-danger)',
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
+                >
+                  {errorMsg}
+                </div>
+              )}
             </div>
 
-            {/* Bàn phím số Numpad 64px kèm nút Xóa */}
-            <Numpad
-              onDigit={handleDigit}
-              onClear={() => setTenderedStr('')}
-              onBackspace={handleBackspace}
-            />
+            {/* Cột phải: Bàn phím số Numpad 64px kèm nút Xóa */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <Numpad
+                onDigit={handleDigit}
+                onClear={() => setTenderedStr('')}
+                onBackspace={handleBackspace}
+              />
+            </div>
           </div>
         )}
 
         {/* Luồng CHUYỂN KHOẢN */}
         {method === 'TRANSFER' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '12px 0' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '4px 0' }}>
             <div
               style={{
                 padding: 16,
@@ -311,12 +344,12 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
               </div>
               <div
                 className="money"
-                style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-brand-600)', margin: '8px 0' }}
+                style={{ fontSize: 32, fontWeight: 700, color: 'var(--color-brand-600)', margin: '8px 0' }}
               >
                 {formatVND(totalAmount)}
               </div>
               <div style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
-                Nội dung chuyển khoản: #{invoice.invoice_code}
+                Nội dung chuyển khoản: <strong style={{ color: 'var(--color-text)' }}>#{invoice.invoice_code}</strong>
               </div>
             </div>
 
@@ -357,28 +390,27 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
                 type="checkbox"
                 checked={transferConfirmed}
                 onChange={(e) => setTransferConfirmed(e.target.checked)}
-                style={{ width: 20, height: 20, accentColor: 'var(--color-success)' }}
+                style={{ width: 22, height: 22, accentColor: 'var(--color-success)' }}
               />
               <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text)' }}>
-                Thu ngân đã kiểm tra tài khoản và xác nhận nhận đủ tiền (BR-33)
+                Thu ngân đã kiểm tra tài khoản và xác nhận nhận đủ tiền
               </span>
             </label>
-          </div>
-        )}
 
-        {/* Báo lỗi nếu có */}
-        {errorMsg && (
-          <div
-            style={{
-              padding: '10px 14px',
-              borderRadius: 'var(--radius-control)',
-              background: 'var(--color-danger-bg)',
-              color: 'var(--color-danger)',
-              fontSize: 14,
-              fontWeight: 600,
-            }}
-          >
-            {errorMsg}
+            {errorMsg && (
+              <div
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: 'var(--radius-control)',
+                  background: 'var(--color-danger-bg)',
+                  color: 'var(--color-danger)',
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}
+              >
+                {errorMsg}
+              </div>
+            )}
           </div>
         )}
       </div>

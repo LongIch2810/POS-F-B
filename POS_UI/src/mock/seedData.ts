@@ -27,7 +27,9 @@ export const INITIAL_STORES: Store[] = [
   {
     id: 'store-1',
     name: 'Cà phê Ông Long',
-    code: 'OL',
+    phone: '0905123456',
+    email: 'onglong@caphe.vn',
+    address: '123 Lý Thường Kiệt, TP. Đồng Hới, Quảng Bình',
     status: 'ACTIVE',
     created_at: '2026-01-01T00:00:00Z',
     updated_at: '2026-01-01T00:00:00Z',
@@ -35,7 +37,9 @@ export const INITIAL_STORES: Store[] = [
   {
     id: 'store-2',
     name: 'Trà sữa Nhà Mộc',
-    code: 'NM',
+    phone: '0912345678',
+    email: 'moc@trasua.vn',
+    address: '88 Trần Hưng Đạo, TP. Đồng Hới, Quảng Bình',
     status: 'SUSPENDED',
     suspended_reason: 'Chưa thanh toán phí dịch vụ định kỳ',
     suspended_at: '2026-10-25T08:00:00Z',
@@ -143,13 +147,13 @@ export const INITIAL_CATEGORY_TOPPINGS: CategoryTopping[] = [
 ];
 
 export const INITIAL_INGREDIENTS: Ingredient[] = [
-  { id: 'ing-1', store_id: 'store-1', name: 'Hạt cà phê Robusta', unit: 'g' },
-  { id: 'ing-2', store_id: 'store-1', name: 'Sữa đặc Ông Thọ', unit: 'g' },
-  { id: 'ing-3', store_id: 'store-1', name: 'Sữa tươi DalatMilk', unit: 'ml' },
-  { id: 'ing-4', store_id: 'store-1', name: 'Trà đen Phúc Long', unit: 'g' },
-  { id: 'ing-5', store_id: 'store-1', name: 'Đường cát Biên Hòa', unit: 'g' },
-  { id: 'ing-6', store_id: 'store-1', name: 'Cam tươi Sành', unit: 'quả' },
-  { id: 'ing-7', store_id: 'store-1', name: 'Trân châu thô', unit: 'g' },
+  { id: 'ing-1', store_id: 'store-1', name: 'Hạt cà phê Robusta', unit: 'g', is_active: true },
+  { id: 'ing-2', store_id: 'store-1', name: 'Sữa đặc Ông Thọ', unit: 'g', is_active: true },
+  { id: 'ing-3', store_id: 'store-1', name: 'Sữa tươi DalatMilk', unit: 'ml', is_active: true },
+  { id: 'ing-4', store_id: 'store-1', name: 'Trà đen Phúc Long', unit: 'g', is_active: true },
+  { id: 'ing-5', store_id: 'store-1', name: 'Đường cát Biên Hòa', unit: 'g', is_active: true },
+  { id: 'ing-6', store_id: 'store-1', name: 'Cam tươi Sành', unit: 'quả', is_active: true },
+  { id: 'ing-7', store_id: 'store-1', name: 'Trân châu thô', unit: 'g', is_active: true },
 ];
 
 export const INITIAL_RECIPES: ProductSizeIngredient[] = [
@@ -277,6 +281,17 @@ export const INITIAL_USERS: User[] = [
     must_change_password: true, // test BR-84: buộc đổi mật khẩu lần đầu
     is_active: true,
     created_at: '2026-10-27T00:00:00Z',
+  },
+  {
+    id: 'user-staff-nl',
+    store_id: 'store-1',
+    branch_id: 'branch-nl',
+    role_code: 'CASHIER',
+    username: 'hoa_barista',
+    full_name: 'Trần Thị Hoa (Pha chế)',
+    must_change_password: false,
+    is_active: true,
+    created_at: '2026-01-05T00:00:00Z',
   },
 ];
 
@@ -487,6 +502,14 @@ export const INITIAL_INVOICES: Invoice[] = [
 ];
 
 export const INITIAL_STOCK_MOVEMENTS: StockMovement[] = [
+  // Tồn ban đầu chi nhánh Nam Lý (BR-45: tồn kho phải khớp tổng biến động)
+  { id: 'sm-nl-init-1', branch_id: 'branch-nl', ingredient_id: 'ing-1', movement_type: 'IMPORT', quantity: 4540, balance_after: 4540, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-nl-init-2', branch_id: 'branch-nl', ingredient_id: 'ing-2', movement_type: 'IMPORT', quantity: 3200, balance_after: 3200, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-nl-init-3', branch_id: 'branch-nl', ingredient_id: 'ing-3', movement_type: 'IMPORT', quantity: 5000, balance_after: 5000, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-nl-init-4', branch_id: 'branch-nl', ingredient_id: 'ing-4', movement_type: 'IMPORT', quantity: 1800, balance_after: 1800, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-nl-init-5', branch_id: 'branch-nl', ingredient_id: 'ing-5', movement_type: 'IMPORT', quantity: 8030, balance_after: 8030, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-nl-init-7', branch_id: 'branch-nl', ingredient_id: 'ing-7', movement_type: 'IMPORT', quantity: 1200, balance_after: 1200, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  // Biến động xuất bán chi nhánh Nam Lý
   {
     id: 'sm-1',
     branch_id: 'branch-nl',
@@ -509,6 +532,24 @@ export const INITIAL_STOCK_MOVEMENTS: StockMovement[] = [
     note: 'Xuất kho theo hóa đơn NL-20261027-0002',
     created_at: '2026-10-27T08:45:00Z',
   },
+  {
+    id: 'sm-nl-sale-cam',
+    branch_id: 'branch-nl',
+    ingredient_id: 'ing-6',
+    movement_type: 'SALE',
+    quantity: -3, // Xuất âm khi chưa kịp nhập kho để kiểm tra cảnh báo tồn âm
+    balance_after: -3,
+    note: 'Xuất bán pha chế trực tiếp (tồn kho âm)',
+    created_at: '2026-10-27T08:50:00Z',
+  },
+  // Tồn ban đầu chi nhánh Đồng Hới
+  { id: 'sm-dh-init-1', branch_id: 'branch-dh', ingredient_id: 'ing-1', movement_type: 'IMPORT', quantity: 6000, balance_after: 6000, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-dh-init-2', branch_id: 'branch-dh', ingredient_id: 'ing-2', movement_type: 'IMPORT', quantity: 4000, balance_after: 4000, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-dh-init-3', branch_id: 'branch-dh', ingredient_id: 'ing-3', movement_type: 'IMPORT', quantity: 4000, balance_after: 4000, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-dh-init-4', branch_id: 'branch-dh', ingredient_id: 'ing-4', movement_type: 'IMPORT', quantity: 2500, balance_after: 2500, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-dh-init-5', branch_id: 'branch-dh', ingredient_id: 'ing-5', movement_type: 'IMPORT', quantity: 9000, balance_after: 9000, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-dh-init-6', branch_id: 'branch-dh', ingredient_id: 'ing-6', movement_type: 'IMPORT', quantity: 15, balance_after: 15, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
+  { id: 'sm-dh-init-7', branch_id: 'branch-dh', ingredient_id: 'ing-7', movement_type: 'IMPORT', quantity: 2000, balance_after: 2000, note: 'Nhập kho ban đầu', created_at: '2026-10-26T00:00:00Z' },
 ];
 
 // Ma trận quyền mặc định theo vai trò (BR Mục 15)

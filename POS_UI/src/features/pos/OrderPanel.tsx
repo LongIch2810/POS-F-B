@@ -18,6 +18,8 @@ export interface OrderPanelProps {
   onChangeTable?: () => void;
   onAddMoreItems?: () => void;
   isTablesMode?: boolean;
+  onCreateTakeaway?: () => void;
+  onCloseMobileDrawer?: () => void;
 }
 
 export const OrderPanel: React.FC<OrderPanelProps> = ({
@@ -31,6 +33,8 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
   onChangeTable,
   onAddMoreItems,
   isTablesMode,
+  onCreateTakeaway,
+  onCloseMobileDrawer,
 }) => {
   const { showToast } = useToast();
   const [promoCodeInput, setPromoCodeInput] = useState('');
@@ -41,7 +45,8 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
     return (
       <div
         style={{
-          width: 400,
+          width: '100%',
+          maxWidth: 400,
           background: 'var(--color-surface)',
           borderLeft: '1px solid var(--color-border)',
           display: 'flex',
@@ -51,6 +56,7 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
           padding: 32,
           textAlign: 'center',
           color: 'var(--color-text-muted)',
+          height: '100%',
         }}
       >
         <div
@@ -70,9 +76,32 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
         <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
           Chưa chọn bàn hoặc đơn
         </h3>
-        <p style={{ fontSize: 14, lineHeight: '22px', maxWidth: 280 }}>
-          Chọn một bàn còn trống từ sơ đồ phòng bàn hoặc tạo đơn mang đi để bắt đầu phục vụ.
+        <p style={{ fontSize: 14, lineHeight: '22px', maxWidth: 280, marginBottom: 16 }}>
+          Chọn một bàn còn trống từ sơ đồ phòng bàn hoặc bấm tạo đơn mang đi để bắt đầu phục vụ.
         </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 220 }}>
+          {onCreateTakeaway && (
+            <Button
+              variant="primary"
+              size="md"
+              icon={<ShoppingBag size={18} />}
+              onClick={onCreateTakeaway}
+            >
+              Tạo đơn mang đi
+            </Button>
+          )}
+          {onChangeTable && (
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={<UtensilsCrossed size={16} />}
+              onClick={onChangeTable}
+            >
+              Xem sơ đồ bàn
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
@@ -156,18 +185,42 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
             </button>
           )}
         </div>
-        <span
-          style={{
-            fontSize: 12,
-            fontWeight: 600,
-            padding: '4px 8px',
-            borderRadius: 'var(--radius-pill)',
-            background: isDineIn ? 'var(--color-brand-100)' : 'var(--color-info-bg)',
-            color: isDineIn ? 'var(--color-brand-800)' : 'var(--color-info)',
-          }}
-        >
-          {isDineIn ? 'Tại chỗ' : 'Mang đi'} &bull; #{invoice.invoice_code.split('-').pop()}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              padding: '4px 8px',
+              borderRadius: 'var(--radius-pill)',
+              background: isDineIn ? 'var(--color-brand-100)' : 'var(--color-info-bg)',
+              color: isDineIn ? 'var(--color-brand-800)' : 'var(--color-info)',
+            }}
+          >
+            {isDineIn ? 'Tại chỗ' : 'Mang đi'} &bull; #{invoice.invoice_code.split('-').pop()}
+          </span>
+          {onCloseMobileDrawer && (
+            <button
+              type="button"
+              onClick={onCloseMobileDrawer}
+              aria-label="Đóng giỏ hàng"
+              className="touch-press"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 'var(--radius-control)',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-surface)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: 'var(--color-text)',
+              }}
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Danh sách các dòng món cuộn được */}
@@ -243,7 +296,7 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
                   </button>
                 </div>
 
-                {/* Dòng 3: Bộ tăng giảm số lượng 44px và Thành tiền dòng */}
+                {/* Dòng 3: Bộ tăng giảm số lượng 48px và Thành tiền dòng */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <button
@@ -252,8 +305,8 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
                       aria-label="Giảm số lượng"
                       className="touch-press"
                       style={{
-                        height: 44,
-                        width: 44,
+                        height: 48,
+                        width: 48,
                         borderRadius: 'var(--radius-control)',
                         border: '1px solid var(--color-border-control)',
                         background: 'var(--color-surface)',
@@ -286,8 +339,8 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
                       aria-label="Tăng số lượng"
                       className="touch-press"
                       style={{
-                        height: 44,
-                        width: 44,
+                        height: 48,
+                        width: 48,
                         borderRadius: 'var(--radius-control)',
                         border: '1px solid var(--color-border-control)',
                         background: 'var(--color-surface)',

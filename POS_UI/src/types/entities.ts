@@ -5,7 +5,9 @@ export type StoreStatus = 'ACTIVE' | 'SUSPENDED';
 export interface Store {
   id: string;
   name: string;
-  code: string;
+  phone?: string;
+  email?: string;
+  address?: string;
   status: StoreStatus;
   suspended_reason?: string;
   suspended_at?: string;
@@ -83,6 +85,7 @@ export interface Ingredient {
   store_id: string;
   name: string;
   unit: string; // g, ml, quả, cái...
+  is_active: boolean;
 }
 
 export interface ProductSizeIngredient {
@@ -104,7 +107,7 @@ export interface BranchIngredientStock {
   min_stock: number; // Ngưỡng tối thiểu
 }
 
-export type StockMovementType = 'SALE' | 'SALE_REVERSAL';
+export type StockMovementType = 'SALE' | 'SALE_REVERSAL' | 'IMPORT';
 
 export interface StockMovement {
   id: string;
@@ -133,6 +136,7 @@ export interface WorkShift {
   ended_at?: string;
   closed_by?: string;
   close_reason?: string;
+  force_closed_by?: string;
 }
 
 export interface CashReconciliation {

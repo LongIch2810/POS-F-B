@@ -19,6 +19,7 @@ import {
   ChevronDown,
   UtensilsCrossed,
   UserCheck,
+  LogOut,
 } from 'lucide-react';
 
 export type NavTab =
@@ -41,7 +42,7 @@ interface AppShellProps {
 }
 
 export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, children }) => {
-  const { session } = useAuth();
+  const { session, logout } = useAuth();
   const user = session.user;
   const isPlatformAdmin = user.role_code === 'PLATFORM_ADMIN';
   const isOwner = user.role_code === 'OWNER';
@@ -72,27 +73,28 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
   const myShift = shiftService.getMyActiveShift();
   const hasOpenShift = myShift && myShift.status === 'OPEN';
 
-  // Danh sách Navigation Items theo quyền
-  const navItems = isPlatformAdmin
-    ? [
-        { id: 'platform_stores' as NavTab, label: 'Cửa hàng', icon: <Building2 size={24} /> },
-        { id: 'platform_owners' as NavTab, label: 'Chủ quán', icon: <UserCheck size={24} /> },
-        { id: 'platform_permissions' as NavTab, label: 'Phân quyền', icon: <ShieldCheck size={24} /> },
-      ]
-    : [
-        { id: 'pos' as NavTab, label: 'Bán hàng', icon: <ShoppingBag size={24} /> },
-        { id: 'tables' as NavTab, label: 'Sơ đồ bàn', icon: <LayoutGrid size={24} /> },
-        { id: 'invoices' as NavTab, label: 'Hóa đơn', icon: <Receipt size={24} /> },
-        { id: 'shifts' as NavTab, label: 'Ca làm', icon: <Clock size={24} /> },
-        { id: 'inventory' as NavTab, label: 'Kho hàng', icon: <Boxes size={24} /> },
-        { id: 'reports' as NavTab, label: 'Báo cáo', icon: <BarChart3 size={24} /> },
-        ...(isOwner || user.role_code === 'MANAGER'
-          ? [
-              { id: 'products' as NavTab, label: 'Thực đơn', icon: <UtensilsCrossed size={24} /> },
-              { id: 'settings' as NavTab, label: 'Cài đặt', icon: <Settings size={24} /> },
-            ]
-          : []),
-      ];
+  const perms = session.permissions || [];
+  const has = (p: string) => perms.includes(p as any);
+
+  // Danh sách Navigation Items theo quyền động (BR-05)
+  const allNavItems: { id: NavTab; label: string; icon: React.ReactNode; visible: boolean }[] = [
+    // Quản trị nền tảng
+    { id: 'platform_stores', label: 'Cửa hàng', icon: <Building2 size={24} />, visible: isPlatformAdmin && has('store.manage') },
+    { id: 'platform_owners', label: 'Chủ quán', icon: <UserCheck size={24} />, visible: isPlatformAdmin && has('store.manage') },
+    { id: 'platform_permissions', label: 'Phân quyền', icon: <ShieldCheck size={24} />, visible: isPlatformAdmin && has('role.manage_permissions') },
+
+    // Nghiệp vụ bán hàng & vận hành cửa hàng
+    { id: 'pos', label: 'Bán hàng', icon: <ShoppingBag size={24} />, visible: !isPlatformAdmin && has('pos.sell') },
+    { id: 'tables', label: 'Sơ đồ bàn', icon: <LayoutGrid size={24} />, visible: !isPlatformAdmin && (has('pos.sell') || has('table.manage')) },
+    { id: 'invoices', label: 'Hóa đơn', icon: <Receipt size={24} />, visible: !isPlatformAdmin && (has('pos.sell') || has('invoice.cancel_open') || has('invoice.cancel_paid')) },
+    { id: 'shifts', label: 'Ca làm', icon: <Clock size={24} />, visible: !isPlatformAdmin && (has('shift.open_close') || has('shift.force_close')) },
+    { id: 'inventory', label: 'Kho hàng', icon: <Boxes size={24} />, visible: !isPlatformAdmin && has('inventory.view') },
+    { id: 'reports', label: 'Báo cáo', icon: <BarChart3 size={24} />, visible: !isPlatformAdmin && (has('report.view_shift') || has('report.view_branch') || has('report.view_all')) },
+    { id: 'products', label: 'Thực đơn', icon: <UtensilsCrossed size={24} />, visible: !isPlatformAdmin && has('product.manage') },
+    { id: 'settings', label: 'Cài đặt', icon: <Settings size={24} />, visible: !isPlatformAdmin && (has('branch.manage') || has('table.manage')) },
+  ];
+
+  const navItems = allNavItems.filter((item) => item.visible);
 
   const currentBranchName =
     accessibleBranches.find((b) => b.id === selectedBranchId)?.name || session.branch_name || 'Chi nhánh';
@@ -326,16 +328,46 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
             </div>
           )}
 
-          {/* Bên phải: Tên người dùng & vai trò */}
+          {/* Bên phải: Tên người dùng, vai trò & Đăng xuất */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
                 {user.full_name}
               </div>
               <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                {user.role_code}
+                {user.role_code === 'PLATFORM_ADMIN'
+                  ? 'Quản trị nền tảng'
+                  : user.role_code === 'OWNER'
+                  ? 'Chủ cửa hàng'
+                  : user.role_code === 'MANAGER'
+                  ? 'Quản lý chi nhánh'
+                  : 'Thu ngân'}
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={logout}
+              title="Đăng xuất khỏi tài khoản"
+              style={{
+                height: 38,
+                padding: '0 12px',
+                borderRadius: 'var(--radius-control)',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-surface)',
+                color: 'var(--color-danger, #DC2626)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 150ms ease',
+              }}
+            >
+              <LogOut size={16} />
+              <span>Đăng xuất</span>
+            </button>
           </div>
         </header>
 

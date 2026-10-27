@@ -38,7 +38,7 @@ export const OpenShiftGate: React.FC<OpenShiftGateProps> = ({ branchId, branchNa
     if (!reportReason.trim()) return;
     showToast({
       type: 'info',
-      message: 'Đã gửi biên bản báo lệch tiền giao ca đến Quản lý chi nhánh (BR-102).',
+      message: 'Đã gửi biên bản báo lệch tiền giao ca đến Quản lý chi nhánh.',
     });
     setReportModalOpen(false);
     setReportReason('');
@@ -138,7 +138,7 @@ export const OpenShiftGate: React.FC<OpenShiftGateProps> = ({ branchId, branchNa
               padding: '6px 12px',
             }}
           >
-            Báo lệch tiền giao ca cho Quản lý (BR-102)
+            Báo lệch tiền giao ca cho Quản lý
           </button>
         </div>
       </div>

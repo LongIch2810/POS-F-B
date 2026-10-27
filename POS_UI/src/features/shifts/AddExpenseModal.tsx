@@ -35,12 +35,12 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
 
     const amount = amountStr ? BigInt(amountStr) : 0n;
     if (amount <= 0n) {
-      setError('Số tiền chi phải lớn hơn 0 (BR-52)');
+      setError('Số tiền chi phải lớn hơn 0');
       return;
     }
 
     if (!reason.trim()) {
-      setError('Bắt buộc phải nhập lý do chi (BR-52)');
+      setError('Bắt buộc phải nhập lý do chi');
       return;
     }
 
@@ -126,7 +126,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
           />
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
-              Lấy tiền trực tiếp từ két tiền mặt (BR-53)
+              Lấy tiền trực tiếp từ két tiền mặt
             </div>
             <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
               Khoản này sẽ được trừ vào số tiền kỳ vọng khi đối soát ca

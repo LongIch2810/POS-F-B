@@ -3,15 +3,15 @@
 import { MockEngine } from '../mock/mockEngine';
 import { mockStorage } from '../mock/mockStorage';
 import { Store, Branch, DiningTable } from '../types/entities';
-import { User, PermissionCode } from '../types/auth';
+import { User, PermissionCode, RoleCode } from '../types/auth';
 
 export const adminService = {
   getStores(): Store[] {
     return mockStorage.getState().stores;
   },
 
-  createStore(name: string, code: string): Promise<Store> {
-    return Promise.resolve(MockEngine.createStore(name, code));
+  createStore(name: string, phone?: string, address?: string, email?: string): Promise<Store> {
+    return Promise.resolve(MockEngine.createStore(name, phone, address, email));
   },
 
   setStoreStatus(storeId: string, status: 'ACTIVE' | 'SUSPENDED', reason?: string): Promise<Store> {
@@ -53,23 +53,65 @@ export const adminService = {
     return Promise.resolve();
   },
 
-  // Quản lý chi nhánh, bàn, nhân viên cho OWNER
+  // Quản lý chi nhánh, bàn, nhân viên cho OWNER & MANAGER
   getBranches(storeId: string): Branch[] {
     return mockStorage.getState().branches.filter((b) => b.store_id === storeId);
+  },
+
+  createBranch(name: string, code: string, address?: string, initialCash?: bigint): Promise<Branch> {
+    return Promise.resolve(MockEngine.createBranch(name, code, address, initialCash));
+  },
+
+  updateBranch(branchId: string, updates: { name?: string; address?: string; initial_cash?: bigint }): Promise<Branch> {
+    return Promise.resolve(MockEngine.updateBranch(branchId, updates));
+  },
+
+  toggleBranchActive(branchId: string): Promise<Branch> {
+    return Promise.resolve(MockEngine.toggleBranchActive(branchId));
   },
 
   getDiningTables(branchId: string): DiningTable[] {
     return mockStorage.getState().tables.filter((t) => t.branch_id === branchId);
   },
 
+  isTableOccupied(tableId: string): boolean {
+    return MockEngine.isTableOccupied(tableId);
+  },
+
+  createTable(branchId: string, name: string, area: string, seatCount?: number): Promise<DiningTable> {
+    return Promise.resolve(MockEngine.createTable(branchId, name, area, seatCount));
+  },
+
+  updateTable(tableId: string, updates: { name?: string; area?: string; seat_count?: number }): Promise<DiningTable> {
+    return Promise.resolve(MockEngine.updateTable(tableId, updates));
+  },
+
+  toggleTableActive(tableId: string): Promise<DiningTable> {
+    return Promise.resolve(MockEngine.toggleTableActive(tableId));
+  },
+
   getUsersByStore(storeId: string): User[] {
     return mockStorage.getState().users.filter((u) => u.store_id === storeId);
   },
 
-  toggleUserActive(userId: string): Promise<void> {
-    mockStorage.setState((prev) => ({
-      users: prev.users.map((u) => (u.id === userId ? { ...u, is_active: !u.is_active } : u)),
-    }));
-    return Promise.resolve();
+  createStaffUser(
+    branchId: string,
+    username: string,
+    fullName: string,
+    roleCode: 'MANAGER' | 'CASHIER'
+  ): Promise<{ user: User; tempPassword: string }> {
+    return Promise.resolve(MockEngine.createStaffUser(branchId, username, fullName, roleCode));
+  },
+
+  toggleUserActive(userId: string): Promise<User> {
+    return Promise.resolve(MockEngine.toggleUserActive(userId));
+  },
+
+  updateUserRole(userId: string, newRole: RoleCode): Promise<User> {
+    return Promise.resolve(MockEngine.updateUserRole(userId, newRole));
+  },
+
+  resetUserPassword(userId: string): Promise<{ user: User; tempPassword: string }> {
+    return Promise.resolve(MockEngine.resetUserPassword(userId));
   },
 };

@@ -115,7 +115,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   onClick={() => setActiveCategoryId(cat.id)}
                   className="touch-press"
                   style={{
-                    height: 44,
+                    height: 48,
                     padding: '0 16px',
                     background: 'transparent',
                     border: 'none',

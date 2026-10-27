@@ -2,7 +2,7 @@
 
 import { MockEngine } from '../mock/mockEngine';
 import { mockStorage } from '../mock/mockStorage';
-import { WorkShift, CashReconciliation, ShiftExpense } from '../types/entities';
+import { WorkShift, CashReconciliation, ShiftExpense, Invoice } from '../types/entities';
 
 export const shiftService = {
   getMyActiveShift(): WorkShift | undefined {
@@ -27,6 +27,27 @@ export const shiftService = {
     note?: string
   ): Promise<{ reconciliation: CashReconciliation; shift: WorkShift }> {
     return Promise.resolve(MockEngine.closeShiftBlind(shiftId, countedCash, note));
+  },
+
+  getOpenInvoicesForShift(shiftId: string): (Invoice & { tableName?: string })[] {
+    return MockEngine.getOpenInvoicesForShift(shiftId);
+  },
+
+  forceCloseShift(
+    shiftId: string,
+    managerId: string,
+    countedCash: bigint,
+    reason: string
+  ): Promise<{ reconciliation: CashReconciliation; shift: WorkShift }> {
+    return Promise.resolve(MockEngine.forceCloseShift(shiftId, managerId, countedCash, reason));
+  },
+
+  checkInStaffShift(userId: string, branchId: string): Promise<WorkShift> {
+    return Promise.resolve(MockEngine.checkInStaffShift(userId, branchId));
+  },
+
+  checkOutStaffShift(shiftId: string): Promise<WorkShift> {
+    return Promise.resolve(MockEngine.checkOutStaffShift(shiftId));
   },
 
   getShiftHistory(branchId?: string): { shift: WorkShift; reconciliation?: CashReconciliation; expenses: ShiftExpense[] }[] {

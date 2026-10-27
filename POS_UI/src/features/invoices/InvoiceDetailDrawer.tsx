@@ -45,9 +45,9 @@ export const InvoiceDetailDrawer: React.FC<InvoiceDetailDrawerProps> = ({
     canCancel = true;
   } else if (isPaid) {
     if (!isManagerOrOwner) {
-      cancelDisabledReason = 'Cần quyền quản lý để hủy hóa đơn đã thanh toán (BR-29)';
+      cancelDisabledReason = 'Cần quyền quản lý để hủy hóa đơn đã thanh toán';
     } else if (!isShiftOpen) {
-      cancelDisabledReason = 'Ca của hóa đơn này đã đóng, không thể hủy ở MVP (BR-29)';
+      cancelDisabledReason = 'Ca của hóa đơn này đã đóng, không thể hủy đơn';
     } else {
       canCancel = true;
     }

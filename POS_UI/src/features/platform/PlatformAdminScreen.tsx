@@ -70,7 +70,8 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
   // Modal tạo store
   const [createStoreOpen, setCreateStoreOpen] = useState(false);
   const [newStoreName, setNewStoreName] = useState('');
-  const [newStoreCode, setNewStoreCode] = useState('');
+  const [newStorePhone, setNewStorePhone] = useState('');
+  const [newStoreAddress, setNewStoreAddress] = useState('');
 
   // Modal khóa store
   const [suspendModalStore, setSuspendModalStore] = useState<Store | null>(null);
@@ -97,11 +98,12 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
   const handleCreateStore = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await adminService.createStore(newStoreName, newStoreCode);
+      await adminService.createStore(newStoreName, newStorePhone, newStoreAddress);
       showToast({ type: 'success', message: 'Tạo cửa hàng mới thành công!' });
       setCreateStoreOpen(false);
       setNewStoreName('');
-      setNewStoreCode('');
+      setNewStorePhone('');
+      setNewStoreAddress('');
     } catch (err: any) {
       showToast({ type: 'error', message: err?.message || 'Lỗi tạo cửa hàng' });
     }
@@ -110,7 +112,7 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
   const handleSuspendStore = async () => {
     if (!suspendModalStore) return;
     if (!suspendReason.trim()) {
-      showToast({ type: 'error', message: 'Bắt buộc phải nhập lý do tạm khóa cửa hàng (BR-96)' });
+      showToast({ type: 'error', message: 'Bắt buộc phải nhập lý do tạm khóa cửa hàng' });
       return;
     }
 
@@ -118,7 +120,7 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
       await adminService.setStoreStatus(suspendModalStore.id, 'SUSPENDED', suspendReason);
       showToast({
         type: 'warning',
-        message: `Đã tạm khóa cửa hàng ${suspendModalStore.name}. Toàn bộ người dùng thuộc cửa hàng bị chặn truy cập (BR-82).`,
+        message: `Đã tạm khóa cửa hàng ${suspendModalStore.name}. Toàn bộ người dùng thuộc cửa hàng bị chặn truy cập.`,
       });
       setSuspendModalStore(null);
       setSuspendReason('');
@@ -167,14 +169,15 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
   };
 
   const storeColumns: Column<Store>[] = [
-    { key: 'code', header: 'Mã', render: (s) => <strong>{s.code}</strong> },
     { key: 'name', header: 'Tên cửa hàng', render: (s) => <span style={{ fontWeight: 600 }}>{s.name}</span> },
+    { key: 'phone', header: 'Điện thoại', render: (s) => <span className="num">{s.phone || '—'}</span> },
+    { key: 'address', header: 'Địa chỉ', render: (s) => <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>{s.address || '—'}</span> },
     {
       key: 'status',
       header: 'Trạng thái',
       render: (s) => (
         <Badge variant={s.status === 'ACTIVE' ? 'success' : 'danger'} size="sm">
-          {s.status === 'ACTIVE' ? 'Hoạt động' : 'Tạm khóa (SUSPENDED)'}
+          {s.status === 'ACTIVE' ? 'Hoạt động' : 'Tạm khóa'}
         </Badge>
       ),
     },
@@ -506,11 +509,16 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
             required
           />
           <Field
-            label="Mã định danh cửa hàng (viết liền không dấu)"
-            placeholder="VD: saigonpho"
-            value={newStoreCode}
-            onChange={(e) => setNewStoreCode(e.target.value.toLowerCase().replace(/\s+/g, ''))}
-            required
+            label="Số điện thoại liên hệ"
+            placeholder="VD: 0905123456"
+            value={newStorePhone}
+            onChange={(e) => setNewStorePhone(e.target.value)}
+          />
+          <Field
+            label="Địa chỉ trụ sở"
+            placeholder="VD: 123 Lê Lợi, TP. Huế"
+            value={newStoreAddress}
+            onChange={(e) => setNewStoreAddress(e.target.value)}
           />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
             <Button variant="secondary" onClick={() => setCreateStoreOpen(false)}>
@@ -581,7 +589,7 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
             >
               {stores.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name} ({s.code})
+                  {s.name}
                 </option>
               ))}
             </select>

@@ -8,22 +8,26 @@ import { shiftService } from '../../services/shiftService';
 import { MockEngine } from '../../mock/mockEngine';
 import { mockStorage } from '../../mock/mockStorage';
 import { Invoice, DiningTable, PaymentMethod } from '../../types/entities';
+import { formatVND } from '../../utils/formatters';
 import { ProductGrid } from './ProductGrid';
 import { TableMap } from './TableMap';
 import { OrderPanel } from './OrderPanel';
 import { PaymentDialog } from './PaymentDialog';
 import { OpenShiftGate } from '../shifts/OpenShiftGate';
+import { ShoppingBag, ChevronRight } from 'lucide-react';
 
 export interface PosScreenProps {
   activeMode?: 'pos' | 'tables';
   onSwitchToTables?: () => void;
   onSwitchToPos?: () => void;
+  initialInvoiceId?: string | null;
 }
 
 export const PosScreen: React.FC<PosScreenProps> = ({
   activeMode = 'pos',
   onSwitchToTables,
   onSwitchToPos,
+  initialInvoiceId,
 }) => {
   const { session, isOffline } = useAuth();
   const { showToast } = useToast();
@@ -37,6 +41,32 @@ export const PosScreen: React.FC<PosScreenProps> = ({
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [selectedTable, setSelectedTable] = useState<DiningTable | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPortrait(window.innerWidth < 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Tự động nạp đơn nếu truyền initialInvoiceId từ ngoài (ví dụ từ Đóng ca hoặc Danh sách hóa đơn)
+  useEffect(() => {
+    if (initialInvoiceId) {
+      const inv = mockStorage.getState().invoices.find((i) => i.id === initialInvoiceId);
+      if (inv) {
+        setSelectedInvoice(inv);
+        if (inv.dining_table_id) {
+          const tbl = mockStorage.getState().tables.find((t) => t.id === inv.dining_table_id);
+          setSelectedTable(tbl || null);
+        } else {
+          setSelectedTable(null);
+        }
+      }
+    }
+  }, [initialInvoiceId]);
 
   // Đồng bộ khi prop activeMode thay đổi từ Sidebar
   useEffect(() => {
@@ -208,7 +238,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
   };
 
   return (
-    <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+    <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
       {/* Vùng trái: Thực đơn chọn món (pos) hoặc Sơ đồ bàn (tables) */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {activeTab === 'menu' ? (
@@ -230,19 +260,118 @@ export const PosScreen: React.FC<PosScreenProps> = ({
         )}
       </div>
 
-      {/* Vùng phải: Panel đơn hàng cố định 400px (DESIGN.md §5.2) */}
-      <OrderPanel
-        invoice={selectedInvoice}
-        tableName={selectedTable?.name}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onApplyPromotion={handleApplyPromotion}
-        onRemovePromotion={handleRemovePromotion}
-        onOpenPayment={() => setIsPaymentOpen(true)}
-        onChangeTable={onSwitchToTables || (() => setActiveTab('tables'))}
-        onAddMoreItems={onSwitchToPos || (() => setActiveTab('menu'))}
-        isTablesMode={activeTab === 'tables'}
-      />
+      {/* Vùng phải: Panel đơn hàng cố định 400px (DESIGN.md §5.2) nếu ở màn hình ngang >= 1024px */}
+      {!isPortrait && (
+        <OrderPanel
+          invoice={selectedInvoice}
+          tableName={selectedTable?.name}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveItem={handleRemoveItem}
+          onApplyPromotion={handleApplyPromotion}
+          onRemovePromotion={handleRemovePromotion}
+          onOpenPayment={() => setIsPaymentOpen(true)}
+          onChangeTable={onSwitchToTables || (() => setActiveTab('tables'))}
+          onAddMoreItems={onSwitchToPos || (() => setActiveTab('menu'))}
+          isTablesMode={activeTab === 'tables'}
+          onCreateTakeaway={handleCreateTakeaway}
+        />
+      )}
+
+      {/* Màn hình dọc < 1024px: Thanh giỏ hàng nổi phía dưới */}
+      {isPortrait && (
+        <div
+          onClick={() => setIsCartDrawerOpen(true)}
+          className="touch-press"
+          style={{
+            position: 'absolute',
+            bottom: 12,
+            left: 16,
+            right: 16,
+            height: 56,
+            background: 'var(--color-brand-800)',
+            color: '#ffffff',
+            borderRadius: 'var(--radius-control)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0 16px',
+            boxShadow: 'var(--shadow-overlay)',
+            cursor: 'pointer',
+            zIndex: 40,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <ShoppingBag size={20} />
+            <span style={{ fontWeight: 600, fontSize: 15 }}>
+              {selectedInvoice
+                ? `${selectedInvoice.items.reduce((s, i) => s + i.quantity, 0)} món`
+                : 'Chưa chọn đơn'}
+            </span>
+            {selectedInvoice && (
+              <span className="money" style={{ fontWeight: 700, fontSize: 16 }}>
+                &bull; {formatVND(selectedInvoice.total_amount)}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, fontWeight: 600 }}>
+            <span>{selectedInvoice ? 'Xem đơn & Thanh toán' : 'Mở đơn'}</span>
+            <ChevronRight size={18} />
+          </div>
+        </div>
+      )}
+
+      {/* Màn hình dọc: Slide-in Drawer chứa OrderPanel */}
+      {isPortrait && isCartDrawerOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(26, 34, 38, 0.45)',
+            zIndex: 50,
+            display: 'flex',
+            justifyContent: 'flex-end',
+          }}
+          onClick={() => setIsCartDrawerOpen(false)}
+        >
+          <div
+            style={{
+              width: '85%',
+              maxWidth: 420,
+              height: '100%',
+              background: 'var(--color-surface)',
+              boxShadow: 'var(--shadow-overlay)',
+            }}
+            className="animate-drawer-slide"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <OrderPanel
+              invoice={selectedInvoice}
+              tableName={selectedTable?.name}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRemoveItem={handleRemoveItem}
+              onApplyPromotion={handleApplyPromotion}
+              onRemovePromotion={handleRemovePromotion}
+              onOpenPayment={() => {
+                setIsCartDrawerOpen(false);
+                setIsPaymentOpen(true);
+              }}
+              onChangeTable={() => {
+                setIsCartDrawerOpen(false);
+                if (onSwitchToTables) onSwitchToTables();
+                else setActiveTab('tables');
+              }}
+              onAddMoreItems={() => {
+                setIsCartDrawerOpen(false);
+                if (onSwitchToPos) onSwitchToPos();
+                else setActiveTab('menu');
+              }}
+              isTablesMode={activeTab === 'tables'}
+              onCreateTakeaway={handleCreateTakeaway}
+              onCloseMobileDrawer={() => setIsCartDrawerOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Hộp thoại thanh toán (PaymentDialog) */}
       {isPaymentOpen && selectedInvoice && (

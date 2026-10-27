@@ -7,6 +7,9 @@ import { mockStorage } from '../mock/mockStorage';
 
 interface AuthContextType {
   session: AuthSession;
+  isAuthenticated: boolean;
+  login: (username: string, password?: string) => Promise<void>;
+  logout: () => void;
   switchUser: (userId: string) => Promise<void>;
   forceChangePassword: (newPass: string) => Promise<void>;
   isOffline: boolean;
@@ -18,6 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<AuthSession>(authService.getCurrentSession());
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [isOffline, setIsOffline] = useState<boolean>(authService.isOffline());
 
   useEffect(() => {
@@ -29,9 +33,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => unsubscribe();
   }, []);
 
+  const login = async (username: string, password?: string) => {
+    const newSession = await authService.login(username, password);
+    setSession(newSession);
+    setIsAuthenticated(true);
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+  };
+
   const switchUser = async (userId: string) => {
     const newSession = await authService.switchDemoUser(userId);
     setSession(newSession);
+    setIsAuthenticated(true);
   };
 
   const forceChangePassword = async (newPass: string) => {
@@ -47,6 +62,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const resetAllData = () => {
     authService.resetAllData();
     setSession(authService.getCurrentSession());
+    setIsAuthenticated(true);
     setIsOffline(false);
   };
 
@@ -54,6 +70,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider
       value={{
         session,
+        isAuthenticated,
+        login,
+        logout,
         switchUser,
         forceChangePassword,
         isOffline,

@@ -8,12 +8,14 @@ import { Badge } from '../../components/ui/Badge';
 import { formatVND } from '../../utils/formatters';
 import { mockStorage } from '../../mock/mockStorage';
 import { shiftService } from '../../services/shiftService';
+import { AlertTriangle } from 'lucide-react';
 
 export interface BlindCountCloseShiftModalProps {
   isOpen: boolean;
   onClose: () => void;
   shift: WorkShift;
   onSuccess: () => void;
+  onOpenInvoice?: (invoiceId: string) => void;
 }
 
 const DENOMINATIONS = [500000n, 200000n, 100000n, 50000n, 20000n, 10000n, 5000n, 2000n, 1000n];
@@ -23,6 +25,7 @@ export const BlindCountCloseShiftModal: React.FC<BlindCountCloseShiftModalProps>
   onClose,
   shift,
   onSuccess,
+  onOpenInvoice,
 }) => {
   const [step, setStep] = useState<1 | 2>(1);
   const [counts, setCounts] = useState<Record<string, number>>({});
@@ -35,7 +38,7 @@ export const BlindCountCloseShiftModal: React.FC<BlindCountCloseShiftModalProps>
 
   if (!isOpen) return null;
 
-  // Kiểm tra BR-19: Còn hóa đơn OPEN thì chặn đóng ca
+  // Kiểm tra: Còn hóa đơn OPEN thì chặn đóng ca
   const state = mockStorage.getState();
   const openInvoices = state.invoices.filter((inv) => inv.work_shift_id === shift.id && inv.status === 'OPEN');
 
@@ -59,7 +62,7 @@ export const BlindCountCloseShiftModal: React.FC<BlindCountCloseShiftModalProps>
   const handleProceedToStep2 = () => {
     setErrorMsg('');
     if (openInvoices.length > 0) {
-      setErrorMsg(`Còn ${openInvoices.length} đơn chưa thanh toán. Vui lòng thanh toán hoặc hủy trước khi đóng ca (BR-19)`);
+      setErrorMsg(`Còn ${openInvoices.length} đơn chưa thanh toán. Vui lòng thanh toán hoặc hủy trước khi đóng ca`);
       return;
     }
 
@@ -106,7 +109,7 @@ export const BlindCountCloseShiftModal: React.FC<BlindCountCloseShiftModalProps>
   const handleFinalCloseShift = async () => {
     if (!reconciliationResult) return;
     if (reconciliationResult.difference !== 0n && !note.trim()) {
-      setErrorMsg('Ca có chênh lệch tiền mặt, bắt buộc phải nhập ghi chú giải trình (BR-60)');
+      setErrorMsg('Ca có chênh lệch tiền mặt, bắt buộc phải nhập ghi chú giải trình');
       return;
     }
 
@@ -126,7 +129,7 @@ export const BlindCountCloseShiftModal: React.FC<BlindCountCloseShiftModalProps>
       isOpen={isOpen}
       onClose={onClose}
       title={step === 1 ? 'Đóng ca: Bước 1 - Đếm tiền trong két (Đếm mù)' : 'Đóng ca: Bước 2 - Kết quả đối soát'}
-      maxWidth={520}
+      maxWidth={540}
       footer={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <Button variant="secondary" onClick={step === 1 ? onClose : () => setStep(1)} disabled={isSubmitting}>
@@ -155,24 +158,67 @@ export const BlindCountCloseShiftModal: React.FC<BlindCountCloseShiftModalProps>
         </div>
       }
     >
-      {/* Cảnh báo BR-19: Còn đơn mở */}
+      {/* Cảnh báo: Còn đơn mở */}
       {openInvoices.length > 0 && (
         <div
           style={{
             padding: 14,
             borderRadius: 'var(--radius-control)',
             background: 'var(--color-danger-bg)',
+            border: '1px solid var(--color-danger)',
             color: 'var(--color-danger)',
             marginBottom: 16,
-            fontSize: 14,
-            fontWeight: 500,
           }}
         >
-          <div style={{ fontWeight: 700, marginBottom: 4 }}>
-            Không thể đóng ca (BR-19)
+          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <AlertTriangle size={18} />
+            <span>Không thể đóng ca do còn đơn chưa thanh toán</span>
           </div>
-          Còn {openInvoices.length} đơn chưa thanh toán thuộc ca này ({openInvoices.map((i) => i.invoice_code).join(', ')}).
-          Vui lòng thanh toán hoặc hủy các đơn này trước.
+          <p style={{ fontSize: 13, marginBottom: 10, color: 'var(--color-text)' }}>
+            Hệ thống quy định không được đóng ca khi còn đơn mở thuộc ca này ({openInvoices.length} đơn). Vui lòng thanh toán hoặc hủy đơn:
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 180, overflowY: 'auto' }}>
+            {openInvoices.map((inv) => {
+              const tableName = inv.dining_table_id
+                ? state.tables.find((t) => t.id === inv.dining_table_id)?.name || 'Bàn'
+                : 'Mang đi';
+              return (
+                <div
+                  key={inv.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    background: 'var(--color-surface)',
+                    borderRadius: 'var(--radius-control)',
+                    border: '1px solid var(--color-border)',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text)' }}>
+                      #{inv.invoice_code} &bull; {tableName}
+                    </div>
+                    <div className="money" style={{ fontSize: 13, color: 'var(--color-brand-700)', fontWeight: 600 }}>
+                      {formatVND(inv.total_amount)}
+                    </div>
+                  </div>
+                  {onOpenInvoice && (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => {
+                        onClose();
+                        onOpenInvoice(inv.id);
+                      }}
+                    >
+                      Mở đơn thanh toán
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -428,7 +474,7 @@ export const BlindCountCloseShiftModal: React.FC<BlindCountCloseShiftModalProps>
           {/* Ô ghi chú (bắt buộc khi lệch tiền per BR-60) */}
           <div>
             <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', display: 'block', marginBottom: 6 }}>
-              Ghi chú {reconciliationResult.difference !== 0n ? '(Bắt buộc khi lệch tiền - BR-60)' : '(Không bắt buộc)'}:
+              Ghi chú {reconciliationResult.difference !== 0n ? '(Bắt buộc khi lệch tiền)' : '(Không bắt buộc)'}:
             </label>
             <textarea
               rows={3}
