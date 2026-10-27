@@ -157,16 +157,21 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleRemove(r.ingredient_id)}
-                    aria-label="Xóa nguyên liệu"
+                    aria-label={`Xóa nguyên liệu ${r.ingredientName} khỏi công thức`}
                     style={{
+                      minWidth: 44,
+                      minHeight: 44,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       background: 'transparent',
                       border: 'none',
+                      borderRadius: 'var(--radius-control)',
                       color: 'var(--color-danger)',
                       cursor: 'pointer',
-                      display: 'flex',
                     }}
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={18} />
                   </button>
                 </div>
               </div>
@@ -190,6 +195,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: 10, alignItems: 'center' }}>
             <select
+              aria-label="Chọn nguyên liệu"
               value={selectedIngredientId}
               onChange={(e) => setSelectedIngredientId(e.target.value)}
               style={{
@@ -198,6 +204,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
                 borderRadius: 'var(--radius-control)',
                 border: '1px solid var(--color-border-control)',
                 background: 'var(--color-surface)',
+                color: 'var(--color-text)',
                 fontSize: 14,
               }}
             >
@@ -211,6 +218,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <input
                 type="number"
+                aria-label="Nhập định lượng nguyên liệu"
                 placeholder="Định lượng"
                 value={quantityInput}
                 onChange={(e) => setQuantityInput(e.target.value)}
@@ -221,6 +229,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
                   borderRadius: 'var(--radius-control)',
                   border: '1px solid var(--color-border-control)',
                   background: 'var(--color-surface)',
+                  color: 'var(--color-text)',
                   fontSize: 14,
                   textAlign: 'right',
                 }}
@@ -238,7 +247,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
               </span>
             </div>
 
-            <Button variant="primary" size="md" style={{ height: 44 }} icon={<Plus size={16} />} onClick={handleAddOrUpdate}>
+            <Button variant="primary" size="md" style={{ minHeight: 44 }} icon={<Plus size={16} />} onClick={handleAddOrUpdate}>
               Thêm
             </Button>
           </div>

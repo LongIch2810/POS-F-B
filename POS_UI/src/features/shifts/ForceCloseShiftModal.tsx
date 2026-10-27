@@ -64,23 +64,36 @@ export const ForceCloseShiftModal: React.FC<ForceCloseShiftModalProps> = ({
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title="Đóng ca cưỡng chế (Quản lý / Chủ quán)"
+      title={
+        openInvoices.length > 0
+          ? 'Chưa thể đóng ca cưỡng chế (Còn đơn chưa hoàn tất)'
+          : 'Đóng ca cưỡng chế (Quản lý / Chủ quán)'
+      }
       maxWidth={520}
+      disableClose={isSubmitting}
       footer={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>
-            Hủy bỏ
-          </Button>
-          <Button
-            variant="danger"
-            size="lg"
-            onClick={handleSubmit}
-            isLoading={isSubmitting}
-            disabled={isSubmitting || openInvoices.length > 0}
-          >
-            Xác nhận đóng ca cưỡng chế
-          </Button>
-        </div>
+        openInvoices.length > 0 ? (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+            <Button variant="secondary" onClick={onClose}>
+              Đóng hộp thoại
+            </Button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>
+              Hủy bỏ
+            </Button>
+            <Button
+              variant="danger"
+              size="lg"
+              onClick={handleSubmit}
+              isLoading={isSubmitting}
+              disabled={isSubmitting}
+            >
+              Xác nhận đóng ca cưỡng chế
+            </Button>
+          </div>
+        )
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -156,7 +169,7 @@ export const ForceCloseShiftModal: React.FC<ForceCloseShiftModalProps> = ({
             <p style={{ fontSize: 13, marginBottom: 10, color: 'var(--color-text)' }}>
               Hệ thống yêu cầu tất cả hóa đơn của ca phải được thanh toán hoặc hủy trước khi đóng ca:
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 150, overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 180, overflowY: 'auto' }}>
               {openInvoices.map((inv) => (
                 <div
                   key={inv.id}
@@ -194,10 +207,14 @@ export const ForceCloseShiftModal: React.FC<ForceCloseShiftModalProps> = ({
             {/* Nhập tiền thực tế quản lý đếm được (với ca thu ngân) */}
             {shift.shift_type === 'CASHIER' && (
               <div>
-                <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', display: 'block', marginBottom: 6 }}>
+                <label
+                  htmlFor="force-close-counted-cash"
+                  style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', display: 'block', marginBottom: 6 }}
+                >
                   Tiền mặt trong két quản lý kiểm đếm được (VND):
                 </label>
                 <input
+                  id="force-close-counted-cash"
                   type="number"
                   min="0"
                   step="1000"
@@ -222,10 +239,14 @@ export const ForceCloseShiftModal: React.FC<ForceCloseShiftModalProps> = ({
 
             {/* Nhập lý do đóng cưỡng chế */}
             <div>
-              <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', display: 'block', marginBottom: 6 }}>
+              <label
+                htmlFor="force-close-reason"
+                style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', display: 'block', marginBottom: 6 }}
+              >
                 Lý do đóng ca cưỡng chế (Bắt buộc):
               </label>
               <textarea
+                id="force-close-reason"
                 rows={3}
                 placeholder="VD: Thu ngân có việc gấp về sớm không kịp kiểm két, Quản lý tiếp quản đối soát..."
                 value={reason}
@@ -244,7 +265,7 @@ export const ForceCloseShiftModal: React.FC<ForceCloseShiftModalProps> = ({
         )}
 
         {errorMsg && (
-          <div style={{ color: 'var(--color-danger)', fontSize: 13, fontWeight: 600 }}>
+          <div role="alert" style={{ color: 'var(--color-danger)', fontSize: 13, fontWeight: 600 }}>
             {errorMsg}
           </div>
         )}
@@ -252,3 +273,4 @@ export const ForceCloseShiftModal: React.FC<ForceCloseShiftModalProps> = ({
     </Dialog>
   );
 };
+

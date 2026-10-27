@@ -29,7 +29,7 @@ export const DemoSwitcher: React.FC = () => {
         borderBottom: '1px solid rgba(255,255,255,0.1)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flexShrink: 1, overflow: 'hidden' }}>
         <span
           style={{
             background: 'var(--color-warning)',
@@ -39,16 +39,18 @@ export const DemoSwitcher: React.FC = () => {
             fontWeight: 700,
             fontSize: 11,
             letterSpacing: '0.3px',
+            flexShrink: 0,
           }}
         >
           DEMO
         </span>
-        <span style={{ color: '#D5DBDE' }}>
-          Môi trường kiểm tra Frontend MVP &bull; Dữ liệu lưu trong bộ nhớ
+        <span style={{ color: '#D5DBDE', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <span>Môi trường kiểm tra Frontend MVP</span>
+          <span className="demo-text-long"> &bull; Dữ liệu lưu trong bộ nhớ</span>
         </span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
         {/* Chọn tài khoản Demo */}
         <div style={{ position: 'relative' }}>
           <button

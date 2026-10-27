@@ -56,6 +56,7 @@ export const Numpad: React.FC<NumpadProps> = ({ onDigit, onClear, onBackspace })
             <button
               key={k}
               type="button"
+              aria-label={isBackspace ? 'Xóa lùi' : k === '000' ? 'Thêm ba số không' : `Số ${k}`}
               onClick={() => {
                 if (isBackspace) onBackspace();
                 else onDigit(k);

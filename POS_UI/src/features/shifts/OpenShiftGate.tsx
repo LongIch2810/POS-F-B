@@ -135,7 +135,12 @@ export const OpenShiftGate: React.FC<OpenShiftGateProps> = ({ branchId, branchNa
               fontSize: 14,
               fontWeight: 600,
               cursor: 'pointer',
-              padding: '6px 12px',
+              minHeight: 44,
+              padding: '10px 16px',
+              borderRadius: 'var(--radius-control)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             Báo lệch tiền giao ca cho Quản lý
@@ -160,24 +165,36 @@ export const OpenShiftGate: React.FC<OpenShiftGateProps> = ({ branchId, branchNa
         }
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
+          <p style={{ fontSize: 14, color: 'var(--color-text-muted)', margin: 0 }}>
             Nếu két tiền mặt thực tế khác số tiền hệ thống hiển thị ({formatVND(openingInfo.amount)}),
             hãy nhập số tiền thực tế và lý do để gửi biên bản đến Quản lý chi nhánh xử lý.
           </p>
-          <textarea
-            rows={4}
-            placeholder="Mô tả số tiền thực tế trong két và nguyên nhân..."
-            value={reportReason}
-            onChange={(e) => setReportReason(e.target.value)}
-            style={{
-              width: '100%',
-              padding: 12,
-              borderRadius: 'var(--radius-control)',
-              border: '1px solid var(--color-border-control)',
-              fontSize: 14,
-              fontFamily: 'inherit',
-            }}
-          />
+          <div>
+            <label
+              htmlFor="opening-report-reason"
+              style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6, cursor: 'pointer' }}
+            >
+              Nội dung biên bản (bắt buộc)
+            </label>
+            <textarea
+              id="opening-report-reason"
+              rows={4}
+              placeholder="Mô tả số tiền thực tế trong két và nguyên nhân..."
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              autoFocus
+              style={{
+                width: '100%',
+                padding: 12,
+                borderRadius: 'var(--radius-control)',
+                border: '1px solid var(--color-border-control)',
+                fontSize: 14,
+                fontFamily: 'inherit',
+                background: 'var(--color-surface)',
+                color: 'var(--color-text)',
+              }}
+            />
+          </div>
         </div>
       </Dialog>
     </div>

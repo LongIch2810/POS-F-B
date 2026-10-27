@@ -387,10 +387,14 @@ export const InventoryScreen: React.FC = () => {
             required
           />
           <div>
-            <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>
+            <label
+              htmlFor="ingredient-unit-select"
+              style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6, cursor: 'pointer' }}
+            >
               Đơn vị tính gốc (unit)
             </label>
             <select
+              id="ingredient-unit-select"
               value={ingredientUnit}
               onChange={(e) => setIngredientUnit(e.target.value)}
               style={{
@@ -400,6 +404,7 @@ export const InventoryScreen: React.FC = () => {
                 borderRadius: 'var(--radius-control)',
                 border: '1px solid var(--color-border-control)',
                 background: 'var(--color-surface)',
+                color: 'var(--color-text)',
                 fontSize: 14,
                 fontWeight: 600,
               }}

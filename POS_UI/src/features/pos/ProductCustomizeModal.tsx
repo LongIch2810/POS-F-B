@@ -79,13 +79,20 @@ export const ProductCustomizeModal: React.FC<ProductCustomizeModalProps> = ({
           <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', display: 'block', marginBottom: 8 }}>
             Kích cỡ (Size)
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${availableSizes.length}, 1fr)`, gap: 10 }}>
+          <div
+            role="radiogroup"
+            aria-label="Chọn kích cỡ món"
+            style={{ display: 'grid', gridTemplateColumns: `repeat(${availableSizes.length}, 1fr)`, gap: 10 }}
+          >
             {availableSizes.map((s) => {
               const isSelected = s.id === currentSize?.id;
               return (
                 <button
                   key={s.id}
                   type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-label={`Size ${s.sizeName}, giá ${formatVND(s.price)}`}
                   onClick={() => setSelectedSizeId(s.id)}
                   style={{
                     height: 52,
@@ -123,7 +130,17 @@ export const ProductCustomizeModal: React.FC<ProductCustomizeModalProps> = ({
                 return (
                   <div
                     key={top.id}
+                    role="checkbox"
+                    aria-checked={isChecked}
+                    tabIndex={0}
+                    aria-label={`Topping ${top.name}, cộng ${formatVND(top.price)}`}
                     onClick={() => toggleTopping(top.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        toggleTopping(top.id);
+                      }
+                    }}
                     style={{
                       height: 48,
                       borderRadius: 'var(--radius-control)',
@@ -173,6 +190,7 @@ export const ProductCustomizeModal: React.FC<ProductCustomizeModalProps> = ({
             <button
               type="button"
               disabled={quantity <= 1}
+              aria-label="Giảm số lượng"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
               style={{
                 height: 48,
@@ -187,11 +205,12 @@ export const ProductCustomizeModal: React.FC<ProductCustomizeModalProps> = ({
             >
               &minus;
             </button>
-            <span style={{ fontSize: 18, fontWeight: 700, width: 40, textAlign: 'center' }}>
+            <span aria-live="polite" style={{ fontSize: 18, fontWeight: 700, width: 40, textAlign: 'center' }}>
               {quantity}
             </span>
             <button
               type="button"
+              aria-label="Tăng số lượng"
               onClick={() => setQuantity(quantity + 1)}
               style={{
                 height: 48,

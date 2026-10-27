@@ -211,9 +211,9 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
           }}
         >
           {/* Bên trái: Chi nhánh */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flexShrink: 1, overflow: 'hidden' }}>
             {isPlatformAdmin ? (
-              <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text)' }}>
+              <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Nền tảng Quản trị Hệ thống
               </span>
             ) : isOwner ? (
@@ -235,10 +235,11 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
                     fontSize: 15,
                     fontWeight: 600,
                     color: 'var(--color-text)',
+                    maxWidth: 220,
                   }}
                 >
-                  <span>{currentBranchName}</span>
-                  <ChevronDown size={16} />
+                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentBranchName}</span>
+                  <ChevronDown size={16} style={{ flexShrink: 0 }} />
                 </button>
 
                 {branchDropdownOpen && (
@@ -290,13 +291,13 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
               </div>
             ) : (
               /* Nhân viên/Quản lý chỉ xem tên chi nhánh của mình */
-              <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text)' }}>
+              <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {currentBranchName}
               </span>
             )}
 
             {session.store_name && !isPlatformAdmin && (
-              <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
+              <span style={{ fontSize: 13, color: 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 &bull; {session.store_name}
               </span>
             )}
@@ -304,7 +305,7 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
 
           {/* Ở giữa: Chip trạng thái ca làm việc */}
           {!isPlatformAdmin && (
-            <div>
+            <div style={{ flexShrink: 0 }}>
               {hasOpenShift ? (
                 <Badge variant="success" size="md">
                   <span
@@ -329,7 +330,7 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
           )}
 
           {/* Bên phải: Tên người dùng, vai trò & Đăng xuất */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
                 {user.full_name}

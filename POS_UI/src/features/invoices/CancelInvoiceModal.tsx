@@ -33,7 +33,7 @@ export const CancelInvoiceModal: React.FC<CancelInvoiceModalProps> = ({
   const handleCancel = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reason.trim()) {
-      setError('Bắt buộc phải nhập lý do hủy đơn (BR-28, BR-29)');
+      setError('Vui lòng nhập lý do hủy đơn');
       return;
     }
 
@@ -62,6 +62,7 @@ export const CancelInvoiceModal: React.FC<CancelInvoiceModalProps> = ({
       onClose={onClose}
       title={isPaid ? `Hủy hóa đơn đã thanh toán: ${invoice.invoice_code}` : `Hủy đơn: ${invoice.invoice_code}`}
       maxWidth={480}
+      disableClose={loading}
       footer={
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', width: '100%' }}>
           <Button variant="secondary" onClick={onClose} disabled={loading}>
@@ -89,8 +90,8 @@ export const CancelInvoiceModal: React.FC<CancelInvoiceModalProps> = ({
           <div>
             {isPaid ? (
               <span>
-                <strong>Cảnh báo:</strong> Hủy hóa đơn đã thanh toán cần quyền Quản lý. Nguyên liệu đã trừ
-                sẽ được tự động hoàn lại vào kho qua bút toán SALE_REVERSAL (BR-47).
+                <strong>Lưu ý:</strong> Hủy hóa đơn đã thanh toán yêu cầu quyền Quản lý. Toàn bộ nguyên vật liệu
+                đã xuất theo công thức sẽ được tự động hoàn lại vào kho chi nhánh.
               </span>
             ) : (
               <span>Đơn hàng đang mở sẽ được chuyển sang trạng thái ĐÃ HỦY.</span>
@@ -99,14 +100,19 @@ export const CancelInvoiceModal: React.FC<CancelInvoiceModalProps> = ({
         </div>
 
         <div>
-          <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', display: 'block', marginBottom: 6 }}>
-            Lý do hủy đơn (Bắt buộc per BR-28, BR-29):
+          <label
+            htmlFor="cancel-invoice-reason"
+            style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', display: 'block', marginBottom: 6, cursor: 'pointer' }}
+          >
+            Lý do hủy đơn (bắt buộc)
           </label>
           <textarea
+            id="cancel-invoice-reason"
             rows={3}
             placeholder="Khách đổi ý, pha nhầm món, sự cố thanh toán..."
             value={reason}
             onChange={(e) => setReason(e.target.value)}
+            autoFocus
             style={{
               width: '100%',
               padding: 12,
@@ -114,13 +120,15 @@ export const CancelInvoiceModal: React.FC<CancelInvoiceModalProps> = ({
               border: `1px solid ${error ? 'var(--color-danger)' : 'var(--color-border-control)'}`,
               fontSize: 14,
               fontFamily: 'inherit',
+              background: 'var(--color-surface)',
+              color: 'var(--color-text)',
             }}
             required
           />
         </div>
 
         {error && (
-          <div style={{ fontSize: 13, color: 'var(--color-danger)', fontWeight: 600 }}>
+          <div role="alert" style={{ fontSize: 13, color: 'var(--color-danger)', fontWeight: 600, padding: '8px 12px', background: 'var(--color-danger-subtle)', borderRadius: 'var(--radius-sm)' }}>
             {error}
           </div>
         )}

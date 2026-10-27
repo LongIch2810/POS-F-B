@@ -98,6 +98,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
       onClose={onClose}
       title={`Thanh toán đơn ${invoice.invoice_code}`}
       maxWidth={720}
+      disableClose={isSubmitting}
       footer={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 12 }}>
           <Button variant="secondary" size="lg" onClick={onClose} disabled={isSubmitting} style={{ minWidth: 120 }}>
@@ -110,7 +111,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
             isLoading={isSubmitting}
             disabled={
               isSubmitting ||
-              (method === 'CASH' && !isSufficient) ||
+              (method === 'CASH' && (!isSufficient || tenderedAmount === 0n)) ||
               (method === 'TRANSFER' && !transferConfirmed)
             }
             style={{ height: 56, minWidth: 220, fontSize: 16 }}
@@ -123,6 +124,8 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {/* Tab Phương thức thanh toán: Tiền mặt hoặc Chuyển khoản (BR-30, BR-31) */}
         <div
+          role="tablist"
+          aria-label="Phương thức thanh toán"
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
@@ -134,6 +137,9 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
         >
           <button
             type="button"
+            role="tab"
+            aria-selected={method === 'CASH'}
+            aria-label="Phương thức thanh toán tiền mặt"
             onClick={() => setMethod('CASH')}
             style={{
               height: 48,
@@ -158,6 +164,9 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
 
           <button
             type="button"
+            role="tab"
+            aria-selected={method === 'TRANSFER'}
+            aria-label="Phương thức thanh toán chuyển khoản"
             onClick={() => setMethod('TRANSFER')}
             style={{
               height: 48,
@@ -354,10 +363,11 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
             </div>
 
             <div>
-              <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', display: 'block', marginBottom: 6 }}>
+              <label htmlFor="payment-transfer-ref" style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', display: 'block', marginBottom: 6 }}>
                 Mã giao dịch ngân hàng (không bắt buộc):
               </label>
               <input
+                id="payment-transfer-ref"
                 type="text"
                 placeholder="VD: FT26102712345..."
                 value={transactionRef}
@@ -399,6 +409,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
 
             {errorMsg && (
               <div
+                role="alert"
                 style={{
                   padding: '8px 12px',
                   borderRadius: 'var(--radius-control)',

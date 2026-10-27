@@ -827,10 +827,14 @@ export const ProductsScreen: React.FC = () => {
       >
         <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
-            <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>
+            <label
+              htmlFor="product-category-select"
+              style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6, cursor: 'pointer' }}
+            >
               Danh mục
             </label>
             <select
+              id="product-category-select"
               value={productCategoryId}
               onChange={(e) => setProductCategoryId(e.target.value)}
               style={{
@@ -840,6 +844,7 @@ export const ProductsScreen: React.FC = () => {
                 borderRadius: 'var(--radius-control)',
                 border: '1px solid var(--color-border-control)',
                 background: 'var(--color-surface)',
+                color: 'var(--color-text)',
                 fontSize: 14,
               }}
             >
@@ -960,6 +965,9 @@ export const ProductsScreen: React.FC = () => {
               return (
                 <div
                   key={cat.id}
+                  role="checkbox"
+                  aria-checked={isLinked}
+                  tabIndex={0}
                   onClick={async () => {
                     if (!mappingTopping) return;
                     if (isLinked) {
@@ -969,8 +977,20 @@ export const ProductsScreen: React.FC = () => {
                     }
                     refresh();
                   }}
+                  onKeyDown={async (e) => {
+                    if (e.key === ' ' || e.key === 'Enter') {
+                      e.preventDefault();
+                      if (!mappingTopping) return;
+                      if (isLinked) {
+                        await productService.unlinkToppingFromCategory(cat.id, mappingTopping.id);
+                      } else {
+                        await productService.linkToppingToCategory(cat.id, mappingTopping.id);
+                      }
+                      refresh();
+                    }
+                  }}
                   style={{
-                    height: 44,
+                    height: 48,
                     padding: '0 14px',
                     borderRadius: 'var(--radius-control)',
                     border: isLinked ? '1.5px solid var(--color-brand-600)' : '1px solid var(--color-border)',
@@ -1049,10 +1069,14 @@ export const ProductsScreen: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>
+              <label
+                htmlFor="promo-type-select"
+                style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6, cursor: 'pointer' }}
+              >
                 Loại giảm giá
               </label>
               <select
+                id="promo-type-select"
                 value={promoType}
                 onChange={(e) => setPromoType(e.target.value as 'PERCENT' | 'FIXED')}
                 style={{
@@ -1062,6 +1086,7 @@ export const ProductsScreen: React.FC = () => {
                   borderRadius: 'var(--radius-control)',
                   border: '1px solid var(--color-border-control)',
                   background: 'var(--color-surface)',
+                  color: 'var(--color-text)',
                   fontSize: 14,
                 }}
               >

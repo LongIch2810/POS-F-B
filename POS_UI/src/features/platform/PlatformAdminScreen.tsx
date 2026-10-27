@@ -531,7 +531,7 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
         </form>
       </Dialog>
 
-      {/* Modal tạm khóa cửa hàng (BR-96) */}
+      {/* Modal tạm khóa cửa hàng */}
       <Dialog
         isOpen={!!suspendModalStore}
         onClose={() => setSuspendModalStore(null)}
@@ -550,14 +550,15 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
-            Khi bị tạm khóa, tất cả người dùng thuộc cửa hàng này sẽ bị từ chối truy cập ngay lập tức (BR-82). Dữ liệu vẫn được bảo lưu nguyên vẹn (BR-96).
+            Khi bị tạm khóa, tất cả tài khoản thuộc cửa hàng này sẽ bị tạm ngưng truy cập ngay lập tức. Toàn bộ dữ liệu vận hành vẫn được bảo lưu an toàn.
           </p>
           <Field
-            label="Lý do tạm khóa bắt buộc (BR-96)"
-            placeholder="Chưa đóng phí dịch vụ, vi phạm quy định..."
+            label="Lý do tạm khóa (bắt buộc)"
+            placeholder="Chưa gia hạn dịch vụ, vi phạm điều khoản..."
             value={suspendReason}
             onChange={(e) => setSuspendReason(e.target.value)}
             required
+            autoFocus
           />
         </div>
       </Dialog>
@@ -571,10 +572,14 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
       >
         <form onSubmit={handleCreateOwner} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
-            <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>
+            <label
+              htmlFor="owner-store-select"
+              style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6, cursor: 'pointer' }}
+            >
               Thuộc cửa hàng
             </label>
             <select
+              id="owner-store-select"
               value={ownerStoreId}
               onChange={(e) => setOwnerStoreId(e.target.value)}
               style={{
@@ -584,6 +589,7 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
                 borderRadius: 'var(--radius-control)',
                 border: '1px solid var(--color-border-control)',
                 background: 'var(--color-surface)',
+                color: 'var(--color-text)',
                 fontSize: 15,
               }}
             >
@@ -596,7 +602,7 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
           </div>
 
           <Field
-            label="Tên đăng nhập (username duy nhất - BR-97)"
+            label="Tên đăng nhập (username duy nhất)"
             placeholder="VD: owner_long"
             value={ownerUsername}
             onChange={(e) => setOwnerUsername(e.target.value)}
@@ -612,7 +618,7 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
           />
 
           <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-            Hệ thống sẽ tự động tạo mật khẩu tạm thời hiển thị 1 lần duy nhất. Tài khoản sẽ buộc đổi mật khẩu khi đăng nhập lần đầu (BR-84).
+            Hệ thống sẽ tự động tạo mật khẩu tạm thời hiển thị 1 lần duy nhất. Tài khoản sẽ được yêu cầu đổi mật khẩu ngay trong lần đăng nhập đầu tiên.
           </p>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
@@ -626,7 +632,7 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
         </form>
       </Dialog>
 
-      {/* Modal hiển thị mật khẩu tạm 1 lần duy nhất per BR-84 */}
+      {/* Modal hiển thị mật khẩu tạm 1 lần duy nhất */}
       <Dialog
         isOpen={!!tempPasswordModal}
         onClose={() => setTempPasswordModal(null)}
@@ -641,7 +647,7 @@ export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', padding: '10px 0' }}>
           <KeyRound size={40} color="var(--color-warning)" style={{ margin: '0 auto' }} />
           <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
-            Mật khẩu tạm thời chỉ hiển thị đúng <strong>MỘT LẦN DUY NHẤT</strong> cho người cấp (BR-84). Hãy gửi thông tin này cho chủ cửa hàng:
+            Mật khẩu tạm thời chỉ hiển thị đúng <strong>MỘT LẦN DUY NHẤT</strong> cho người cấp. Hãy sao chép và gửi an toàn cho chủ cửa hàng:
           </p>
 
           <div

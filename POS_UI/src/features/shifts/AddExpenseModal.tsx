@@ -63,6 +63,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
       onClose={onClose}
       title="Ghi nhận chi phí trong ca"
       maxWidth={460}
+      disableClose={loading}
       footer={
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', width: '100%' }}>
           <Button variant="secondary" onClick={onClose} disabled={loading}>
@@ -76,6 +77,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <Field
+          id="expense-amount"
           label="Số tiền chi"
           type="number"
           placeholder="50000"
@@ -83,14 +85,19 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
           onChange={(e) => setAmountStr(e.target.value)}
           isNumericMoney
           suffix="đ"
+          autoFocus
           required
         />
 
         <div>
-          <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>
+          <label
+            htmlFor="expense-reason"
+            style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6, cursor: 'pointer' }}
+          >
             Lý do chi (bắt buộc)
           </label>
           <input
+            id="expense-reason"
             type="text"
             placeholder="VD: Mua thêm đá viên, mua giấy in bill..."
             value={reason}
@@ -102,6 +109,8 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
               borderRadius: 'var(--radius-control)',
               border: '1px solid var(--color-border-control)',
               fontSize: 15,
+              background: 'var(--color-surface)',
+              color: 'var(--color-text)',
             }}
             required
           />
@@ -122,7 +131,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
             type="checkbox"
             checked={paidFromDrawer}
             onChange={(e) => setPaidFromDrawer(e.target.checked)}
-            style={{ width: 18, height: 18, accentColor: 'var(--color-brand-600)' }}
+            style={{ width: 18, height: 18, accentColor: 'var(--color-brand-600)', cursor: 'pointer' }}
           />
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
@@ -135,7 +144,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
         </label>
 
         {error && (
-          <div style={{ fontSize: 13, color: 'var(--color-danger)', fontWeight: 500 }}>
+          <div role="alert" style={{ fontSize: 13, color: 'var(--color-danger)', fontWeight: 500, padding: '8px 12px', background: 'var(--color-danger-subtle)', borderRadius: 'var(--radius-sm)' }}>
             {error}
           </div>
         )}

@@ -194,3 +194,15 @@ html, body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-border-control);
 }
+
+/* Responsive tablet header utilities */
+@media (max-width: 1024px) {
+  .demo-text-long {
+    display: none !important;
+  }
+}
+@media (max-width: 840px) {
+  .btn-label-hide-compact {
+    display: none !important;
+  }
+}

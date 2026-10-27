@@ -692,10 +692,14 @@ export const SettingsScreen: React.FC = () => {
       >
         <form onSubmit={handleSaveStaff} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
-            <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>
+            <label
+              htmlFor="staff-branch-select"
+              style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6, cursor: 'pointer' }}
+            >
               Thuộc chi nhánh
             </label>
             <select
+              id="staff-branch-select"
               value={staffBranchId}
               onChange={(e) => setStaffBranchId(e.target.value)}
               style={{
@@ -705,6 +709,7 @@ export const SettingsScreen: React.FC = () => {
                 borderRadius: 'var(--radius-control)',
                 border: '1px solid var(--color-border-control)',
                 background: 'var(--color-surface)',
+                color: 'var(--color-text)',
                 fontSize: 14,
               }}
             >
@@ -733,10 +738,14 @@ export const SettingsScreen: React.FC = () => {
           />
 
           <div>
-            <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6 }}>
+            <label
+              htmlFor="staff-role-select"
+              style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-muted)', display: 'block', marginBottom: 6, cursor: 'pointer' }}
+            >
               Vai trò (Role)
             </label>
             <select
+              id="staff-role-select"
               value={staffRole}
               onChange={(e) => setStaffRole(e.target.value as 'MANAGER' | 'CASHIER')}
               style={{
@@ -746,6 +755,7 @@ export const SettingsScreen: React.FC = () => {
                 borderRadius: 'var(--radius-control)',
                 border: '1px solid var(--color-border-control)',
                 background: 'var(--color-surface)',
+                color: 'var(--color-text)',
                 fontSize: 14,
               }}
             >
@@ -773,10 +783,14 @@ export const SettingsScreen: React.FC = () => {
         maxWidth={420}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
+          <label
+            htmlFor="role-change-select"
+            style={{ fontSize: 14, color: 'var(--color-text-muted)', display: 'block', cursor: 'pointer' }}
+          >
             Chọn vai trò mới cho tài khoản <strong>{roleModalUser?.username}</strong>:
-          </p>
+          </label>
           <select
+            id="role-change-select"
             value={selectedNewRole}
             onChange={(e) => setSelectedNewRole(e.target.value as RoleCode)}
             style={{
@@ -785,6 +799,7 @@ export const SettingsScreen: React.FC = () => {
               borderRadius: 'var(--radius-control)',
               border: '1px solid var(--color-border-control)',
               background: 'var(--color-surface)',
+              color: 'var(--color-text)',
               fontSize: 15,
               fontWeight: 600,
             }}
