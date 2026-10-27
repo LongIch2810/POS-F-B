@@ -1,10 +1,10 @@
-// POS-F&B Platform Admin Screen per DESIGN.md §5.6 & BR-78, BR-81, BR-82, BR-83, BR-84, BR-96, BR-103
+// POS-F&B Platform Admin Screen per DESIGN.md §5.1, §5.6 & BR-78, BR-81, BR-82, BR-83, BR-84, BR-96, BR-103
 
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
 import { mockStorage } from '../../mock/mockStorage';
 import { Store } from '../../types/entities';
-import { PermissionCode } from '../../types/auth';
+import { User, PermissionCode } from '../../types/auth';
 import { formatDateTimeVN } from '../../utils/formatters';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -12,7 +12,17 @@ import { Dialog } from '../../components/ui/Dialog';
 import { Field } from '../../components/ui/Field';
 import { DataTable, Column } from '../../components/ui/DataTable';
 import { useToast } from '../../context/ToastContext';
-import { Building2, UserPlus, ShieldAlert, KeyRound, Lock, CheckCircle2, Plus } from 'lucide-react';
+import {
+  Building2,
+  UserPlus,
+  ShieldAlert,
+  KeyRound,
+  Lock,
+  CheckCircle2,
+  Plus,
+  UserCheck,
+  ShieldCheck,
+} from 'lucide-react';
 
 const ALL_AVAILABLE_PERMISSIONS: { code: PermissionCode; label: string; isOperational?: boolean }[] = [
   { code: 'store.manage', label: 'Quản lý tạo và khóa cửa hàng' },
@@ -32,11 +42,29 @@ const ALL_AVAILABLE_PERMISSIONS: { code: PermissionCode; label: string; isOperat
   { code: 'report.view_all', label: 'Xem báo cáo tổng hợp toàn cửa hàng', isOperational: true },
 ];
 
-export const PlatformAdminScreen: React.FC = () => {
+export interface PlatformAdminScreenProps {
+  activeTab?: 'stores' | 'owners' | 'permissions';
+  onTabChange?: (tab: 'stores' | 'owners' | 'permissions') => void;
+}
+
+export const PlatformAdminScreen: React.FC<PlatformAdminScreenProps> = ({
+  activeTab: controlledTab = 'stores',
+  onTabChange,
+}) => {
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState<'stores' | 'permissions'>('stores');
+  const [activeTab, setActiveTab] = useState<'stores' | 'owners' | 'permissions'>(controlledTab);
+
+  useEffect(() => {
+    setActiveTab(controlledTab);
+  }, [controlledTab]);
+
+  const handleSelectTab = (tab: 'stores' | 'owners' | 'permissions') => {
+    setActiveTab(tab);
+    onTabChange?.(tab);
+  };
 
   const [stores, setStores] = useState<Store[]>(() => adminService.getStores());
+  const [owners, setOwners] = useState(() => adminService.getOwnerAccounts());
   const [rolePermissions, setRolePermissions] = useState(() => adminService.getRolePermissions());
 
   // Modal tạo store
@@ -58,6 +86,7 @@ export const PlatformAdminScreen: React.FC = () => {
   useEffect(() => {
     const update = () => {
       setStores(adminService.getStores());
+      setOwners(adminService.getOwnerAccounts());
       setRolePermissions(adminService.getRolePermissions());
     };
     update();
@@ -193,6 +222,76 @@ export const PlatformAdminScreen: React.FC = () => {
     },
   ];
 
+  const ownerColumns: Column<{ user: User; storeName: string }>[] = [
+    {
+      key: 'username',
+      header: 'Tài khoản (Username)',
+      render: (o) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <UserCheck size={16} color="var(--color-brand-600)" />
+          <strong>{o.user.username}</strong>
+        </div>
+      ),
+    },
+    {
+      key: 'full_name',
+      header: 'Họ và tên',
+      render: (o) => <span style={{ fontWeight: 600 }}>{o.user.full_name}</span>,
+    },
+    {
+      key: 'storeName',
+      header: 'Cửa hàng trực thuộc',
+      render: (o) => (
+        <span style={{ color: 'var(--color-brand-800)', fontWeight: 500 }}>
+          {o.storeName}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Trạng thái',
+      render: (o) => (
+        <Badge variant={o.user.is_active ? 'success' : 'danger'} size="sm">
+          {o.user.is_active ? 'Hoạt động' : 'Đã khóa'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'created_at',
+      header: 'Ngày tạo',
+      render: (o) => (
+        <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
+          {formatDateTimeVN(o.user.created_at)}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Thao tác',
+      align: 'right',
+      render: (o) => (
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <Button
+            variant="text"
+            size="md"
+            style={{ height: 32, padding: '0 8px', color: 'var(--color-brand-600)' }}
+            icon={<KeyRound size={14} />}
+            onClick={async () => {
+              try {
+                const res = await adminService.resetOwnerPassword(o.user.id);
+                setTempPasswordModal({ username: res.username, pass: res.tempPass });
+              } catch (err: any) {
+                showToast({ type: 'error', message: err?.message || 'Lỗi đặt lại mật khẩu' });
+              }
+            }}
+          >
+            Đặt lại MK
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
@@ -202,17 +301,21 @@ export const PlatformAdminScreen: React.FC = () => {
             Quản trị Nền tảng (Platform Admin)
           </h1>
           <p style={{ fontSize: 14, color: 'var(--color-text-muted)', marginTop: 4 }}>
-            Quản lý cửa hàng, cấp tài khoản Chủ và cấu hình quyền dùng chung. Tuyệt đối không xem dữ liệu vận hành (BR-81).
+            Quản lý danh sách cửa hàng, cấp tài khoản Chủ và cấu hình ma trận quyền. Tuyệt đối không xem dữ liệu vận hành (BR-81).
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: 12 }}>
-          <Button variant="secondary" icon={<UserPlus size={18} />} onClick={() => setCreateOwnerOpen(true)}>
-            Cấp tài khoản Chủ (OWNER)
-          </Button>
-          <Button variant="primary" icon={<Plus size={18} />} onClick={() => setCreateStoreOpen(true)}>
-            Tạo cửa hàng mới
-          </Button>
+          {activeTab === 'stores' && (
+            <Button variant="primary" icon={<Plus size={18} />} onClick={() => setCreateStoreOpen(true)}>
+              Tạo cửa hàng mới
+            </Button>
+          )}
+          {activeTab === 'owners' && (
+            <Button variant="primary" icon={<UserPlus size={18} />} onClick={() => setCreateOwnerOpen(true)}>
+              Cấp tài khoản Chủ (OWNER)
+            </Button>
+          )}
         </div>
       </div>
 
@@ -220,7 +323,7 @@ export const PlatformAdminScreen: React.FC = () => {
       <div style={{ display: 'flex', gap: 12, borderBottom: '1px solid var(--color-border)', paddingBottom: 4 }}>
         <button
           type="button"
-          onClick={() => setActiveTab('stores')}
+          onClick={() => handleSelectTab('stores')}
           style={{
             height: 40,
             padding: '0 16px',
@@ -241,7 +344,28 @@ export const PlatformAdminScreen: React.FC = () => {
 
         <button
           type="button"
-          onClick={() => setActiveTab('permissions')}
+          onClick={() => handleSelectTab('owners')}
+          style={{
+            height: 40,
+            padding: '0 16px',
+            borderRadius: 'var(--radius-pill)',
+            border: 'none',
+            background: activeTab === 'owners' ? 'var(--color-brand-100)' : 'transparent',
+            color: activeTab === 'owners' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
+            fontWeight: activeTab === 'owners' ? 700 : 500,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <UserCheck size={16} />
+          <span>Tài khoản chủ quán ({owners.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectTab('permissions')}
           style={{
             height: 40,
             padding: '0 16px',
@@ -266,7 +390,32 @@ export const PlatformAdminScreen: React.FC = () => {
         <DataTable columns={storeColumns} data={stores} keyExtractor={(s) => s.id} />
       )}
 
-      {/* Tab 2: Ma trận quyền (BR-103) */}
+      {/* Tab 2: Tài khoản chủ quán (DESIGN.md §5.1, §5.6) */}
+      {activeTab === 'owners' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div
+            style={{
+              padding: 14,
+              borderRadius: 'var(--radius-control)',
+              background: 'var(--color-brand-50)',
+              color: 'var(--color-brand-800)',
+              fontSize: 14,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <ShieldCheck size={18} color="var(--color-brand-600)" />
+            <span>
+              <strong>Quản lý chủ sở hữu:</strong> Mỗi cửa hàng có ít nhất một tài khoản OWNER. Mật khẩu khởi tạo được cấp một lần duy nhất và người dùng bắt buộc phải đổi mật khẩu khi đăng nhập lần đầu (BR-84).
+            </span>
+          </div>
+
+          <DataTable columns={ownerColumns} data={owners} keyExtractor={(o) => o.user.id} />
+        </div>
+      )}
+
+      {/* Tab 3: Ma trận quyền (BR-103) */}
       {activeTab === 'permissions' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div
@@ -350,20 +499,20 @@ export const PlatformAdminScreen: React.FC = () => {
       >
         <form onSubmit={handleCreateStore} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Field
-            label="Tên cửa hàng / Thương hiệu"
-            placeholder="VD: Cà phê Thảo Nguyên..."
+            label="Tên cửa hàng"
+            placeholder="VD: Cà phê Sài Gòn Phố"
             value={newStoreName}
             onChange={(e) => setNewStoreName(e.target.value)}
             required
           />
           <Field
-            label="Mã viết tắt (Dùng làm prefix mã hóa đơn)"
-            placeholder="VD: TN"
+            label="Mã định danh cửa hàng (viết liền không dấu)"
+            placeholder="VD: saigonpho"
             value={newStoreCode}
-            onChange={(e) => setNewStoreCode(e.target.value.toUpperCase())}
+            onChange={(e) => setNewStoreCode(e.target.value.toLowerCase().replace(/\s+/g, ''))}
             required
           />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
             <Button variant="secondary" onClick={() => setCreateStoreOpen(false)}>
               Hủy
             </Button>
@@ -374,14 +523,14 @@ export const PlatformAdminScreen: React.FC = () => {
         </form>
       </Dialog>
 
-      {/* Modal tạm khóa Store */}
+      {/* Modal tạm khóa cửa hàng (BR-96) */}
       <Dialog
         isOpen={!!suspendModalStore}
         onClose={() => setSuspendModalStore(null)}
-        title={`Tạm khóa cửa hàng: ${suspendModalStore?.name}`}
+        title={`Tạm khóa hoạt động: ${suspendModalStore?.name}`}
         maxWidth={460}
         footer={
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
             <Button variant="secondary" onClick={() => setSuspendModalStore(null)}>
               Hủy
             </Button>
@@ -392,11 +541,11 @@ export const PlatformAdminScreen: React.FC = () => {
         }
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <p style={{ fontSize: 14, color: 'var(--color-danger)' }}>
-            Khi bị tạm khóa, toàn bộ nhân viên và chủ cửa hàng sẽ bị chặn đăng nhập và từ chối mọi yêu cầu (BR-82).
+          <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
+            Khi bị tạm khóa, tất cả người dùng thuộc cửa hàng này sẽ bị từ chối truy cập ngay lập tức (BR-82). Dữ liệu vẫn được bảo lưu nguyên vẹn (BR-96).
           </p>
           <Field
-            label="Lý do tạm khóa bắt buộc (BR-96):"
+            label="Lý do tạm khóa bắt buộc (BR-96)"
             placeholder="Chưa đóng phí dịch vụ, vi phạm quy định..."
             value={suspendReason}
             onChange={(e) => setSuspendReason(e.target.value)}

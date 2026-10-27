@@ -29,11 +29,19 @@ const MainRouter: React.FC = () => {
 
   useEffect(() => {
     if (isPlatformAdmin) {
-      if (currentTab !== 'platform_stores' && currentTab !== 'platform_permissions') {
+      if (
+        currentTab !== 'platform_stores' &&
+        currentTab !== 'platform_owners' &&
+        currentTab !== 'platform_permissions'
+      ) {
         setCurrentTab('platform_stores');
       }
     } else {
-      if (currentTab === 'platform_stores' || currentTab === 'platform_permissions') {
+      if (
+        currentTab === 'platform_stores' ||
+        currentTab === 'platform_owners' ||
+        currentTab === 'platform_permissions'
+      ) {
         setCurrentTab('pos');
       }
     }
@@ -42,8 +50,21 @@ const MainRouter: React.FC = () => {
   const renderContent = () => {
     switch (currentTab) {
       case 'pos':
+        return (
+          <PosScreen
+            activeMode="pos"
+            onSwitchToTables={() => setCurrentTab('tables')}
+            onSwitchToPos={() => setCurrentTab('pos')}
+          />
+        );
       case 'tables':
-        return <PosScreen />;
+        return (
+          <PosScreen
+            activeMode="tables"
+            onSwitchToTables={() => setCurrentTab('tables')}
+            onSwitchToPos={() => setCurrentTab('pos')}
+          />
+        );
       case 'invoices':
         return <InvoicesScreen />;
       case 'shifts':
@@ -57,10 +78,46 @@ const MainRouter: React.FC = () => {
       case 'settings':
         return <SettingsScreen />;
       case 'platform_stores':
+        return (
+          <PlatformAdminScreen
+            activeTab="stores"
+            onTabChange={(tab) => {
+              if (tab === 'stores') setCurrentTab('platform_stores');
+              else if (tab === 'owners') setCurrentTab('platform_owners');
+              else if (tab === 'permissions') setCurrentTab('platform_permissions');
+            }}
+          />
+        );
+      case 'platform_owners':
+        return (
+          <PlatformAdminScreen
+            activeTab="owners"
+            onTabChange={(tab) => {
+              if (tab === 'stores') setCurrentTab('platform_stores');
+              else if (tab === 'owners') setCurrentTab('platform_owners');
+              else if (tab === 'permissions') setCurrentTab('platform_permissions');
+            }}
+          />
+        );
       case 'platform_permissions':
-        return <PlatformAdminScreen />;
+        return (
+          <PlatformAdminScreen
+            activeTab="permissions"
+            onTabChange={(tab) => {
+              if (tab === 'stores') setCurrentTab('platform_stores');
+              else if (tab === 'owners') setCurrentTab('platform_owners');
+              else if (tab === 'permissions') setCurrentTab('platform_permissions');
+            }}
+          />
+        );
       default:
-        return <PosScreen />;
+        return (
+          <PosScreen
+            activeMode="pos"
+            onSwitchToTables={() => setCurrentTab('tables')}
+            onSwitchToPos={() => setCurrentTab('pos')}
+          />
+        );
     }
   };
 

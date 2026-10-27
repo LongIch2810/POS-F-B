@@ -1,4 +1,4 @@
-// POS-F&B Main POS Screen per DESIGN.md §5.2
+// POS-F&B Main POS Screen per DESIGN.md §5.2, §5.3
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
@@ -13,19 +13,35 @@ import { TableMap } from './TableMap';
 import { OrderPanel } from './OrderPanel';
 import { PaymentDialog } from './PaymentDialog';
 import { OpenShiftGate } from '../shifts/OpenShiftGate';
-import { LayoutGrid, UtensilsCrossed } from 'lucide-react';
 
-export const PosScreen: React.FC = () => {
+export interface PosScreenProps {
+  activeMode?: 'pos' | 'tables';
+  onSwitchToTables?: () => void;
+  onSwitchToPos?: () => void;
+}
+
+export const PosScreen: React.FC<PosScreenProps> = ({
+  activeMode = 'pos',
+  onSwitchToTables,
+  onSwitchToPos,
+}) => {
   const { session, isOffline } = useAuth();
   const { showToast } = useToast();
   const user = session.user;
   const storeId = user.store_id || 'store-1';
   const effectiveBranchId = MockEngine.getEffectiveBranchId();
 
-  const [activeTab, setActiveTab] = useState<'menu' | 'tables'>('menu');
+  const [activeTab, setActiveTab] = useState<'menu' | 'tables'>(
+    activeMode === 'tables' ? 'tables' : 'menu'
+  );
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [selectedTable, setSelectedTable] = useState<DiningTable | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+
+  // Đồng bộ khi prop activeMode thay đổi từ Sidebar
+  useEffect(() => {
+    setActiveTab(activeMode === 'tables' ? 'tables' : 'menu');
+  }, [activeMode]);
 
   // Dữ liệu menu & bàn
   const [menuData, setMenuData] = useState(() => posService.getMenuData(storeId));
@@ -76,9 +92,15 @@ export const PosScreen: React.FC = () => {
         showToast({ type: 'info', message: `Đã mở ${table.name}` });
       } catch (err: any) {
         showToast({ type: 'error', message: err?.message || 'Không thể tạo đơn cho bàn này' });
+        return;
       }
     }
-    setActiveTab('menu'); // Chuyển sang menu để chọn món
+    // Chuyển sang màn hình bán hàng để chọn món
+    if (onSwitchToPos) {
+      onSwitchToPos();
+    } else {
+      setActiveTab('menu');
+    }
   };
 
   // Thao tác tạo đơn mang đi
@@ -88,7 +110,11 @@ export const PosScreen: React.FC = () => {
       const newInv = await posService.createTakeawayInvoice(effectiveBranchId);
       setSelectedInvoice(newInv);
       showToast({ type: 'info', message: 'Đã tạo đơn mang đi mới' });
-      setActiveTab('menu');
+      if (onSwitchToPos) {
+        onSwitchToPos();
+      } else {
+        setActiveTab('menu');
+      }
     } catch (err: any) {
       showToast({ type: 'error', message: err?.message || 'Không thể tạo đơn mang đi' });
     }
@@ -183,67 +209,8 @@ export const PosScreen: React.FC = () => {
 
   return (
     <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-      {/* Vùng trái: Chuyển tab giữa Menu món và Sơ đồ bàn */}
+      {/* Vùng trái: Thực đơn chọn món (pos) hoặc Sơ đồ bàn (tables) */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        {/* Toggle Bar giữa Menu và Bàn */}
-        <div
-          style={{
-            height: 48,
-            padding: '0 16px',
-            background: 'var(--color-surface)',
-            borderBottom: '1px solid var(--color-border)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            flexShrink: 0,
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setActiveTab('menu')}
-            style={{
-              height: 36,
-              padding: '0 16px',
-              borderRadius: 'var(--radius-control)',
-              border: 'none',
-              background: activeTab === 'menu' ? 'var(--color-brand-100)' : 'transparent',
-              color: activeTab === 'menu' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <UtensilsCrossed size={16} />
-            <span>Thực đơn chọn món</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('tables')}
-            style={{
-              height: 36,
-              padding: '0 16px',
-              borderRadius: 'var(--radius-control)',
-              border: 'none',
-              background: activeTab === 'tables' ? 'var(--color-brand-100)' : 'transparent',
-              color: activeTab === 'tables' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <LayoutGrid size={16} />
-            <span>Sơ đồ bàn ({tablesWithInvoices.length})</span>
-          </button>
-        </div>
-
-        {/* Nội dung vùng trái */}
         {activeTab === 'menu' ? (
           <ProductGrid
             categories={menuData.categories}
@@ -272,6 +239,9 @@ export const PosScreen: React.FC = () => {
         onApplyPromotion={handleApplyPromotion}
         onRemovePromotion={handleRemovePromotion}
         onOpenPayment={() => setIsPaymentOpen(true)}
+        onChangeTable={onSwitchToTables || (() => setActiveTab('tables'))}
+        onAddMoreItems={onSwitchToPos || (() => setActiveTab('menu'))}
+        isTablesMode={activeTab === 'tables'}
       />
 
       {/* Hộp thoại thanh toán (PaymentDialog) */}

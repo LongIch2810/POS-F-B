@@ -15,6 +15,9 @@ export interface OrderPanelProps {
   onApplyPromotion: (code: string) => Promise<void>;
   onRemovePromotion: () => Promise<void>;
   onOpenPayment: () => void;
+  onChangeTable?: () => void;
+  onAddMoreItems?: () => void;
+  isTablesMode?: boolean;
 }
 
 export const OrderPanel: React.FC<OrderPanelProps> = ({
@@ -25,6 +28,9 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
   onApplyPromotion,
   onRemovePromotion,
   onOpenPayment,
+  onChangeTable,
+  onAddMoreItems,
+  isTablesMode,
 }) => {
   const { showToast } = useToast();
   const [promoCodeInput, setPromoCodeInput] = useState('');
@@ -129,6 +135,26 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
           <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)' }}>
             {isDineIn ? (tableName || 'Bàn chưa đặt tên') : 'Mang đi (Takeaway)'}
           </span>
+          {isDineIn && onChangeTable && (
+            <button
+              type="button"
+              onClick={onChangeTable}
+              style={{
+                marginLeft: 4,
+                padding: '2px 8px',
+                fontSize: 12,
+                fontWeight: 600,
+                color: 'var(--color-brand-700)',
+                background: 'var(--color-brand-50)',
+                border: '1px solid var(--color-brand-200)',
+                borderRadius: 'var(--radius-pill)',
+                cursor: 'pointer',
+              }}
+              title="Đổi hoặc chọn bàn khác"
+            >
+              Đổi bàn
+            </button>
+          )}
         </div>
         <span
           style={{
@@ -411,15 +437,40 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
         </div>
 
         {/* Nút hành động chính 56px per DESIGN.md §4.3 */}
-        <Button
-          variant="primary"
-          size="lg"
-          fullWidth
-          disabled={invoice.items.length === 0}
-          onClick={onOpenPayment}
-        >
-          Thanh toán {formatVND(invoice.total_amount)}
-        </Button>
+        {isTablesMode ? (
+          <div style={{ display: 'flex', gap: 10 }}>
+            {onAddMoreItems && (
+              <Button
+                variant="secondary"
+                size="lg"
+                style={{ flex: 1 }}
+                onClick={onAddMoreItems}
+                icon={<UtensilsCrossed size={18} />}
+              >
+                Gọi thêm món
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              size="lg"
+              style={{ flex: 1 }}
+              disabled={invoice.items.length === 0}
+              onClick={onOpenPayment}
+            >
+              Thanh toán {formatVND(invoice.total_amount)}
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            disabled={invoice.items.length === 0}
+            onClick={onOpenPayment}
+          >
+            Thanh toán {formatVND(invoice.total_amount)}
+          </Button>
+        )}
       </div>
     </div>
   );

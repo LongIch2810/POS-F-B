@@ -22,6 +22,28 @@ export const adminService = {
     return Promise.resolve(MockEngine.createOwnerAccount(storeId, username, fullName));
   },
 
+  getOwnerAccounts(): { user: User; storeName: string }[] {
+    const state = mockStorage.getState();
+    const owners = state.users.filter((u) => u.role_code === 'OWNER');
+    return owners.map((user) => {
+      const store = state.stores.find((s) => s.id === user.store_id);
+      return { user, storeName: store ? store.name : 'Chưa gán' };
+    });
+  },
+
+  resetOwnerPassword(userId: string): Promise<{ username: string; tempPass: string }> {
+    const state = mockStorage.getState();
+    const user = state.users.find((u) => u.id === userId);
+    if (!user) throw new Error('Không tìm thấy tài khoản');
+    const tempPass = 'Reset@' + Math.floor(100000 + Math.random() * 900000);
+    mockStorage.setState((prev) => ({
+      users: prev.users.map((u) =>
+        u.id === userId ? { ...u, force_password_change: true } : u
+      ),
+    }));
+    return Promise.resolve({ username: user.username, tempPass });
+  },
+
   getRolePermissions(): Record<string, PermissionCode[]> {
     return mockStorage.getState().rolePermissions;
   },

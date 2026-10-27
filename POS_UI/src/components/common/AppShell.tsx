@@ -15,9 +15,10 @@ import {
   BarChart3,
   Settings,
   Building2,
-  Users2,
   ShieldCheck,
   ChevronDown,
+  UtensilsCrossed,
+  UserCheck,
 } from 'lucide-react';
 
 export type NavTab =
@@ -30,6 +31,7 @@ export type NavTab =
   | 'products'
   | 'settings'
   | 'platform_stores'
+  | 'platform_owners'
   | 'platform_permissions';
 
 interface AppShellProps {
@@ -74,18 +76,21 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
   const navItems = isPlatformAdmin
     ? [
         { id: 'platform_stores' as NavTab, label: 'Cửa hàng', icon: <Building2 size={24} /> },
-        { id: 'platform_permissions' as NavTab, label: 'Quyền', icon: <ShieldCheck size={24} /> },
+        { id: 'platform_owners' as NavTab, label: 'Chủ quán', icon: <UserCheck size={24} /> },
+        { id: 'platform_permissions' as NavTab, label: 'Phân quyền', icon: <ShieldCheck size={24} /> },
       ]
     : [
         { id: 'pos' as NavTab, label: 'Bán hàng', icon: <ShoppingBag size={24} /> },
-        { id: 'tables' as NavTab, label: 'Bàn', icon: <LayoutGrid size={24} /> },
+        { id: 'tables' as NavTab, label: 'Sơ đồ bàn', icon: <LayoutGrid size={24} /> },
         { id: 'invoices' as NavTab, label: 'Hóa đơn', icon: <Receipt size={24} /> },
         { id: 'shifts' as NavTab, label: 'Ca làm', icon: <Clock size={24} /> },
-        { id: 'products' as NavTab, label: 'Thực đơn', icon: <Users2 size={24} /> },
-        { id: 'inventory' as NavTab, label: 'Kho', icon: <Boxes size={24} /> },
+        { id: 'inventory' as NavTab, label: 'Kho hàng', icon: <Boxes size={24} /> },
         { id: 'reports' as NavTab, label: 'Báo cáo', icon: <BarChart3 size={24} /> },
         ...(isOwner || user.role_code === 'MANAGER'
-          ? [{ id: 'settings' as NavTab, label: 'Cài đặt', icon: <Settings size={24} /> }]
+          ? [
+              { id: 'products' as NavTab, label: 'Thực đơn', icon: <UtensilsCrossed size={24} /> },
+              { id: 'settings' as NavTab, label: 'Cài đặt', icon: <Settings size={24} /> },
+            ]
           : []),
       ];
 
