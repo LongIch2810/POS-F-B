@@ -224,4 +224,4 @@ Công thức: `tiền kỳ vọng = tiền đầu ca + tiền mặt từ hóa đ
 | `docs/api-spec.md` | Quy ước chung của API (định dạng, lỗi, phân trang, xác thực) | Chưa có |
 | `docs/specs/` | Đặc tả chi tiết từng chức năng và endpoint | Chưa có |
 | `docs/architecture/` | Công nghệ, cấu trúc thư mục, các lớp, tổng quan kiến trúc | Chưa có |
-| `docs/rules/` | Quy tắc clean code, đặt tên, bảo mật, test, git | Chưa có |
+| `rules` | Quy tắc clean code, đặt tên, bảo mật, test, git | Chưa có |
