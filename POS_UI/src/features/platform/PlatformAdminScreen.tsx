@@ -12,7 +12,7 @@ import { Dialog } from '../../components/ui/Dialog';
 import { Field } from '../../components/ui/Field';
 import { DataTable, Column } from '../../components/ui/DataTable';
 import { useToast } from '../../context/ToastContext';
-import { Building2, UserPlus, ShieldAlert, KeyRound, Lock, Unlock, Plus } from 'lucide-react';
+import { Building2, UserPlus, ShieldAlert, KeyRound, Lock, CheckCircle2, Plus } from 'lucide-react';
 
 const ALL_AVAILABLE_PERMISSIONS: { code: PermissionCode; label: string; isOperational?: boolean }[] = [
   { code: 'store.manage', label: 'Quản lý tạo và khóa cửa hàng' },
@@ -182,7 +182,7 @@ export const PlatformAdminScreen: React.FC = () => {
               variant="text"
               size="md"
               style={{ height: 32, padding: '0 8px', color: 'var(--color-success)' }}
-              icon={<Unlock size={14} />}
+              icon={<CheckCircle2 size={14} />}
               onClick={() => handleReactivateStore(s)}
             >
               Mở lại

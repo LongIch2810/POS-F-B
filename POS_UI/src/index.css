@@ -1,19 +1,24 @@
-/* POS-F&B Design Tokens per DESIGN.md §4 & §12.1 */
+/* POS-F&B Design Tokens per DESIGN.md §4 & §12.1 + ui-ux-pro-max + taste-skill */
 :root {
   /* Bề mặt và chữ ("Quầy pha chế sạch và sáng" - nền đá xám lạnh, bề mặt trắng) */
   --color-bg: #f2f4f5;
   --color-surface: #ffffff;
   --color-surface-sunken: #e9edef;
+  --color-surface-warm: #fcfbf9;
   --color-border: #d5dbde;
+  --color-border-subtle: #e5e9eb;
   --color-border-control: #8a979d;
   --color-text: #1a2226;
   --color-text-muted: #55636a;
   --color-text-disabled: #98a3a9;
 
   /* Thương hiệu (nâu phin) */
+  --color-brand-900: #2c1a11;
   --color-brand-800: #43291a;
   --color-brand-700: #5c3720;
   --color-brand-600: #7a4a2b;
+  --color-brand-500: #935d39;
+  --color-brand-200: #e2cbbe;
   --color-brand-100: #f1e4d9;
   --color-brand-50: #f8f0e9;
 
@@ -34,7 +39,13 @@
   --radius-pill: 999px;
 
   /* Đổ bóng chỉ cho lớp nổi */
-  --shadow-overlay: 0 8px 24px rgba(26, 34, 38, 0.16);
+  --shadow-overlay: 0 12px 32px rgba(26, 34, 38, 0.18);
+  --shadow-dropdown: 0 6px 16px rgba(26, 34, 38, 0.12);
+
+  /* Chuyển động & Xúc giác (ui-ux-pro-max) */
+  --ease-out-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
 
   /* Chữ */
   --font-sans: "Be Vietnam Pro", system-ui, "Segoe UI", Roboto, sans-serif;
@@ -87,6 +98,67 @@ html, body {
   outline-offset: 2px;
 }
 
+/* Tactile touch press feedback (ui-ux-pro-max) */
+.touch-press {
+  transition: transform var(--duration-fast) var(--ease-out-spring), background-color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+  user-select: none;
+}
+.touch-press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Animations: Modal Pop & Drawer Slide */
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes drawerSlide {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-modal-pop {
+  animation: modalPop var(--duration-normal) var(--ease-out-spring) forwards;
+}
+
+.animate-drawer-slide {
+  animation: drawerSlide 240ms var(--ease-out-spring) forwards;
+}
+
+/* Pulse indicator for live shift or active alerts */
+@keyframes pulseDot {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.pulse-dot {
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+/* Animation flash for newly added items */
+@keyframes itemFlash {
+  0% { background-color: var(--color-brand-100); }
+  100% { background-color: transparent; }
+}
+
+.item-added-flash {
+  animation: itemFlash 700ms ease-out forwards;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -104,8 +176,8 @@ html, body {
 .text-lg { font-size: 18px; line-height: 26px; font-weight: 600; }
 .text-xl { font-size: 22px; line-height: 30px; font-weight: 600; }
 .text-2xl { font-size: 28px; line-height: 36px; font-weight: 700; }
-.text-3xl { font-size: 40px; line-height: 48px; font-weight: 700; }
-.text-4xl { font-size: 56px; line-height: 64px; font-weight: 700; }
+.text-3xl { font-size: 36px; line-height: 44px; font-weight: 700; }
+.text-4xl { font-size: 48px; line-height: 56px; font-weight: 700; }
 
 /* Custom clean scrollbar */
 ::-webkit-scrollbar {
@@ -121,14 +193,4 @@ html, body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-border-control);
-}
-
-/* Animation flash for newly added items */
-@keyframes itemFlash {
-  0% { background-color: var(--color-brand-100); }
-  100% { background-color: transparent; }
-}
-
-.item-added-flash {
-  animation: itemFlash 600ms ease-out forwards;
 }

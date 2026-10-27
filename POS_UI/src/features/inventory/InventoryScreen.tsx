@@ -87,6 +87,12 @@ export const InventoryScreen: React.FC = () => {
     },
   ];
 
+  const [onlyNegative, setOnlyNegative] = useState(false);
+
+  const displayedStocks = onlyNegative
+    ? stocks.filter((s) => s.stock.current_stock < 0)
+    : stocks;
+
   return (
     <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
@@ -100,59 +106,86 @@ export const InventoryScreen: React.FC = () => {
       </div>
 
       {/* Tabs chuyển đổi giữa Tồn kho & Sổ kho */}
-      <div style={{ display: 'flex', gap: 12, borderBottom: '1px solid var(--color-border)', paddingBottom: 4 }}>
-        <button
-          type="button"
-          onClick={() => setActiveTab('stocks')}
-          style={{
-            height: 40,
-            padding: '0 18px',
-            borderRadius: 'var(--radius-pill)',
-            border: 'none',
-            background: activeTab === 'stocks' ? 'var(--color-brand-100)' : 'transparent',
-            color: activeTab === 'stocks' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
-            fontSize: 14,
-            fontWeight: activeTab === 'stocks' ? 700 : 500,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <Boxes size={18} />
-          <span>Tồn kho chi nhánh ({stocks.length})</span>
-        </button>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: 8, flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab('stocks')}
+            className="touch-press"
+            style={{
+              height: 40,
+              padding: '0 18px',
+              borderRadius: 'var(--radius-pill)',
+              border: 'none',
+              background: activeTab === 'stocks' ? 'var(--color-brand-100)' : 'transparent',
+              color: activeTab === 'stocks' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
+              fontSize: 14,
+              fontWeight: activeTab === 'stocks' ? 700 : 500,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <Boxes size={18} />
+            <span>Tồn kho chi nhánh ({stocks.length})</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('movements')}
-          style={{
-            height: 40,
-            padding: '0 18px',
-            borderRadius: 'var(--radius-pill)',
-            border: 'none',
-            background: activeTab === 'movements' ? 'var(--color-brand-100)' : 'transparent',
-            color: activeTab === 'movements' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
-            fontSize: 14,
-            fontWeight: activeTab === 'movements' ? 700 : 500,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <History size={18} />
-          <span>Sổ kho ({movements.length} bút toán)</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('movements')}
+            className="touch-press"
+            style={{
+              height: 40,
+              padding: '0 18px',
+              borderRadius: 'var(--radius-pill)',
+              border: 'none',
+              background: activeTab === 'movements' ? 'var(--color-brand-100)' : 'transparent',
+              color: activeTab === 'movements' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
+              fontSize: 14,
+              fontWeight: activeTab === 'movements' ? 700 : 500,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <History size={18} />
+            <span>Sổ kho ({movements.length} bút toán)</span>
+          </button>
+        </div>
+
+        {activeTab === 'stocks' && (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => setOnlyNegative(!onlyNegative)}
+              className="touch-press"
+              style={{
+                height: 36,
+                padding: '0 14px',
+                borderRadius: 'var(--radius-pill)',
+                border: onlyNegative ? '1px solid var(--color-danger)' : '1px solid var(--color-border)',
+                background: onlyNegative ? 'var(--color-danger-bg)' : 'var(--color-surface)',
+                color: onlyNegative ? 'var(--color-danger)' : 'var(--color-text-muted)',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              {onlyNegative ? 'Đang lọc: Chỉ món tồn âm' : 'Lọc món tồn âm / bán vượt kho'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Nội dung theo Tab */}
       {activeTab === 'stocks' ? (
         <DataTable
           columns={columns}
-          data={stocks}
+          data={displayedStocks}
           keyExtractor={(item) => item.ingredient.id}
-          emptyMessage="Chưa có nguyên liệu nào trong kho chi nhánh"
+          emptyMessage="Không có nguyên liệu nào thỏa mãn điều kiện"
         />
       ) : (
         <StockMovementsTab movements={movements} />

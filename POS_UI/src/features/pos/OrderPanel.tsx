@@ -42,17 +42,30 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: 24,
+          padding: 32,
           textAlign: 'center',
           color: 'var(--color-text-muted)',
         }}
       >
-        <UtensilsCrossed size={48} style={{ marginBottom: 12, opacity: 0.5 }} />
-        <h3 style={{ fontSize: 18, fontWeight: 600, color: 'var(--color-text)', marginBottom: 6 }}>
+        <div
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            background: 'var(--color-brand-50)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 16,
+          }}
+        >
+          <UtensilsCrossed size={36} color="var(--color-brand-600)" />
+        </div>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
           Chưa chọn bàn hoặc đơn
         </h3>
-        <p style={{ fontSize: 14 }}>
-          Chọn bàn trống hoặc tạo đơn mang đi để bắt đầu bán hàng.
+        <p style={{ fontSize: 14, lineHeight: '22px', maxWidth: 280 }}>
+          Chọn một bàn còn trống từ sơ đồ phòng bàn hoặc tạo đơn mang đi để bắt đầu phục vụ.
         </p>
       </div>
     );
@@ -186,36 +199,45 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
                     type="button"
                     onClick={() => handleRemoveItemWithUndo(item)}
                     aria-label="Xóa dòng món"
+                    className="touch-press"
                     style={{
+                      height: 40,
+                      width: 40,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       background: 'transparent',
                       border: 'none',
-                      color: 'var(--color-text-disabled)',
+                      borderRadius: 'var(--radius-control)',
+                      color: 'var(--color-text-muted)',
                       cursor: 'pointer',
-                      padding: 4,
                     }}
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={18} />
                   </button>
                 </div>
 
-                {/* Dòng 3: Bộ tăng giảm số lượng 48px và Thành tiền dòng */}
+                {/* Dòng 3: Bộ tăng giảm số lượng 44px và Thành tiền dòng */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <button
                       type="button"
                       onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                      aria-label="Giảm số lượng"
+                      className="touch-press"
                       style={{
-                        height: 40,
-                        width: 40,
+                        height: 44,
+                        width: 44,
                         borderRadius: 'var(--radius-control)',
                         border: '1px solid var(--color-border-control)',
                         background: 'var(--color-surface)',
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: 600,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        color: 'var(--color-text)',
                       }}
                     >
                       &minus;
@@ -223,10 +245,11 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
                     <span
                       className="num"
                       style={{
-                        width: 32,
+                        minWidth: 32,
                         textAlign: 'center',
-                        fontSize: 16,
+                        fontSize: 17,
                         fontWeight: 700,
+                        color: 'var(--color-text)',
                       }}
                     >
                       {item.quantity}
@@ -234,18 +257,21 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
                     <button
                       type="button"
                       onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                      aria-label="Tăng số lượng"
+                      className="touch-press"
                       style={{
-                        height: 40,
-                        width: 40,
+                        height: 44,
+                        width: 44,
                         borderRadius: 'var(--radius-control)',
                         border: '1px solid var(--color-border-control)',
                         background: 'var(--color-surface)',
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: 600,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        color: 'var(--color-text)',
                       }}
                     >
                       +

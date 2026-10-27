@@ -227,32 +227,42 @@ export const BlindCountCloseShiftModal: React.FC<BlindCountCloseShiftModalProps>
                       <button
                         type="button"
                         onClick={() => handleDenomChange(denom, -1)}
+                        className="touch-press"
                         style={{
-                          width: 36,
-                          height: 36,
+                          width: 40,
+                          height: 40,
                           borderRadius: 'var(--radius-control)',
                           border: '1px solid var(--color-border-control)',
                           background: 'var(--color-surface)',
-                          fontSize: 18,
+                          fontSize: 20,
+                          fontWeight: 600,
                           cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}
                       >
                         &minus;
                       </button>
-                      <span className="num" style={{ width: 36, textAlign: 'center', fontWeight: 700 }}>
+                      <span className="num" style={{ width: 36, textAlign: 'center', fontWeight: 700, fontSize: 16 }}>
                         {count}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleDenomChange(denom, 1)}
+                        className="touch-press"
                         style={{
-                          width: 36,
-                          height: 36,
+                          width: 40,
+                          height: 40,
                           borderRadius: 'var(--radius-control)',
                           border: '1px solid var(--color-border-control)',
                           background: 'var(--color-surface)',
-                          fontSize: 18,
+                          fontSize: 20,
+                          fontWeight: 600,
                           cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}
                       >
                         +

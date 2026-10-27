@@ -54,6 +54,7 @@ export const Drawer: React.FC<DrawerProps> = ({
       <div
         role="dialog"
         aria-modal="true"
+        className="animate-drawer-slide"
         style={{
           position: 'relative',
           width,
@@ -83,9 +84,10 @@ export const Drawer: React.FC<DrawerProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Đóng ngăn kéo"
+            className="touch-press"
             style={{
-              height: 40,
-              width: 40,
+              height: 48,
+              width: 48,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

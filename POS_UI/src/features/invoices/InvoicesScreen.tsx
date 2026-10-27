@@ -91,7 +91,7 @@ export const InvoicesScreen: React.FC = () => {
       header: 'Phương thức',
       render: (inv) => {
         const method = inv.payments[0]?.method;
-        if (!method) return <span style={{ color: 'var(--color-text-disabled)' }}>—</span>;
+        if (!method) return <span style={{ color: 'var(--color-text-disabled)' }}>-</span>;
         return <span>{method === 'CASH' ? 'Tiền mặt' : 'Chuyển khoản'}</span>;
       },
     },

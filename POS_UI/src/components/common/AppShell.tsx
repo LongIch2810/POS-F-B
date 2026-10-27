@@ -109,23 +109,48 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
           userSelect: 'none',
         }}
       >
-        {/* Logo / Biểu tượng thương hiệu */}
+        {/* Logo / Biểu tượng thương hiệu Phin Cà Phê Việt Nam */}
         <div
+          title={isPlatformAdmin ? 'Quản trị Nền tảng' : 'Hệ thống Cà phê F&B'}
           style={{
-            height: 48,
-            width: 48,
+            height: 52,
+            width: 52,
             borderRadius: 'var(--radius-tile)',
-            background: 'var(--color-brand-600)',
+            background: 'var(--color-brand-700)',
+            border: '1px solid var(--color-brand-500)',
             color: '#FFFFFF',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: 20,
             marginBottom: 12,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
           }}
         >
-          {isPlatformAdmin ? 'PA' : 'POS'}
+          {isPlatformAdmin ? (
+            <ShieldCheck size={28} color="#f8f0e9" />
+          ) : (
+            <svg
+              width="30"
+              height="30"
+              viewBox="0 0 32 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-label="Logo Phin Cà Phê"
+            >
+              {/* Núm nắp phin */}
+              <circle cx="16" cy="5" r="1.8" fill="#f1e4d9" />
+              {/* Nắp phin */}
+              <path d="M9 8.5C9 7.8 10 7.2 16 7.2C22 7.2 23 7.8 23 8.5L22 10.5H10L9 8.5Z" fill="#f1e4d9" />
+              {/* Thân phin */}
+              <path d="M10 11H22L20.8 19.5H11.2L10 11Z" fill="#f8f0e9" opacity="0.95" />
+              {/* Đĩa lọc / đĩa đáy phin */}
+              <rect x="7" y="19.5" width="18" height="2" rx="1" fill="#f1e4d9" />
+              {/* Cốc hứng cà phê */}
+              <path d="M11.5 22.5H20.5L19.5 28C19.5 29 18.5 29.5 16 29.5C13.5 29.5 12.5 29 12.5 28L11.5 22.5Z" stroke="#f1e4d9" strokeWidth="1.5" strokeLinecap="round" />
+              {/* Giọt cà phê */}
+              <circle cx="16" cy="25" r="1.2" fill="#e2cbbe" />
+            </svg>
+          )}
         </div>
 
         {/* Các mục điều hướng */}
@@ -136,24 +161,27 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
               key={item.id}
               type="button"
               onClick={() => onSelectTab(item.id)}
+              className="touch-press"
               style={{
                 width: 68,
                 height: 64,
                 borderRadius: 'var(--radius-control)',
                 background: isActive ? 'var(--color-brand-600)' : 'transparent',
-                color: '#FFFFFF',
-                border: 'none',
+                color: isActive ? '#FFFFFF' : 'var(--color-brand-100)',
+                border: isActive ? '1px solid var(--color-brand-500)' : '1px solid transparent',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 4,
                 cursor: 'pointer',
-                transition: 'background-color 100ms ease',
+                position: 'relative',
               }}
             >
               <div>{item.icon}</div>
-              <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.2px' }}>{item.label}</span>
+              <span style={{ fontSize: 11, fontWeight: isActive ? 600 : 500, letterSpacing: '0.2px' }}>
+                {item.label}
+              </span>
             </button>
           );
         })}
@@ -272,6 +300,17 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
             <div>
               {hasOpenShift ? (
                 <Badge variant="success" size="md">
+                  <span
+                    className="pulse-dot"
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: 'var(--color-success)',
+                      display: 'inline-block',
+                      marginRight: 6,
+                    }}
+                  />
                   Ca thu ngân đang mở ({activeShiftDuration})
                 </Badge>
               ) : (

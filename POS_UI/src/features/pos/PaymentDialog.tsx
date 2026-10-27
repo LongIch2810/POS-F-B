@@ -216,14 +216,15 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
                   key={i}
                   type="button"
                   onClick={() => setTenderedStr(sug.value.toString())}
+                  className="touch-press"
                   style={{
-                    height: 40,
-                    padding: '0 14px',
+                    height: 44,
+                    padding: '0 16px',
                     borderRadius: 'var(--radius-control)',
                     border: '1px solid var(--color-border-control)',
                     background: tenderedAmount === sug.value ? 'var(--color-brand-100)' : 'var(--color-surface)',
                     color: tenderedAmount === sug.value ? 'var(--color-brand-800)' : 'var(--color-text)',
-                    fontSize: 14,
+                    fontSize: 15,
                     fontWeight: 600,
                     cursor: 'pointer',
                   }}
@@ -242,15 +243,15 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
                 <div
                   className="money"
                   style={{
-                    height: 48,
-                    padding: '0 12px',
+                    height: 52,
+                    padding: '0 14px',
                     background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border-control)',
+                    border: '2px solid var(--color-brand-600)',
                     borderRadius: 'var(--radius-control)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-end',
-                    fontSize: 22,
+                    fontSize: 24,
                     fontWeight: 700,
                     color: 'var(--color-text)',
                   }}
@@ -261,15 +262,16 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
 
               <div>
                 <label style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 500, display: 'block', marginBottom: 4 }}>
-                  Tiền thối:
+                  {isSufficient ? 'Tiền thối trả khách:' : 'Khách đưa còn thiếu:'}
                 </label>
-                {/* Tiền thối là chữ lớn nhất (text-4xl) per DESIGN.md §5.4 */}
+                {/* Tiền thối là chữ lớn nhất (text-3xl / 32px) per DESIGN.md §5.4 */}
                 <div
                   className="money"
                   style={{
-                    height: 48,
-                    padding: '0 12px',
+                    height: 52,
+                    padding: '0 14px',
                     borderRadius: 'var(--radius-control)',
+                    border: `1px solid ${isSufficient ? 'var(--color-success)' : 'var(--color-danger)'}`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-end',
@@ -279,13 +281,17 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
                     background: isSufficient ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
                   }}
                 >
-                  {isSufficient ? formatVND(changeAmount) : `Thiếu ${formatVND(shortageAmount)}`}
+                  {isSufficient ? formatVND(changeAmount) : formatVND(shortageAmount)}
                 </div>
               </div>
             </div>
 
-            {/* Bàn phím số Numpad 64px */}
-            <Numpad onDigit={handleDigit} onBackspace={handleBackspace} />
+            {/* Bàn phím số Numpad 64px kèm nút Xóa */}
+            <Numpad
+              onDigit={handleDigit}
+              onClear={() => setTenderedStr('')}
+              onBackspace={handleBackspace}
+            />
           </div>
         )}
 

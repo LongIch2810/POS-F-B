@@ -59,7 +59,7 @@ export const ShiftsScreen: React.FC = () => {
       header: 'Tiền đầu ca',
       align: 'right',
       render: ({ reconciliation }) => (
-        <span className="money">{reconciliation ? formatVND(reconciliation.opening_cash) : '—'}</span>
+        <span className="money">{reconciliation ? formatVND(reconciliation.opening_cash) : '-'}</span>
       ),
     },
     {
@@ -67,7 +67,7 @@ export const ShiftsScreen: React.FC = () => {
       header: 'Bán tiền mặt',
       align: 'right',
       render: ({ reconciliation }) => (
-        <span className="money">{reconciliation ? formatVND(reconciliation.cash_sales_amount) : '—'}</span>
+        <span className="money">{reconciliation ? formatVND(reconciliation.cash_sales_amount) : '-'}</span>
       ),
     },
     {
@@ -84,7 +84,7 @@ export const ShiftsScreen: React.FC = () => {
       header: 'Tiền kỳ vọng',
       align: 'right',
       render: ({ reconciliation }) => (
-        <span className="money">{reconciliation ? formatVND(reconciliation.expected_cash) : '—'}</span>
+        <span className="money">{reconciliation ? formatVND(reconciliation.expected_cash) : '-'}</span>
       ),
     },
     {
@@ -93,7 +93,7 @@ export const ShiftsScreen: React.FC = () => {
       align: 'right',
       render: ({ reconciliation }) => (
         <span className="money" style={{ fontWeight: 700 }}>
-          {reconciliation ? formatVND(reconciliation.counted_cash) : '—'}
+          {reconciliation ? formatVND(reconciliation.counted_cash) : '-'}
         </span>
       ),
     },
@@ -102,7 +102,7 @@ export const ShiftsScreen: React.FC = () => {
       header: 'Chênh lệch',
       align: 'center',
       render: ({ reconciliation }) => {
-        if (!reconciliation) return <span>—</span>;
+        if (!reconciliation) return <span>-</span>;
         const status = reconciliation.status;
         return (
           <Badge
@@ -119,7 +119,7 @@ export const ShiftsScreen: React.FC = () => {
       header: 'Ghi chú',
       render: ({ reconciliation }) => (
         <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
-          {reconciliation?.note || '—'}
+          {reconciliation?.note || '-'}
         </span>
       ),
     },

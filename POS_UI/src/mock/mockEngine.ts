@@ -995,6 +995,29 @@ export class MockEngine {
 
     const totalRevenue = cashRevenue + transferRevenue;
 
+    // Phân bổ doanh thu theo từng khung giờ bán hàng 07:00 -> 22:00 (BR-62, BR-63)
+    const hourlyMap: Record<number, { revenue: bigint; count: number }> = {};
+    for (let h = 7; h <= 22; h++) {
+      hourlyMap[h] = { revenue: 0n, count: 0 };
+    }
+
+    paidInvoices.forEach((inv) => {
+      if (inv.paid_at) {
+        const d = new Date(inv.paid_at);
+        const vnHour = (d.getUTCHours() + 7) % 24;
+        if (hourlyMap[vnHour]) {
+          hourlyMap[vnHour].revenue += inv.total_amount;
+          hourlyMap[vnHour].count += 1;
+        }
+      }
+    });
+
+    const hourlyRevenue = Object.entries(hourlyMap).map(([hStr, data]) => ({
+      hour: Number(hStr),
+      revenue: data.revenue,
+      count: data.count,
+    }));
+
     return {
       date: targetDate,
       totalRevenue,
@@ -1002,6 +1025,7 @@ export class MockEngine {
       transferRevenue,
       invoiceCount: paidInvoices.length,
       invoices: paidInvoices,
+      hourlyRevenue,
     };
   }
 }

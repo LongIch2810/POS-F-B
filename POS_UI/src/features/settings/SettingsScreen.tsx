@@ -10,7 +10,7 @@ import { formatVND } from '../../utils/formatters';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { DataTable, Column } from '../../components/ui/DataTable';
-import { Building, LayoutGrid, Users, Lock, Unlock } from 'lucide-react';
+import { Building, LayoutGrid, Users, Lock, KeyRound } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
 export const SettingsScreen: React.FC = () => {
@@ -124,16 +124,16 @@ export const SettingsScreen: React.FC = () => {
       header: 'Thao tác',
       align: 'right',
       render: (u) => {
-        if (u.role_code === 'OWNER') return <span>—</span>;
+        if (u.role_code === 'OWNER') return <span>-</span>;
         return (
           <Button
             variant="text"
             size="md"
             style={{ height: 32, padding: '0 8px' }}
-            icon={u.is_active ? <Lock size={14} /> : <Unlock size={14} />}
+            icon={u.is_active ? <Lock size={14} /> : <KeyRound size={14} />}
             onClick={() => handleToggleStaffActive(u)}
           >
-            {u.is_active ? 'Khóa tài khoản' : 'Mở khóa'}
+            {u.is_active ? 'Khóa tài khoản' : 'Kích hoạt lại'}
           </Button>
         );
       },

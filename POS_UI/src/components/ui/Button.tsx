@@ -64,6 +64,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={isDisabled}
         title={disabledReason}
+        className={`touch-press ${className || ''}`}
         style={{
           height,
           padding: '0 20px',
@@ -81,7 +82,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           width: fullWidth ? '100%' : 'auto',
           userSelect: 'none',
           whiteSpace: 'nowrap',
-          transition: 'background-color 100ms ease, opacity 100ms ease',
           position: 'relative',
           ...style,
         }}

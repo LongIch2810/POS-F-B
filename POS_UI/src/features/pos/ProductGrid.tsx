@@ -113,6 +113,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   key={cat.id}
                   type="button"
                   onClick={() => setActiveCategoryId(cat.id)}
+                  className="touch-press"
                   style={{
                     height: 44,
                     padding: '0 16px',
@@ -124,7 +125,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                     fontWeight: isActive ? 700 : 500,
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
-                    transition: 'all 100ms ease',
                   }}
                 >
                   {cat.name}
@@ -158,9 +158,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               key={prod.id}
               type="button"
               onClick={() => handleTileClick(prod)}
+              className="touch-press"
               style={{
-                minHeight: 96,
-                padding: '12px 14px',
+                minHeight: 104,
+                padding: '14px 14px',
                 background: 'var(--color-surface)',
                 border: '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-tile)',
@@ -169,14 +170,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 textAlign: 'left',
-                transition: 'background-color 100ms ease, border-color 100ms ease',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
                 userSelect: 'none',
-              }}
-              onMouseDown={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-brand-50)';
-              }}
-              onMouseUp={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-surface)';
               }}
             >
               <div

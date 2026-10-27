@@ -60,6 +60,7 @@ export const Dialog: React.FC<DialogProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
+        className="animate-modal-pop"
         style={{
           position: 'relative',
           background: 'var(--color-surface)',
@@ -71,7 +72,6 @@ export const Dialog: React.FC<DialogProps> = ({
           display: 'flex',
           flexDirection: 'column',
           zIndex: 5001,
-          animation: 'scaleIn 180ms ease-out',
           overflow: 'hidden',
         }}
       >
@@ -94,9 +94,10 @@ export const Dialog: React.FC<DialogProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Đóng hộp thoại"
+            className="touch-press"
             style={{
-              height: 44,
-              width: 44,
+              height: 48,
+              width: 48,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

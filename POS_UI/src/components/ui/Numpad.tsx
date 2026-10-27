@@ -9,7 +9,7 @@ export interface NumpadProps {
   onBackspace: () => void;
 }
 
-export const Numpad: React.FC<NumpadProps> = ({ onDigit, onBackspace }) => {
+export const Numpad: React.FC<NumpadProps> = ({ onDigit, onClear, onBackspace }) => {
   const keys = [
     ['7', '8', '9'],
     ['4', '5', '6'],
@@ -18,58 +18,71 @@ export const Numpad: React.FC<NumpadProps> = ({ onDigit, onBackspace }) => {
   ];
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 8,
-        width: '100%',
-      }}
-    >
-      {keys.flat().map((k) => {
-        const isBackspace = k === 'backspace';
-
-        return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+      {onClear && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <button
-            key={k}
             type="button"
-            onClick={() => {
-              if (isBackspace) onBackspace();
-              else onDigit(k);
-            }}
+            onClick={onClear}
+            className="touch-press"
             style={{
-              height: 64, // DESIGN.md: Phím số trên bàn phím nhập tiền 64px
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border-control)',
-              borderRadius: 'var(--radius-control)',
-              fontSize: 22,
+              padding: '4px 12px',
+              fontSize: 13,
               fontWeight: 600,
-              color: 'var(--color-text)',
+              color: 'var(--color-danger)',
+              background: 'var(--color-danger-bg)',
+              border: 'none',
+              borderRadius: 'var(--radius-control)',
               cursor: 'pointer',
-              userSelect: 'none',
-              fontVariantNumeric: 'tabular-nums',
-              transition: 'background-color 100ms ease',
-            }}
-            onMouseDown={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-brand-50)';
-            }}
-            onMouseUp={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-surface)';
-            }}
-            onTouchStart={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-brand-50)';
-            }}
-            onTouchEnd={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-surface)';
             }}
           >
-            {isBackspace ? <Delete size={24} /> : k}
+            Xóa nhập lại (C)
           </button>
-        );
-      })}
+        </div>
+      )}
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: 8,
+          width: '100%',
+        }}
+      >
+        {keys.flat().map((k) => {
+          const isBackspace = k === 'backspace';
+
+          return (
+            <button
+              key={k}
+              type="button"
+              onClick={() => {
+                if (isBackspace) onBackspace();
+                else onDigit(k);
+              }}
+              className="touch-press"
+              style={{
+                height: 64, // DESIGN.md: Phím số trên bàn phím nhập tiền 64px
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: isBackspace ? 'var(--color-surface-sunken)' : 'var(--color-surface)',
+                border: '1px solid var(--color-border-control)',
+                borderRadius: 'var(--radius-control)',
+                fontSize: 22,
+                fontWeight: 600,
+                color: isBackspace ? 'var(--color-text-muted)' : 'var(--color-text)',
+                cursor: 'pointer',
+                userSelect: 'none',
+                fontVariantNumeric: 'tabular-nums',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+              }}
+            >
+              {isBackspace ? <Delete size={24} /> : k}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };

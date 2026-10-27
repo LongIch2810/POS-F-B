@@ -85,7 +85,7 @@ export const StockMovementsTab: React.FC<StockMovementsTabProps> = ({ movements 
       header: 'Chứng từ / Ghi chú',
       render: (m) => (
         <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
-          {m.note || m.invoice_id || '—'}
+          {m.note || m.invoice_id || '-'}
         </span>
       ),
     },
