@@ -1,0 +1,134 @@
+/* POS-F&B Design Tokens per DESIGN.md §4 & §12.1 */
+:root {
+  /* Bề mặt và chữ ("Quầy pha chế sạch và sáng" - nền đá xám lạnh, bề mặt trắng) */
+  --color-bg: #f2f4f5;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #e9edef;
+  --color-border: #d5dbde;
+  --color-border-control: #8a979d;
+  --color-text: #1a2226;
+  --color-text-muted: #55636a;
+  --color-text-disabled: #98a3a9;
+
+  /* Thương hiệu (nâu phin) */
+  --color-brand-800: #43291a;
+  --color-brand-700: #5c3720;
+  --color-brand-600: #7a4a2b;
+  --color-brand-100: #f1e4d9;
+  --color-brand-50: #f8f0e9;
+
+  /* Trạng thái (luôn kèm biểu tượng + chữ, không chỉ dùng màu) */
+  --color-success: #187a3d;
+  --color-success-bg: #dff3e6;
+  --color-danger: #b3261e;
+  --color-danger-bg: #fbe4e2;
+  --color-warning: #8a5200;
+  --color-warning-bg: #fcebc8;
+  --color-info: #1f5fb8;
+  --color-info-bg: #dce9fa;
+
+  /* Bo góc theo thứ bậc */
+  --radius-control: 8px;
+  --radius-tile: 12px;
+  --radius-sheet: 20px;
+  --radius-pill: 999px;
+
+  /* Đổ bóng chỉ cho lớp nổi */
+  --shadow-overlay: 0 8px 24px rgba(26, 34, 38, 0.16);
+
+  /* Chữ */
+  --font-sans: "Be Vietnam Pro", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-numeric: var(--font-sans);
+}
+
+/* Base resets & typography */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Số tiền & số liệu luôn tabular */
+.money,
+.num {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Canh phải cột tiền */
+.money-right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Focus indicator nhìn thấy rõ (DESIGN.md §11) */
+:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Text scale utilities */
+.text-xs { font-size: 12px; line-height: 16px; font-weight: 500; }
+.text-sm { font-size: 14px; line-height: 20px; }
+.text-base { font-size: 16px; line-height: 24px; }
+.text-lg { font-size: 18px; line-height: 26px; font-weight: 600; }
+.text-xl { font-size: 22px; line-height: 30px; font-weight: 600; }
+.text-2xl { font-size: 28px; line-height: 36px; font-weight: 700; }
+.text-3xl { font-size: 40px; line-height: 48px; font-weight: 700; }
+.text-4xl { font-size: 56px; line-height: 64px; font-weight: 700; }
+
+/* Custom clean scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-control);
+}
+
+/* Animation flash for newly added items */
+@keyframes itemFlash {
+  0% { background-color: var(--color-brand-100); }
+  100% { background-color: transparent; }
+}
+
+.item-added-flash {
+  animation: itemFlash 600ms ease-out forwards;
+}
