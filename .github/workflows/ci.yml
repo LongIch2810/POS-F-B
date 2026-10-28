@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - 'feat/**'
+      - 'fix/**'
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend API (POS_API)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: pos_ci
+          POSTGRES_PASSWORD: pos_ci_password
+          POSTGRES_DB: pos_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: POS_API/package-lock.json
+
+      - name: Install dependencies
+        working-directory: POS_API
+        run: npm ci
+
+      - name: Compile TypeScript
+        working-directory: POS_API
+        run: npm run build
+
+      - name: Run unit & integration tests
+        working-directory: POS_API
+        env:
+          DATABASE_URL: postgres://pos_ci:pos_ci_password@localhost:5432/pos_ci
+          JWT_SECRET: ci_test_jwt_secret_must_be_at_least_32_bytes_long!
+          CSRF_SECRET: ci_test_csrf_secret_must_be_at_least_32_bytes_long!
+          PUBLIC_ORIGIN: http://localhost:5173
+        run: npm test
+
+      - name: Audit dependencies
+        working-directory: POS_API
+        run: npm audit --audit-level=high
+
+  frontend:
+    name: Frontend UI (POS_UI)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: POS_UI/package-lock.json
+
+      - name: Install dependencies
+        working-directory: POS_UI
+        run: npm ci
+
+      - name: Typecheck and build production bundle
+        working-directory: POS_UI
+        run: npm run build
+
+      - name: Audit dependencies
+        working-directory: POS_UI
+        run: npm audit --audit-level=high

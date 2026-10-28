@@ -37,4 +37,4 @@ Reverse proxy, TLS, image production, backup và Redis/BullMQ chưa có cấu h�
 
 ## Kiểm thử và công cụ
 
-Backend dùng `node:test`, `@nestjs/testing`, TypeScript build, test HTTP qua `fetch` và database PostgreSQL riêng cho test tích hợp. Dependency được khóa trong `POS_API/package-lock.json` và `POS_UI/package-lock.json`. Bằng chứng các lần chạy nằm trong `qa-evidence/`.
+Backend dùng `node:test`, `@nestjs/testing`, TypeScript build, test HTTP qua `fetch` và database PostgreSQL riêng cho test tích hợp. Frontend dùng Vite build và TypeScript typecheck (`tsc --noEmit`). CI tự động hóa bằng GitHub Actions (`.github/workflows/ci.yml`) chạy kiểm thử độc lập cho cả backend và frontend kèm dịch vụ PostgreSQL container. Dependency được khóa trong `POS_API/package-lock.json` và `POS_UI/package-lock.json`. Bằng chứng các lần chạy nằm trong `qa-evidence/`.
