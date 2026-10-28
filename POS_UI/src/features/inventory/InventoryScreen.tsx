@@ -1,6 +1,7 @@
 // POS-F&B Inventory, Stock Movements & Ingredient Catalog per BR-42..BR-49
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { inventoryService, IngredientStockItem } from '../../services/inventoryService';
 import { MockEngine } from '../../mock/mockEngine';
 import { mockStorage } from '../../mock/mockStorage';
@@ -15,7 +16,9 @@ import { Boxes, History, ListOrdered, Plus, Edit2, Power, AlertTriangle } from '
 import { useToast } from '../../context/ToastContext';
 
 export const InventoryScreen: React.FC = () => {
+  const { session } = useAuth();
   const { showToast } = useToast();
+  const canViewInventory = session.permissions.includes('inventory.view');
   const effectiveBranchId = MockEngine.getEffectiveBranchId();
 
   const [activeTab, setActiveTab] = useState<'stocks' | 'movements' | 'catalog'>('stocks');
@@ -203,6 +206,21 @@ export const InventoryScreen: React.FC = () => {
   const displayedStocks = onlyNegative
     ? stocks.filter((s) => s.stock.current_stock < 0)
     : stocks;
+
+  if (!canViewInventory) {
+    return (
+      <div style={{ flex: 1, padding: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: 420 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-danger)', marginBottom: 8 }}>
+            Không có quyền truy cập
+          </div>
+          <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
+            Bạn không có quyền xem kho hàng (cần quyền inventory.view).
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ flex: 1, padding: 'clamp(14px, 2.5vw, 24px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>

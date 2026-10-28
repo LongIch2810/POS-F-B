@@ -10,12 +10,12 @@ import { Banknote, QrCode, Calendar } from 'lucide-react';
 
 export const DailyReportScreen: React.FC = () => {
   const { session } = useAuth();
-  const user = session.user;
-  const isOwner = user.role_code === 'OWNER';
+  const canViewAll = session.permissions.includes('report.view_all');
+  const canViewBranch = session.permissions.includes('report.view_branch');
 
   const accessibleBranches = MockEngine.getAccessibleBranches();
   const [selectedBranchId, setSelectedBranchId] = useState<string>(
-    isOwner ? '' : MockEngine.getEffectiveBranchId()
+    canViewAll ? '' : MockEngine.getEffectiveBranchId()
   );
 
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -43,6 +43,21 @@ export const DailyReportScreen: React.FC = () => {
       ? Number((report.transferRevenue * 100n) / report.totalRevenue)
       : 0;
 
+  if (!canViewBranch && !canViewAll) {
+    return (
+      <div style={{ flex: 1, padding: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: 420 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-danger)', marginBottom: 8 }}>
+            Không có quyền truy cập
+          </div>
+          <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
+            Bạn không có quyền xem báo cáo doanh thu ngày (cần quyền report.view_branch hoặc report.view_all).
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ flex: 1, padding: 'clamp(14px, 2.5vw, 24px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* Header & Controls */}
@@ -65,8 +80,8 @@ export const DailyReportScreen: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Lọc chi nhánh cho OWNER (BR-77) */}
-          {isOwner && (
+          {/* Lọc chi nhánh cho người có quyền report.view_all (BR-77) */}
+          {canViewAll && (
             <select
               value={selectedBranchId}
               onChange={(e) => setSelectedBranchId(e.target.value)}

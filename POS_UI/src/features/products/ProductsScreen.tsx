@@ -28,6 +28,7 @@ import { useToast } from '../../context/ToastContext';
 export const ProductsScreen: React.FC = () => {
   const { session } = useAuth();
   const { showToast } = useToast();
+  const canManageProducts = session.permissions.includes('product.manage');
   const storeId = session.user.store_id || 'store-1';
 
   const [activeMainTab, setActiveMainTab] = useState<'products' | 'toppings' | 'categories' | 'promotions'>('products');
@@ -503,6 +504,21 @@ export const ProductsScreen: React.FC = () => {
       ),
     },
   ];
+
+  if (!canManageProducts) {
+    return (
+      <div style={{ flex: 1, padding: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: 420 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-danger)', marginBottom: 8 }}>
+            Không có quyền truy cập
+          </div>
+          <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
+            Bạn không có quyền quản lý thực đơn (cần quyền product.manage).
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ flex: 1, padding: 'clamp(14px, 2.5vw, 24px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>

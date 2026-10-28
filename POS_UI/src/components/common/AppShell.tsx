@@ -46,8 +46,10 @@ interface AppShellProps {
 export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, children }) => {
   const { session, logout } = useAuth();
   const user = session.user;
+  const perms = session.permissions || [];
+  const has = (p: string) => perms.includes(p as any);
   const isPlatformAdmin = user.role_code === 'PLATFORM_ADMIN';
-  const isOwner = user.role_code === 'OWNER';
+  const canSwitchBranch = has('branch.access_all');
 
   const [activeShiftDuration, setActiveShiftDuration] = useState<string>('');
   const [accessibleBranches, setAccessibleBranches] = useState(() => MockEngine.getAccessibleBranches());
@@ -88,9 +90,6 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
   const myShift = shiftService.getMyActiveShift();
   const hasOpenShift = myShift && myShift.status === 'OPEN';
 
-  const perms = session.permissions || [];
-  const has = (p: string) => perms.includes(p as any);
-
   // Danh sách Navigation Items theo quyền động (BR-05)
   const allNavItems: { id: NavTab; label: string; icon: React.ReactNode; visible: boolean }[] = [
     // Quản trị nền tảng
@@ -104,7 +103,7 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
     { id: 'invoices', label: 'Hóa đơn', icon: <Receipt size={24} />, visible: !isPlatformAdmin && (has('pos.sell') || has('invoice.cancel_open') || has('invoice.cancel_paid')) },
     { id: 'shifts', label: 'Ca làm', icon: <Clock size={24} />, visible: !isPlatformAdmin && (has('shift.open_close') || has('shift.force_close')) },
     { id: 'inventory', label: 'Kho hàng', icon: <Boxes size={24} />, visible: !isPlatformAdmin && has('inventory.view') },
-    { id: 'reports', label: 'Báo cáo', icon: <BarChart3 size={24} />, visible: !isPlatformAdmin && (has('report.view_shift') || has('report.view_branch') || has('report.view_all')) },
+    { id: 'reports', label: 'Báo cáo', icon: <BarChart3 size={24} />, visible: !isPlatformAdmin && (has('report.view_branch') || has('report.view_all')) },
     { id: 'products', label: 'Thực đơn', icon: <UtensilsCrossed size={24} />, visible: !isPlatformAdmin && has('product.manage') },
     { id: 'settings', label: 'Cài đặt', icon: <Settings size={24} />, visible: !isPlatformAdmin && (has('branch.manage') || has('table.manage')) },
   ];
@@ -451,8 +450,8 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
               <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Quản trị Nền tảng
               </span>
-            ) : isOwner ? (
-              /* Chủ cửa hàng có dropdown đổi chi nhánh */
+            ) : canSwitchBranch ? (
+              /* Người có quyền branch.access_all có dropdown đổi chi nhánh (BR-71b) */
               <div style={{ position: 'relative', minWidth: 0 }}>
                 <button
                   type="button"
