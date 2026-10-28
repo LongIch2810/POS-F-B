@@ -48,7 +48,9 @@ Quy ước chung của REST API cho hệ thống POS và kho. File này **chỉ 
 
 | Header                                | Chiều             | Ghi chú                                                                                     |
 | ------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------- |
-| `Authorization: Bearer <accessToken>` | Request           | Bắt buộc với mọi route trừ đăng nhập và làm mới token                                       |
+| `Cookie: __Host-pos_access=...`       | Request           | Browser tự gửi với route cần xác thực; API đọc access token từ cookie, không nhận Bearer    |
+| `X-CSRF-Token`                        | Request           | Bắt buộc với mọi request thay đổi trạng thái sau đăng nhập (mục 2)                         |
+| `Origin`                              | Request           | Phải khớp origin cấu hình với mọi request thay đổi trạng thái, kể cả đăng nhập              |
 | `Idempotency-Key`                     | Request           | Bắt buộc với thanh toán và hoàn tất đơn 0đ (mục 7)                                           |
 | `X-Request-Id`                        | Request, Response | Mã truy vết. Máy chủ tự sinh nếu client không gửi, luôn trả lại trong response và trong log |
 | `Idempotent-Replay: true`             | Response          | Có khi trả lại kết quả cũ của một yêu cầu trùng `Idempotency-Key`                           |
@@ -61,7 +63,8 @@ Quy ước chung của REST API cho hệ thống POS và kho. File này **chỉ 
 
 ### Cơ chế
 
-- Đăng nhập bằng `username` và mật khẩu. Access token (JWT) trả trong JSON và chỉ giữ trong bộ nhớ web; refresh token chỉ đặt trong cookie `HttpOnly; Secure; SameSite=Strict` cùng origin. Web và API đi qua cùng reverse proxy.
+- Đăng nhập bằng `username` và mật khẩu. Access token (JWT) và refresh token chỉ đặt trong hai cookie riêng `HttpOnly; Secure; SameSite=Strict` cùng origin; không trả token trong JSON hay cho JavaScript đọc. API lấy access token từ cookie, không dùng `Authorization: Bearer`. Web và API đi qua cùng reverse proxy.
+- Vì cookie được gửi tự động, mọi request thay đổi trạng thái sau đăng nhập phải kiểm tra Origin và CSRF token; login kiểm tra Origin. Chi tiết cookie và CSRF xem [auth.md](architecture/auth.md).
 - Refresh token chỉ lưu **hash** trong DB (BR-04). Hợp lệ khi chưa thu hồi và chưa hết hạn.
 - Đăng xuất, đổi mật khẩu, khóa tài khoản, tạm khóa cửa hàng đều **thu hồi** refresh token (BR-03, BR-82).
 - Không có đăng ký công khai (BR-78). Tài khoản do cấp trên tạo.
@@ -104,8 +107,8 @@ Quy ước chung của REST API cho hệ thống POS và kho. File này **chỉ 
 | `must_change_password = true` | Route nghiệp vụ trả `403`; chỉ cho `/auth/change-password`, `/auth/logout`, `/auth/me`, `/auth/refresh`, `/auth/csrf` | `PASSWORD_CHANGE_REQUIRED` |
 | Tài khoản `isActive = false`  | Từ chối đăng nhập và mọi route (BR-02); login báo lỗi chung                              | `ACCOUNT_DISABLED` trên route đã xác thực |
 | Cửa hàng `SUSPENDED`          | Từ chối đăng nhập và mọi route của người dùng thuộc cửa hàng (BR-82); login báo lỗi chung | `STORE_SUSPENDED` trên route đã xác thực |
-| Access token hết hạn          | `401` để client gọi `/auth/refresh`                                                     | `TOKEN_EXPIRED`            |
-| Thiếu hoặc sai token          | `401`                                                                                   | `UNAUTHENTICATED`          |
+| Access cookie còn được gửi nhưng JWT hết hạn | `401`; client thử `/auth/refresh` một lần                                        | `TOKEN_EXPIRED`            |
+| Thiếu hoặc sai access cookie | `401`; client có thể thử `/auth/refresh` một lần vì browser tự bỏ cookie hết hạn           | `UNAUTHENTICATED`          |
 
 
 - `PLATFORM_ADMIN` không thuộc cửa hàng nào nên không bị chặn bởi `STORE_SUSPENDED`.
@@ -123,7 +126,7 @@ Quy ước chung của REST API cho hệ thống POS và kho. File này **chỉ 
 
 ### Ngữ cảnh cửa hàng (tenant)
 
-- `storeId` **luôn lấy từ token**. Không route nào nhận `storeId` từ body, query hay header để quyết định phạm vi dữ liệu (BR-80).
+- `storeId` **luôn lấy từ danh tính hiện hành sau khi xác minh access cookie và phiên**. Không route nào nhận `storeId` từ body, query hay header để quyết định phạm vi dữ liệu (BR-80).
 - Mọi truy vấn dữ liệu thuộc cửa hàng đều lọc theo `storeId` (trực tiếp hoặc qua `branch_id`, `category_id`).
 - Mọi `id` trong request (món, size, topping, nguyên liệu, mã giảm giá, chi nhánh, bàn...) phải thuộc cùng cửa hàng với người gọi. Không thuộc thì trả `404` (không tiết lộ là tồn tại ở cửa hàng khác).
 - Bảng nối (`category_toppings`, công thức) phải có hai đầu cùng cửa hàng.
@@ -232,12 +235,13 @@ Danh sách:
 | `204 No Content`            | Thành công, không có body                                                                                                                                                                                                                                     |
 | `400 Bad Request`           | Request **không đọc được**: JSON hỏng, sai `Content-Type`. Chưa tới bước kiểm tra giá trị                                                                                                                                                                     |
 | `401 Unauthorized`          | Chưa đăng nhập, token sai hoặc hết hạn                                                                                                                                                                                                                        |
-| `403 Forbidden`             | Đã đăng nhập nhưng không được phép: thiếu quyền, đổi mật khẩu bắt buộc, cửa hàng bị khóa                                                                                                                                                                      |
+| `403 Forbidden`             | Không được phép: thiếu quyền, đổi mật khẩu bắt buộc, cửa hàng bị khóa hoặc kiểm tra Origin/CSRF thất bại                                                                                                                                                    |
 | `404 Not Found`             | Không tìm thấy, hoặc bản ghi thuộc cửa hàng khác                                                                                                                                                                                                              |
 | `409 Conflict`              | Xung đột với **trạng thái hiện tại** của dữ liệu: đã có ca mở, bàn đang có đơn, đơn không còn `OPEN`, bản ghi đang được tham chiếu                                                                                                                            |
 | `422 Unprocessable Entity`  | Request đọc được nhưng **giá trị không hợp lệ**: sai kiểu, sai định dạng, thiếu, field lạ, vượt giới hạn, ở **path, query, header hoặc body**. Gồm cả vi phạm quy tắc nghiệp vụ không phụ thuộc trạng thái (thanh toán thiếu tiền, mã giảm giá không áp được) |
 | `429 Too Many Requests`     | Vượt giới hạn tần suất. Kèm `Retry-After`                                                                                                                                                                                                                     |
 | `500 Internal Server Error` | Lỗi không lường trước. Không lộ chi tiết nội bộ                                                                                                                                                                                                               |
+| `503 Service Unavailable`   | Dịch vụ chưa sẵn sàng do phụ thuộc bắt buộc (ví dụ PostgreSQL) không truy cập được; health check trả mã này khi DB mất kết nối |
 
 
 Phân biệt `409` và `422`: `409` **là "không làm được lúc này vì trạng thái dữ liệu"** (thử lại sau khi trạng thái đổi thì có thể được). `422` **là "dữ liệu gửi lên chưa đúng"** (phải sửa request).
@@ -282,9 +286,11 @@ Phân biệt `400` và `422`: `400` **là máy chủ không đọc nổi request
 | `UNAUTHENTICATED`        | 401  | Chưa đăng nhập hoặc token sai                                                                         |
 | `TOKEN_EXPIRED`          | 401  | Access token hết hạn                                                                                  |
 | `PERMISSION_DENIED`      | 403  | Thiếu quyền                                                                                           |
+| `CSRF_INVALID`           | 403  | Origin hoặc CSRF token thiếu/sai; tải lại trang rồi thử lại                                            |
 | `NOT_FOUND`              | 404  | Không tìm thấy hoặc thuộc cửa hàng khác                                                               |
 | `CONFLICT`               | 409  | Xung đột trạng thái chung, khi chưa có mã riêng                                                       |
 | `RESOURCE_IN_USE`        | 409  | Xóa bản ghi đã có tham chiếu (BR-10)                                                                  |
+| `SERVICE_UNAVAILABLE`    | 503  | Dịch vụ chưa sẵn sàng; không lộ cấu hình hoặc lỗi kết nối nội bộ                                      |
 | `IDEMPOTENCY_KEY_REUSED` | 409  | Cùng `Idempotency-Key` nhưng nội dung khác                                                            |
 | `TOO_MANY_REQUESTS`      | 429  | Vượt giới hạn tần suất                                                                                |
 | `INTERNAL_ERROR`         | 500  | Lỗi không lường trước                                                                                 |
@@ -404,7 +410,7 @@ Các điểm cần xử lý khi cài đặt:
 - **Đếm mù** (BR-58): `expectedCash` và `difference` của ca đang mở **không** xuất hiện ở bất kỳ response nào. Chỉ có trong response của hành động đóng ca và trong chi tiết ca đã `CLOSED`.
 - **Mật khẩu tạm** (BR-84): trả trong field `temporaryPassword` **đúng một lần** ở response tạo tài khoản, tạo cửa hàng (kèm chủ cửa hàng) và đặt lại mật khẩu. Không route nào đọc lại được. Không ghi vào log.
 - **Transaction**: ghi thanh toán (nếu có), đổi `status` hóa đơn sang `PAID` và trừ kho nằm trong **một transaction** (BR-35, BR-104). Hành động thêm hoặc sửa món khóa dòng hóa đơn trong transaction (BR-90).
-- **Ảnh món**: `POST /products/{id}/image` nhận `multipart/form-data` với một file ảnh tối đa 2 MB (2.000.000 byte); mỗi món có tối đa một ảnh đại diện. Người gọi phải có quyền sửa món và món phải thuộc cửa hàng của họ. Server kiểm tra file rồi mã hóa Base64 thuần (không kèm tiền tố `data:`) vào `products.image_base64` (`text`), lưu MIME ở `image_mime`; không nhận chuỗi Base64 từ client. Response trả `imageUrl` trỏ tới `GET /products/{id}/image` cùng origin, không trả đường dẫn lưu nội bộ. Route GET yêu cầu Bearer và kiểm tra cùng store, giải mã Base64 rồi trả bytes với MIME phù hợp thay vì JSON; web dùng `fetch` kèm Bearer để hiển thị. Định dạng file cụ thể ghi trong `specs/catalog.md` khi viết endpoint.
+- **Ảnh món**: `POST /products/{id}/image` nhận `multipart/form-data` với một file ảnh tối đa 2 MB (2.000.000 byte); mỗi món có tối đa một ảnh đại diện. Người gọi phải có quyền sửa món và món phải thuộc cửa hàng của họ. Server kiểm tra file rồi mã hóa Base64 thuần (không kèm tiền tố `data:`) vào `products.image_base64` (`text`), lưu MIME ở `image_mime`; không nhận chuỗi Base64 từ client. Response trả `imageUrl` trỏ tới `GET /products/{id}/image` cùng origin, không trả đường dẫn lưu nội bộ. Route GET yêu cầu access cookie và kiểm tra cùng store, giải mã Base64 rồi trả bytes với MIME phù hợp thay vì JSON; web có thể hiển thị ảnh cùng origin bằng `<img src>` vì browser tự gửi cookie. Định dạng file cụ thể ghi trong `specs/catalog.md` khi viết endpoint.
 - **Sổ kho** chỉ thêm dòng, **không có** route sửa hoặc xóa `stock_movements` (BR-44).
 - **Nội dung đã khóa**: hóa đơn `PAID` hoặc `CANCELLED` không sửa món, giá, tổng tiền. Ca `CLOSED` không sửa. Chuyển trạng thái chỉ qua hành động đã định nghĩa. Hóa đơn `PAID` chỉ chuyển được sang `CANCELLED` bằng `POST /invoices/{id}/cancel` theo BR-29 (cần quyền, lý do, ca còn mở). Các khoản `payments` đã nhận **giữ nguyên**, không sửa, không xóa (BR-17, BR-21, BR-29).
 - **Trừ kho** theo `invoices.branch_id` (BR-72), không theo chi nhánh của người gọi.

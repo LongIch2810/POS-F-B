@@ -64,7 +64,7 @@ Module được gọi qua service có trách nhiệm rõ ràng; không sửa tr�
 
 ### 5.2 Frontend
 
-React chia theo feature và vai trò; lớp service/API client là ranh giới duy nhất gọi HTTP. Khi nối API, thay nguồn mock ở `src/services`, không để màn hình truy cập `mockEngine` như nguồn thật. Access token chỉ ở bộ nhớ; refresh cookie, CSRF và xử lý nhiều request/tab theo [auth.md](auth.md). UI có thể ẩn thao tác theo quyền để dễ dùng, nhưng API luôn kiểm tra lại.
+React chia theo feature và vai trò; lớp service/API client là ranh giới duy nhất gọi HTTP. Khi nối API, thay nguồn mock ở `src/services`, không để màn hình truy cập `mockEngine` như nguồn thật. Access và refresh token ở hai cookie HttpOnly; browser tự gửi cookie, API kiểm tra Origin/CSRF cho request thay đổi trạng thái và xử lý nhiều request/tab theo [auth.md](auth.md). UI có thể ẩn thao tác theo quyền để dễ dùng, nhưng API luôn kiểm tra lại.
 
 Màn POS ưu tiên tablet ngang và cảm ứng; giao diện tiếng Việt, VND nguyên đồng, giờ hiển thị `Asia/Ho_Chi_Minh` từ timestamp lưu UTC. Không dùng trạng thái offline demo để cho phép tạo đơn/thanh toán khi mất mạng. Cách trình bày cụ thể theo [DESIGN.md](../../DESIGN.md).
 
@@ -78,7 +78,7 @@ Mọi truy vấn đọc/ghi cần bộ lọc tenant ở điểm truy cập dữ 
 
 - PostgreSQL dùng **shared schema**, mỗi bảng có `store_id` hoặc suy ra store qua bảng cha; tồn kho và ca gắn branch. TypeORM entity/migration phải theo [thiết kế DB](../DESIGN_DB_POS_SYSTEM.md), giữ unique/partial index tại DB cho các bất biến đồng thời.
 - Tiền là số nguyên đồng (`bigint` ở DB), server tính và chặn từng giá trị/kết quả vượt trần 1.000 tỷ đồng. Hóa đơn giữ snapshot tên và giá khi bán. Thời điểm lưu UTC, chỉ chuyển sang giờ Việt Nam ở ranh giới hiển thị/báo cáo theo quy ước API.
-- Mỗi product có tối đa **một ảnh đại diện**, không bắt buộc. Upload `multipart/form-data`, ảnh gốc tối đa **2 MB (2.000.000 byte)**; server kiểm tra loại và nội dung file rồi mã hóa **Base64 thuần** vào cột `products.image_base64` (`text`), lưu MIME riêng. Không nhận chuỗi Base64 từ client và không chọn cột ảnh trong truy vấn danh sách món. `imageUrl` trong response trỏ tới `GET /products/{id}/image` cùng origin, **không** chứa nội dung Base64. Route GET yêu cầu Bearer và kiểm tra đúng store, giải mã Base64 để trả bytes ảnh; web tải bằng `fetch` kèm Bearer rồi hiển thị blob. Không dùng `<img src>` trực tiếp cho endpoint cần Bearer.
+- Mỗi product có tối đa **một ảnh đại diện**, không bắt buộc. Upload `multipart/form-data`, ảnh gốc tối đa **2 MB (2.000.000 byte)**; server kiểm tra loại và nội dung file rồi mã hóa **Base64 thuần** vào cột `products.image_base64` (`text`), lưu MIME riêng. Không nhận chuỗi Base64 từ client và không chọn cột ảnh trong truy vấn danh sách món. `imageUrl` trong response trỏ tới `GET /products/{id}/image` cùng origin, **không** chứa nội dung Base64. Route GET yêu cầu access cookie và kiểm tra đúng store, giải mã Base64 để trả bytes ảnh; web có thể dùng `<img src>` cùng origin vì browser tự gửi cookie.
 - Dữ liệu có tham chiếu được ngưng dùng thay vì xóa cứng. `stock_movements` chỉ thêm dòng; sửa sai bằng dòng điều chỉnh. Chi tiết cột và ràng buộc xem tài liệu DB.
 
 ## 8. Luồng nghiệp vụ và transaction
@@ -131,7 +131,7 @@ Chạy lệnh build/test thực tế của từng phần khi manifest xuất hi�
 | Production | Một VPS tự quản lý, Docker Compose cho web/API/DB/reverse proxy, cùng origin |
 | Migration | Lệnh riêng trước khi phục vụ API mới |
 | Môi trường | Local và production; chưa có staging riêng |
-| Ảnh món | Một ảnh/product, ảnh gốc tối đa 2 MB, Base64 trong cột `text` của DB; endpoint đọc có Bearer và kiểm tra store |
+| Ảnh món | Một ảnh/product, ảnh gốc tối đa 2 MB, Base64 trong cột `text` của DB; endpoint đọc yêu cầu access cookie và kiểm tra store |
 | Sao lưu | PostgreSQL hằng ngày, giữ 7 ngày, lưu ngoài VPS |
 
 **Còn mở:** nhà cung cấp VPS, phần mềm reverse proxy, nơi lưu bản sao ngoài VPS, định dạng ảnh được phép và lịch kiểm tra khôi phục. Những lựa chọn này không thay đổi quy tắc nghiệp vụ; chốt khi triển khai infra. Nếu đổi một quyết định ở bảng trên, cập nhật file này cùng API/DB/auth có liên quan trước khi viết code.

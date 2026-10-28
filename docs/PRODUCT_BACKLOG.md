@@ -1,0 +1,29 @@
+# PRODUCT_BACKLOG
+
+**Trạng thái:** bản nháp để Product Owner review. Thứ tự dưới đây là ưu tiên đề xuất cho MVP; chưa phải cam kết sprint hay đặc tả endpoint.
+
+Nguồn phạm vi: [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) mục 5; quy tắc chi tiết ở [BUSINESS_RULES.md](BUSINESS_RULES.md). UI trong `POS_UI/` hiện là demo mock; nền API và PostgreSQL local của PB-01 đã được Product Owner nghiệm thu. Mỗi item cần refinement và spec đã chốt trong `specs/` trước khi code phần tương ứng.
+
+## Product Backlog MVP
+
+| ID | Kết quả người dùng / điều kiện chấp nhận chính | Phụ thuộc |
+| --- | --- | --- |
+| PB-01 | API NestJS và PostgreSQL chạy local; migration riêng áp được từ DB trống và chạy lặp không nhân đôi; constraint auth được kiểm tra trên PostgreSQL thật; bootstrap tạo đúng một `PLATFORM_ADMIN` từ biến môi trường; health check trả `200`/`503` theo trạng thái DB. Chi tiết: [spec PB-01](../specs/foundation.md). | Không |
+| PB-02 | Người dùng được cấp tài khoản có thể đăng nhập, đổi mật khẩu lần đầu, khôi phục/đăng xuất phiên; API lấy danh tính và quyền hiện hành, chặn tài khoản/store bị khóa. Không có đăng ký công khai. | PB-01; spec auth |
+| PB-03 | `PLATFORM_ADMIN` tạo store và cấp `OWNER`, tạm khóa/mở lại store; không truy cập dữ liệu vận hành store. | PB-02; spec platform |
+| PB-04 | `OWNER` tạo chi nhánh, đặt tiền đầu ca, quản lý bàn và cấp tài khoản `MANAGER`/`CASHIER` đúng phạm vi. | PB-03; spec tổ chức |
+| PB-05 | `OWNER` quản lý danh mục, món, size, giá, topping và ảnh tùy chọn; POS đọc menu cùng store, không nhận giá từ client. | PB-04; spec menu |
+| PB-06 | Thu ngân mở ca của mình; chỉ một ca thu ngân mở mỗi chi nhánh; tiền đầu ca do hệ thống điền. Nhân viên có thể ghi giờ vào/tan ca theo phạm vi MVP. | PB-04; spec ca |
+| PB-07 | Thu ngân tạo đơn tại bàn hoặc mang đi và thêm món vào đơn mở; mỗi bàn tối đa một đơn mở, dòng món giữ snapshot tên/giá. | PB-05, PB-06; spec bán hàng |
+| PB-08 | `OWNER`/`MANAGER` quản lý nguyên liệu, công thức theo size/topping, tồn từng chi nhánh và xem sổ kho chỉ thêm dòng. | PB-04, PB-05; spec kho |
+| PB-08a | Người có quyền cấu hình mã giảm giá MVP để áp tối đa một mã cho một hóa đơn, theo điều kiện và giới hạn đã đặc tả. | PB-04; spec khuyến mãi |
+| PB-09 | Thu ngân thanh toán đủ một lần bằng tiền mặt/chuyển khoản hoặc hoàn tất đơn 0đ; server tính tiền, áp tối đa một mã giảm; replay `Idempotency-Key` không thu thêm; thanh toán, trạng thái đơn và trừ kho trong một transaction. | PB-07, PB-08, PB-08a; spec thanh toán/khuyến mãi |
+| PB-10 | Thu ngân ghi chi từ két và đóng ca bằng đếm mù; không đóng khi còn đơn mở; quản lý có thể đóng cưỡng chế theo quyền và lý do. | PB-06, PB-09; spec đối soát |
+| PB-11 | Hủy đơn mở hoặc đơn đã trả tiền theo đúng quyền/lý do/ca; giữ lịch sử thanh toán và ghi hoàn kho bằng dòng mới. | PB-09; spec hủy đơn |
+| PB-12 | Người có quyền xem doanh thu ngày theo giờ Việt Nam, tách tiền mặt/chuyển khoản và giới hạn dữ liệu theo ca/chi nhánh/store. | PB-09, PB-11; spec báo cáo |
+| PB-13 | UI demo được nối API theo từng lát cắt đã hoàn thành; không dùng mock như nguồn thật cho luồng đó. POS phù hợp tablet ngang, tiếng Việt và VND. | Đi cùng PB-02 đến PB-12 |
+| PB-14 | Web/API/DB vận hành cùng origin trên một VPS qua Docker Compose, migration riêng, sao lưu DB hằng ngày ra ngoài VPS và kiểm tra khôi phục. | Các lát cắt cần triển khai; chốt lựa chọn infra còn mở |
+
+Mỗi PB được tách thành item nhỏ khi refinement. Các mục Giai đoạn 2 và Tùy chọn trong product overview nằm ngoài backlog MVP này.
+
+Kế hoạch Sprint 1: [SPRINT.md](../sprints/sprint-01/SPRINT.md).
