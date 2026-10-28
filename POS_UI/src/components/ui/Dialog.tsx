@@ -122,7 +122,7 @@ export const Dialog: React.FC<DialogProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 16,
+        padding: 'min(16px, 3vw)',
       }}
     >
       {/* Backdrop */}
@@ -151,7 +151,7 @@ export const Dialog: React.FC<DialogProps> = ({
           boxShadow: 'var(--shadow-overlay)',
           width: '100%',
           maxWidth,
-          maxHeight: 'min(90vh, calc(100vh - 32px))',
+          maxHeight: 'min(92vh, calc(100vh - 20px))',
           display: 'flex',
           flexDirection: 'column',
           zIndex: 5001,
@@ -163,7 +163,7 @@ export const Dialog: React.FC<DialogProps> = ({
         <div
           style={{
             height: 64,
-            padding: '0 24px',
+            padding: '0 20px',
             borderBottom: '1px solid var(--color-border)',
             display: 'flex',
             alignItems: 'center',
@@ -202,8 +202,9 @@ export const Dialog: React.FC<DialogProps> = ({
         {/* Content - Scrollable */}
         <div
           style={{
-            padding: 24,
+            padding: 'min(20px, 4vw)',
             overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
             flex: 1,
           }}
         >
@@ -214,7 +215,7 @@ export const Dialog: React.FC<DialogProps> = ({
         {footer && (
           <div
             style={{
-              padding: '16px 24px',
+              padding: '14px 20px',
               borderTop: '1px solid var(--color-border)',
               display: 'flex',
               alignItems: 'center',

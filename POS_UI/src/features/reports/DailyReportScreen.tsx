@@ -44,7 +44,7 @@ export const DailyReportScreen: React.FC = () => {
       : 0;
 
   return (
-    <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div style={{ flex: 1, padding: 'clamp(14px, 2.5vw, 24px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* Header & Controls */}
       <div
         style={{
@@ -71,7 +71,7 @@ export const DailyReportScreen: React.FC = () => {
               value={selectedBranchId}
               onChange={(e) => setSelectedBranchId(e.target.value)}
               style={{
-                height: 40,
+                height: 44,
                 padding: '0 12px',
                 borderRadius: 'var(--radius-control)',
                 border: '1px solid var(--color-border-control)',
@@ -92,7 +92,7 @@ export const DailyReportScreen: React.FC = () => {
           {/* Ngày báo cáo */}
           <div
             style={{
-              height: 40,
+              height: 44,
               padding: '0 12px',
               borderRadius: 'var(--radius-control)',
               border: '1px solid var(--color-border-control)',
@@ -132,7 +132,7 @@ export const DailyReportScreen: React.FC = () => {
           }}
         >
           <div style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 600, marginBottom: 6 }}>
-            TỔNG DOANH THU
+            Tổng doanh thu
           </div>
           <div
             className="money"
@@ -156,7 +156,7 @@ export const DailyReportScreen: React.FC = () => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 600, marginBottom: 6 }}>
             <Banknote size={16} />
-            <span>TIỀN MẶT (CASH)</span>
+            <span>Tiền mặt</span>
           </div>
           <div
             className="money"
@@ -180,7 +180,7 @@ export const DailyReportScreen: React.FC = () => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 600, marginBottom: 6 }}>
             <QrCode size={16} />
-            <span>CHUYỂN KHOẢN (TRANSFER)</span>
+            <span>Chuyển khoản</span>
           </div>
           <div
             className="money"

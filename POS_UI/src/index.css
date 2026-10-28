@@ -43,7 +43,7 @@
   --shadow-dropdown: 0 6px 16px rgba(26, 34, 38, 0.12);
 
   /* Chuyển động & Xúc giác (ui-ux-pro-max) */
-  --ease-out-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 120ms;
   --duration-normal: 200ms;
 
@@ -100,7 +100,7 @@ html, body {
 
 /* Tactile touch press feedback (ui-ux-pro-max) */
 .touch-press {
-  transition: transform var(--duration-fast) var(--ease-out-spring), background-color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+  transition: transform var(--duration-fast) var(--ease-out-expo), background-color var(--duration-fast) ease, border-color var(--duration-fast) ease;
   user-select: none;
 }
 .touch-press:active:not(:disabled) {
@@ -131,11 +131,11 @@ html, body {
 }
 
 .animate-modal-pop {
-  animation: modalPop var(--duration-normal) var(--ease-out-spring) forwards;
+  animation: modalPop var(--duration-normal) var(--ease-out-expo) forwards;
 }
 
 .animate-drawer-slide {
-  animation: drawerSlide 240ms var(--ease-out-spring) forwards;
+  animation: drawerSlide 240ms var(--ease-out-expo) forwards;
 }
 
 /* Pulse indicator for live shift or active alerts */
@@ -205,4 +205,59 @@ html, body {
   .btn-label-hide-compact {
     display: none !important;
   }
+}
+
+/* Responsive layout utilities (ui-ux-pro-max + frontend-design + taste-skill) */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.page-container {
+  padding: 24px;
+}
+
+@media (max-width: 767px) {
+  .page-container {
+    padding: 14px;
+  }
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .show-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .demo-text-medium {
+    display: none !important;
+  }
+  .payment-cash-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Mobile Nav Drawer slide animation */
+@keyframes mobileNavSlideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-mobile-nav {
+  animation: mobileNavSlideIn 220ms var(--ease-out-expo) forwards;
 }

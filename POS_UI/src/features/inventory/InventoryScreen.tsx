@@ -205,7 +205,7 @@ export const InventoryScreen: React.FC = () => {
     : stocks;
 
   return (
-    <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ flex: 1, padding: 'clamp(14px, 2.5vw, 24px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <div>
@@ -253,7 +253,7 @@ export const InventoryScreen: React.FC = () => {
 
       {/* Tabs */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: 8, flexWrap: 'wrap', gap: 12 }}>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           <button
             type="button"
             onClick={() => setActiveTab('stocks')}
@@ -325,13 +325,13 @@ export const InventoryScreen: React.FC = () => {
         </div>
 
         {activeTab === 'stocks' && (
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <button
               type="button"
               onClick={() => setOnlyNegative(!onlyNegative)}
               className="touch-press"
               style={{
-                height: 36,
+                height: 44,
                 padding: '0 14px',
                 borderRadius: 'var(--radius-pill)',
                 border: onlyNegative ? '1px solid var(--color-danger)' : '1px solid var(--color-border)',

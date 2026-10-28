@@ -101,7 +101,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
       disableClose={isSubmitting}
       footer={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 12 }}>
-          <Button variant="secondary" size="lg" onClick={onClose} disabled={isSubmitting} style={{ minWidth: 120 }}>
+          <Button variant="secondary" size="lg" onClick={onClose} disabled={isSubmitting} style={{ minWidth: 100 }}>
             Quay lại
           </Button>
           <Button
@@ -114,7 +114,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
               (method === 'CASH' && (!isSufficient || tenderedAmount === 0n)) ||
               (method === 'TRANSFER' && !transferConfirmed)
             }
-            style={{ height: 56, minWidth: 220, fontSize: 16 }}
+            style={{ height: 56, flex: 1, minWidth: 160, fontSize: 16 }}
           >
             Xác nhận thanh toán
           </Button>
@@ -195,7 +195,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '1.05fr 0.95fr',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
               gap: 16,
               alignItems: 'start',
             }}
@@ -220,7 +220,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
                 <span
                   className="money"
                   style={{
-                    fontSize: 26,
+                    fontSize: 30,
                     fontWeight: 700,
                     color: 'var(--color-brand-800)',
                   }}
@@ -242,7 +242,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
                       onClick={() => setTenderedStr(sug.value.toString())}
                       className="touch-press"
                       style={{
-                        height: 38,
+                        height: 44,
                         padding: '0 12px',
                         borderRadius: 'var(--radius-control)',
                         border: '1px solid var(--color-border-control)',
@@ -292,14 +292,14 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
                 <div
                   className="money"
                   style={{
-                    height: 52,
+                    height: 56,
                     padding: '0 14px',
                     borderRadius: 'var(--radius-control)',
                     border: `2px solid ${isSufficient ? 'var(--color-success)' : 'var(--color-danger)'}`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-end',
-                    fontSize: 26,
+                    fontSize: 30,
                     fontWeight: 700,
                     color: isSufficient ? 'var(--color-success)' : 'var(--color-danger)',
                     background: isSufficient ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
