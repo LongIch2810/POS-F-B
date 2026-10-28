@@ -40,7 +40,7 @@ Danh sách business rule của hệ thống POS và kho cho quán cà phê (nhi�
 | BR-78 | Không có đăng ký công khai. Mọi tài khoản do cấp trên tạo.                                                                                                                                                                                                        | MVP                           |
 | BR-79 | `PLATFORM_ADMIN` có `store_id` trống. Mọi người dùng khác bắt buộc có `store_id`.                                                                                                                                                                                 | MVP                           |
 | BR-80 | Dữ liệu thuộc cửa hàng luôn lọc theo `store_id` **lấy từ token**, không tin tham số client. Mọi `id` trong request (món, size, topping, nguyên liệu, mã giảm giá, chi nhánh, bàn) phải thuộc cùng cửa hàng với người gọi. Bảng nối phải có hai đầu cùng cửa hàng. | MVP                           |
-| BR-81 | `PLATFORM_ADMIN` quản lý cửa hàng, tài khoản `OWNER` và quyền dùng chung của các vai trò. **Không đọc dữ liệu vận hành** (hóa đơn, ca, kho, doanh thu). Truy cập hỗ trợ có thời hạn và có nhật ký là phần mở rộng. | MVP (hỗ trợ có thời hạn: GĐ2) |
+| BR-81 | `PLATFORM_ADMIN` chỉ quản lý cửa hàng và tài khoản `OWNER`. **Không đọc dữ liệu vận hành** (hóa đơn, ca, kho, doanh thu). Truy cập hỗ trợ có thời hạn và có nhật ký là phần mở rộng.                                                                              | MVP (hỗ trợ có thời hạn: GĐ2) |
 | BR-82 | Cửa hàng `SUSPENDED`: từ chối đăng nhập và mọi API của người dùng thuộc cửa hàng, thu hồi refresh token, giữ nguyên dữ liệu. Mở lại thì người dùng đăng nhập lại để dùng tiếp.                                                                                    | MVP                           |
 | BR-96 | Tạm khóa cửa hàng bắt buộc có lý do (`suspended_reason`) và ghi `suspended_at`.                                                                                                                                                                                   | MVP                           |
 
@@ -50,7 +50,7 @@ Danh sách business rule của hệ thống POS và kho cho quán cà phê (nhi�
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
 | BR-01 | Mật khẩu chỉ lưu dạng băm (bcrypt hoặc argon2). Không bao giờ trả `password_hash` ra API.                                                                                                         | MVP |
 | BR-02 | Tài khoản `is_active = false` không đăng nhập được, mọi refresh token của tài khoản bị từ chối.                                                                                                   | MVP |
-| BR-03 | Access token sống ngắn, refresh token sống dài. Đăng xuất hoặc đổi mật khẩu thì đặt `revoked_at` cho refresh token.                                                                               | MVP |
+| BR-03 | Access token 30 phút, refresh token 7 ngày từ lần cấp gần nhất. Đăng xuất thu hồi phiên hiện tại; đổi/đặt lại mật khẩu thu hồi mọi phiên và chặn access token cũ ngay.                         | MVP |
 | BR-04 | Refresh token chỉ lưu hash. Token hợp lệ khi `revoked_at IS NULL AND expires_at > now()`.                                                                                                         | MVP |
 | BR-05 | Mọi API kiểm tra quyền theo `permissions.code` của vai trò, không kiểm tra theo tên vai trò cứng trong code.                                                                                      | MVP |
 | BR-06 | Chỉ người có quyền mới được tạo tài khoản, khóa tài khoản, đổi vai trò. Không ai được tự khóa hay tự hạ quyền chính mình.                                                                         | MVP |
@@ -58,17 +58,16 @@ Danh sách business rule của hệ thống POS và kho cho quán cà phê (nhi�
 | BR-83 | Người cấp tài khoản chỉ được cấp vai trò **thấp hơn** mình, trong phạm vi cửa hàng và chi nhánh của mình. `PLATFORM_ADMIN` cấp `OWNER`. `OWNER` cấp `MANAGER` và `CASHIER`.                       | MVP |
 | BR-84 | Tài khoản mới (và tài khoản vừa đặt lại mật khẩu) có `must_change_password = true`. Mật khẩu tạm hiển thị đúng một lần cho người cấp. Người dùng phải đổi mật khẩu trước khi dùng chức năng khác. | MVP |
 | BR-85 | Mỗi cửa hàng luôn có ít nhất một `OWNER` đang hoạt động. Không khóa, xóa hay hạ quyền `OWNER` cuối cùng.                                                                                          | MVP |
-| BR-97 | `username` duy nhất trên toàn hệ thống.                                                                                                                                                           | MVP |
-| BR-103 | Chỉ `PLATFORM_ADMIN` được chỉnh `role_permissions` dùng chung toàn nền tảng. Không được cấp quyền xem dữ liệu vận hành cho `PLATFORM_ADMIN` hoặc cấp `branch.access_all` cho vai trò khác `OWNER`. | MVP |
+| BR-97 | `username` chuẩn hóa khi lưu và tìm, duy nhất không phân biệt hoa thường trên toàn hệ thống.                                                                                                         | MVP |
 
 ## 3. Chi nhánh và phạm vi truy cập
 
-| Mã     | Quy tắc                                                                                                                                                                                                                   | GĐ  |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
-| BR-70  | `CASHIER` và `MANAGER` bắt buộc có `branch_id`, và chi nhánh đó phải thuộc `store_id` của họ. Chỉ vai trò có `branch.access_all` (`OWNER`) hoặc `PLATFORM_ADMIN` mới được để `branch_id` trống. Kiểm tra ở tầng ứng dụng. | MVP |
-| BR-71  | Người không có `branch.access_all` chỉ thao tác và xem dữ liệu **chi nhánh của mình**. Server luôn ép điều kiện này, bỏ qua `branch_id` do client gửi.                                                                    | MVP |
-| BR-71b | Người có `branch.access_all` xem được mọi chi nhánh trong cửa hàng của mình, không thấy cửa hàng khác. Khi tạo hoặc sửa dữ liệu vận hành (mở ca, tạo đơn, ghi chi phí) phải chỉ rõ chi nhánh. | MVP |
-| BR-76  | Chi nhánh `is_active = false` không mở ca, không tạo đơn mới. Dữ liệu cũ giữ nguyên.                                                                                                                                      | MVP |
+| Mã     | Quy tắc                                                                                                                                                                                                                                                                                                                                              | GĐ  |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| BR-70  | `CASHIER` và `MANAGER` bắt buộc có `branch_id`, và chi nhánh đó phải thuộc `store_id` của họ. Chỉ vai trò có `branch.access_all` (`OWNER`) hoặc `PLATFORM_ADMIN` mới được để `branch_id` trống. Kiểm tra ở tầng ứng dụng.                                                                                                                            | MVP |
+| BR-71  | Người không có `branch.access_all` chỉ thao tác và xem dữ liệu **chi nhánh của mình**. Route danh sách bỏ qua `branchId` do client gửi; route không nhận `branchId` thì từ chối field lạ. Máy chủ luôn ép phạm vi từ token. | MVP |
+| BR-71b | Người có `branch.access_all` xem được mọi chi nhánh trong cửa hàng của mình, không thấy cửa hàng khác. Khi **tạo bản ghi gốc** của chi nhánh (mở ca, tạo bàn, nhập kho) phải chỉ rõ chi nhánh. Thao tác trên bản ghi có sẵn, hoặc tạo bản ghi con dưới một bản ghi cha, thì lấy chi nhánh từ bản ghi đó và kiểm tra quyền (xem `api-spec.md` mục 3). | MVP |
+| BR-76  | Chi nhánh `is_active = false` không mở ca, không tạo đơn mới. Dữ liệu cũ giữ nguyên.                                                                                                                                                                                                                                                                 | MVP |
 
 ## 4. Danh mục sản phẩm
 
@@ -81,6 +80,7 @@ Danh sách business rule của hệ thống POS và kho cho quán cà phê (nhi�
 | BR-12  | Đổi giá chỉ áp cho món **thêm vào đơn sau thời điểm đổi**. Dòng món đã thêm giữ giá snapshot.                                       | MVP                        |
 | BR-13  | Giá không âm. Tên danh mục, size, topping, nguyên liệu không trùng trong cùng cửa hàng. Tên món không trùng trong cùng danh mục.    | MVP                        |
 | BR-100 | Menu dùng chung toàn cửa hàng: mọi chi nhánh bán cùng menu và cùng giá. Giá và trạng thái bán riêng từng chi nhánh là phần mở rộng. | MVP (riêng chi nhánh: GĐ2) |
+| BR-105 | Ảnh món không bắt buộc. Người có quyền sửa món được tải ảnh lên hệ thống; ảnh được gắn với món thuộc cùng cửa hàng. Chỉ trả URL ảnh, không trả đường dẫn lưu nội bộ. | MVP |
 
 ## 5. Bàn
 
@@ -132,31 +132,33 @@ Danh sách business rule của hệ thống POS và kho cho quán cà phê (nhi�
 
 ## 9. Hóa đơn
 
-| Mã    | Quy tắc                                                                                                                                                                                                                                   | GĐ                    |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
-| BR-21 | Vòng đời: `OPEN` → `PAID` hoặc `CANCELLED`. `PAID` và `CANCELLED` là trạng thái cuối, không quay lại `OPEN`.                                                                                                                              | MVP                   |
-| BR-22 | Chỉ thêm, sửa, xóa món khi hóa đơn còn `OPEN`.                                                                                                                                                                                            | MVP                   |
-| BR-23 | `quantity` của món và topping phải lớn hơn 0.                                                                                                                                                                                             | MVP                   |
-| BR-24 | **Giá luôn do hệ thống tính** từ `product_sizes.price` và `toppings.price`. Không có API nào nhận đơn giá hay tổng tiền từ client.                                                                                                        | MVP                   |
-| BR-25 | Tiền tính theo công thức cố định (mục 17).                                                                                                                                                                                                | MVP                   |
-| BR-26 | Khi thêm món, lưu snapshot tên món, tên size, đơn giá, tên và giá topping.                                                                                                                                                                | MVP                   |
-| BR-27 | Hóa đơn phải có ít nhất một món mới được thanh toán.                                                                                                                                                                                      | MVP                   |
-| BR-28 | Hủy đơn `OPEN`: thu ngân được hủy, bắt buộc ghi `cancel_reason`.                                                                                                                                                                          | MVP                   |
-| BR-29 | Hủy đơn `PAID`: cần quyền quản lý, bắt buộc có lý do, và chỉ khi **ca của đơn đó còn mở**. Đơn của ca đã đóng chưa cho hủy ở MVP.                                                                                                         | MVP (ca đã đóng: GĐ2) |
-| BR-69 | `invoices.branch_id` phải bằng `work_shifts.branch_id` của ca và bằng `dining_tables.branch_id` của bàn (nếu có). Lệch thì từ chối. Đơn `DINE_IN` phải có bàn, `TAKEAWAY` thì không.                                                      | MVP                   |
-| BR-75 | Mã hóa đơn gồm mã chi nhánh, ví dụ `NL-20261027-0001`. Mã duy nhất trong chi nhánh.                                                                                                                                                       | MVP                   |
-| BR-90 | Thêm món luôn **tạo dòng `invoice_items` mới**, không gộp dòng giống nhau. Sau mỗi thay đổi, tính lại `subtotal` bằng `SUM` từ các dòng món, trong transaction và khóa dòng hóa đơn (`SELECT ... FOR UPDATE`). Không cộng dồn từ tổng cũ. | MVP                   |
+| Mã    | Quy tắc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | GĐ                                        |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| BR-21 | Vòng đời: `OPEN` → `PAID` hoặc `CANCELLED`. `PAID` → `CANCELLED` chỉ qua hành động hủy theo BR-29. `CANCELLED` là trạng thái cuối. `PAID` và `CANCELLED` không bao giờ quay lại `OPEN`. Nội dung hóa đơn `PAID` (món, giá, tổng tiền) **không sửa**.                                                                                                                                                                                                                                                                                                                    | MVP                                       |
+| BR-22 | Chỉ thêm, sửa, xóa món khi hóa đơn còn `OPEN`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | MVP                                       |
+| BR-23 | `quantity` của món và topping phải lớn hơn 0.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | MVP                                       |
+| BR-24 | **Giá luôn do hệ thống tính** từ `product_sizes.price` và `toppings.price`. Không có API nào nhận đơn giá hay tổng tiền từ client.                                                                                                                                                                                                                                                                                                                                                                                                                                      | MVP                                       |
+| BR-25 | Tiền tính theo công thức cố định (mục 17).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | MVP                                       |
+| BR-26 | Khi thêm món, lưu snapshot tên món, tên size, đơn giá, tên và giá topping.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | MVP                                       |
+| BR-27 | Hóa đơn phải có ít nhất một món mới được thanh toán.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | MVP                                       |
+| BR-28 | Hủy đơn `OPEN`: thu ngân được hủy, bắt buộc ghi `cancel_reason`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | MVP                                       |
+| BR-29 | Hủy đơn `PAID`: cần quyền quản lý, bắt buộc có lý do, và chỉ khi **ca của đơn đó còn mở**. Đơn của ca đã đóng chưa cho hủy ở MVP. Khi hủy: các khoản `payments` của đơn **giữ nguyên** (không sửa, không xóa) làm lịch sử. Hóa đơn thành `CANCELLED` nên không còn tính vào doanh thu và đối soát (BR-56, BR-62), kho được hoàn (BR-47), lượt mã giảm giá được trả lại (BR-39). Với tiền mặt, hiểu là **đã hoàn lại cho khách từ két**, nên tiền kỳ vọng của ca giảm tương ứng. Với chuyển khoản, việc hoàn tiền thực hiện ngoài hệ thống và ghi trong `cancel_reason`. | MVP (ca đã đóng, hoàn tiền một phần: GĐ2) |
+| BR-69 | `invoices.branch_id` phải bằng `work_shifts.branch_id` của ca và bằng `dining_tables.branch_id` của bàn (nếu có). Lệch thì từ chối. Đơn `DINE_IN` phải có bàn, `TAKEAWAY` thì không.                                                                                                                                                                                                                                                                                                                                                                                    | MVP                                       |
+| BR-75 | Mã hóa đơn gồm mã chi nhánh, ví dụ `NL-20261027-0001`. Mã duy nhất trong chi nhánh.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | MVP                                       |
+| BR-90 | Thêm món luôn **tạo dòng `invoice_items` mới**, không gộp dòng giống nhau. Sau mỗi thay đổi, tính lại `subtotal` bằng `SUM` từ các dòng món, trong transaction và khóa dòng hóa đơn (`SELECT ... FOR UPDATE`). Không cộng dồn từ tổng cũ.                                                                                                                                                                                                                                                                                                                               | MVP                                       |
 
 ## 10. Thanh toán
 
-| Mã    | Quy tắc                                                                                                                                                    | GĐ                      |
-| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| BR-30 | Chỉ hai phương thức: `CASH` và `TRANSFER`.                                                                                                                 | MVP                     |
-| BR-31 | Mỗi hóa đơn chỉ dùng một phương thức thanh toán. Hóa đơn thành `PAID` khi `Σ payments.amount = invoices.total_amount`. Không cho thanh toán vượt tổng tiền. | MVP                     |
-| BR-32 | `CASH`: `tendered_amount ≥ amount`, `change_amount = tendered_amount − amount`. Tiền vào két và dùng để đối soát là `amount`, **không phải** số khách đưa. | MVP                     |
-| BR-33 | `TRANSFER`: thu ngân xác nhận đã nhận tiền, ghi `transaction_ref` nếu có. Tự xác nhận qua webhook ngân hàng là phần mở rộng.                               | MVP (webhook: tùy chọn) |
-| BR-34 | Mỗi yêu cầu thanh toán có `idempotency_key`. Gửi lại cùng key thì trả kết quả cũ, không tạo thanh toán thứ hai.                                            | MVP                     |
-| BR-35 | Ghi `payments`, đổi `status` sang `PAID` và trừ kho nằm trong **một transaction**. Lỗi giữa chừng thì rollback toàn bộ.                                    | MVP                     |
+| Mã     | Quy tắc                                                                                                                                                                                                                                                                                                                                                        | GĐ                      |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| BR-30  | Chỉ hai phương thức: `CASH` và `TRANSFER`.                                                                                                                                                                                                                                                                                                                     | MVP                     |
+| BR-31  | Đơn có `total_amount > 0` thanh toán đúng một lần, bằng một phương thức (`CASH` hoặc `TRANSFER`), với `payments.amount = invoices.total_amount`. Không nhận thanh toán thiếu hoặc vượt; mỗi hóa đơn có tối đa một `payment`. Đơn 0đ theo BR-104. | MVP |
+| BR-32  | `CASH`: `tendered_amount ≥ amount`, `change_amount = tendered_amount − amount`. Tiền vào két và dùng để đối soát là `amount`, **không phải** số khách đưa.                                                                                                                                                                                                     | MVP                     |
+| BR-33  | `TRANSFER`: thu ngân xác nhận đã nhận tiền, ghi `transaction_ref` nếu có. Tự xác nhận qua webhook ngân hàng là phần mở rộng.                                                                                                                                                                                                                                   | MVP (webhook: tùy chọn) |
+| BR-34  | Mỗi yêu cầu thanh toán có `Idempotency-Key`. Cùng key và **cùng nội dung** (`invoiceId`, `method`, `amount`, `tenderedAmount`, `transactionRef`, so bằng `idempotency_request_hash`) thì trả kết quả cũ, không tạo thanh toán thứ hai. Cùng key khác nội dung thì từ chối. Client dùng lại đúng key khi gửi lại vì lỗi mạng. Chi tiết xem `api-spec.md` mục 7. | MVP                     |
+| BR-35  | Ghi `payments` (với đơn có tiền), đổi `status` sang `PAID` và trừ kho nằm trong **một transaction**. Đơn 0đ theo BR-104. Lỗi giữa chừng thì rollback toàn bộ. | MVP |
+| BR-103 | Mọi số tiền đơn lẻ và kết quả tính để ghi DB có trị tuyệt đối không vượt `1.000.000.000.000` đồng. Chặn thao tác gây vượt trần trước khi ghi; API và DB cùng kiểm tra. Giá trị tổng hợp chỉ trả JSON number sau khi kiểm tra `Number.isSafeInteger`. | MVP |
+| BR-104 | Hóa đơn có ít nhất một món và `total_amount = 0` được hoàn tất thành `PAID` bằng hành động riêng, không tạo `payment`. Hành động bắt buộc có `Idempotency-Key`; gửi lại cùng key trên cùng hóa đơn trả kết quả cũ, khác hóa đơn báo xung đột. Đổi trạng thái và trừ kho trong một transaction. | MVP |
 
 ## 11. Khuyến mãi
 
@@ -166,7 +168,7 @@ Danh sách business rule của hệ thống POS và kho cho quán cà phê (nhi�
 | BR-37 | Công thức giảm giá xem mục 17.                                                                                                                                                                   | MVP                 |
 | BR-38 | Tiền giảm không vượt `subtotal`, nên `total_amount` không âm.                                                                                                                                    | MVP                 |
 | BR-39 | `used_count` tăng khi hóa đơn dùng mã thành `PAID`. Đơn `PAID` bị hủy thì trả lại một lượt.                                                                                                      | MVP                 |
-| BR-40 | Một hóa đơn không áp cùng một mã hai lần. Nếu chốt chỉ một mã mỗi hóa đơn thì chặn áp mã thứ hai.                                                                                                | MVP                 |
+| BR-40 | Mỗi hóa đơn áp tối đa **một** mã giảm giá. Chặn áp thêm mã thứ hai, kể cả mã khác. | MVP |
 | BR-41 | Thu ngân không tự nhập số tiền giảm tùy ý. Giảm giá chỉ qua mã khuyến mãi hợp lệ. Giảm tay ngoài quy định cần quản lý duyệt.                                                                     | MVP (giảm tay: GĐ2) |
 
 ## 12. Kho và công thức
@@ -213,7 +215,6 @@ Cấu hình thật nằm ở `role_permissions`. Bảng này là mặc định k
 | --------------------------------------------------- | ---------------- | ------------- | ------------------- | ------------------ |
 | Tạo, khóa, mở lại cửa hàng                          | Có               | Không         | Không               | Không              |
 | Cấp tài khoản `OWNER`                               | Có               | Không         | Không               | Không              |
-| Chỉnh quyền dùng chung của các vai trò               | Có               | Không         | Không               | Không              |
 | Quản lý chi nhánh, tài khoản `MANAGER` và `CASHIER` | Không            | Có            | Không               | Không              |
 | Quản lý bàn                                         | Không            | Có            | Có (chi nhánh mình) | Không              |
 | Quản lý menu, giá, topping, công thức, mã giảm giá  | Không            | Có            | Có                  | Không              |
@@ -233,7 +234,8 @@ Quyền `branch.access_all` chỉ gán cho `OWNER`.
 ```
 Hóa đơn:   OPEN ── thanh toán đủ ──▶ PAID
              │                         │
-             └── hủy ──▶ CANCELLED ◀───┘   (PAID chỉ hủy được khi ca còn mở, cần quản lý)
+             └── hủy ──▶ CANCELLED ◀───┘   (PAID chỉ hủy được khi ca còn mở, cần quản lý, theo BR-29.
+                                          PAID và CANCELLED không quay lại OPEN)
 
 Ca làm:    OPEN ── đóng ca ──▶ CLOSED       (không mở lại)
 
@@ -253,6 +255,8 @@ invoice_item_toppings.line_total  = unit_price × quantity × invoice_items.quan
 invoices.subtotal                 = Σ invoice_items.line_total
 invoices.discount_amount          = Σ invoice_promotion_codes.discount_amount
 invoices.total_amount             = MAX(subtotal − discount_amount, 0)
+total_amount > 0                   → đúng một payment, amount = total_amount
+total_amount = 0                   → hoàn tất riêng, không có payment (BR-104)
 
 # Giảm giá (BR-37)
 PERCENT: giảm = MIN(subtotal × discount_value / 100, max_discount_amount)
@@ -279,14 +283,18 @@ tổng_trừ        = Σ dùng_từ_món + Σ dùng_từ_topping   (gộp theo i
 
 ## Ràng buộc cơ sở dữ liệu liên quan đến rule
 
-| Rule  | Ràng buộc                                                                                                                     |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------- |
-| BR-14 | `UNIQUE (user_id) WHERE status = 'OPEN'` trên `work_shifts`                                                                   |
-| BR-87 | `UNIQUE (branch_id) WHERE status = 'OPEN' AND shift_type = 'CASHIER'` trên `work_shifts`                                      |
-| BR-74 | `UNIQUE (table_id) WHERE status = 'OPEN' AND table_id IS NOT NULL` trên `invoices`                                            |
-| BR-75 | `UNIQUE (branch_id, invoice_code)` trên `invoices`                                                                            |
-| BR-34 | `UNIQUE (idempotency_key)` trên `payments`                                                                                    |
-| BR-97 | `UNIQUE (username)` trên `users`                                                                                              |
-| BR-13 | `UNIQUE (store_id, name)` trên `categories`, `sizes`, `toppings`, `ingredients`; `UNIQUE (category_id, name)` trên `products` |
+| Rule   | Ràng buộc                                                                                                                     |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| BR-14  | `UNIQUE (user_id) WHERE status = 'OPEN'` trên `work_shifts`                                                                   |
+| BR-87  | `UNIQUE (branch_id) WHERE status = 'OPEN' AND shift_type = 'CASHIER'` trên `work_shifts`                                      |
+| BR-74  | `UNIQUE (table_id) WHERE status = 'OPEN' AND table_id IS NOT NULL` trên `invoices`                                            |
+| BR-75  | `UNIQUE (branch_id, invoice_code)` trên `invoices`                                                                            |
+| BR-34  | `UNIQUE (idempotency_key)` trên `payments`, kèm cột `idempotency_request_hash` để so nội dung                                 |
+| BR-31  | `UNIQUE (invoice_id)` trên `payments` để chặn thanh toán nhiều lần                                                             |
+| BR-104 | `UNIQUE (zero_completion_key)` trên `invoices` khi key khác NULL; chỉ đơn 0đ được gán key này                                 |
+| BR-40  | `UNIQUE (invoice_id)` trên `invoice_promotion_codes` để chặn mã thứ hai                                                       |
+| BR-103 | `CHECK` trị tuyệt đối không vượt `1000000000000` trên mọi cột tiền                                                            |
+| BR-97  | `UNIQUE (username)` và `CHECK (username = lower(btrim(username)))` trên `users`                                               |
+| BR-13  | `UNIQUE (store_id, name)` trên `categories`, `sizes`, `toppings`, `ingredients`; `UNIQUE (category_id, name)` trên `products` |
 
 Các rule BR-70, BR-79, BR-80, BR-83, BR-85 không chặn được bằng database, phải kiểm tra ở tầng ứng dụng.

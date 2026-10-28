@@ -3,9 +3,9 @@
 ## Trạng thái dự án
 
 - Đây là dự án POS và quản lý kho SaaS cho quán cà phê, trà sữa và quán ăn nhỏ: một `store` có nhiều `branch`, mỗi chi nhánh có bàn, ca thu ngân và tồn kho riêng.
-- Hiện repository mới ở giai đoạn đặc tả. `POS_API/`, `POS_UI/` và `POS_INFRA/` đang trống; chưa có mã ứng dụng, manifest dependency, lệnh chạy, build hay test. Không mô tả tính năng trong tài liệu như thể đã được triển khai.
+- Repository có UI demo trong `POS_UI/`; `POS_API/` và `POS_INFRA/` chưa có mã triển khai. Phân biệt quy tắc đã đặc tả với tính năng đã triển khai khi mô tả dự án.
 - `docs/PRODUCT_OVERVIEW.md` là nguồn chính về phạm vi, vai trò, luồng nghiệp vụ và các quy tắc bất biến. Đọc file này trước khi làm việc. `docs/BUSINESS_RULES.md` là danh sách rule theo mã BR. `docs/DESIGN_DB_POS_SYSTEM.md` là thiết kế dữ liệu 28 bảng, công thức và ràng buộc. `DESIGN.md` là thiết kế giao diện POS.
-- Các tài liệu `docs/specs/`, `docs/api-spec.md`, `docs/architecture/` và `docs/rules/` được nhắc trong product overview nhưng chưa tồn tại. Đừng viện dẫn chúng như nguồn đã có.
+- `docs/api-spec.md`, `docs/architecture/ARCHITECTURE.md`, `docs/architecture/auth.md` và các file trong `rules/` đã có; các spec endpoint trong `docs/specs/` chưa có. Tài liệu kiến trúc mô tả mục tiêu, không chứng minh backend đã triển khai.
 
 ## Tìm hiểu code
 

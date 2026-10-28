@@ -1,20 +1,20 @@
-# DESIGN.md: Giao diện Hệ thống **POS (bán hàng tại quầy) và quản lý kho** cho quán cà phê và trà sữa.
+# DESIGN.md: Giao diện hệ thống POS và kho cho quán cà phê
 
 Tài liệu này là nguồn sự thật về giao diện của hệ thống POS (bán hàng, ca làm, đối soát tiền mặt, kho, báo cáo). Mọi màn hình, component, màu sắc và nội dung chữ phải theo tài liệu này. Khi cần quyết định mà tài liệu chưa nói, chọn phương án nhanh hơn và ít sai hơn cho thu ngân.
 
-Tài liệu đi kèm: danh sách bảng và field (28 bảng), danh sách business rule (BR-xx). Các rule giao diện bên dưới có ghi mã BR tương ứng.
+Tài liệu đi kèm: `docs/PRODUCT_OVERVIEW.md` (tổng quan sản phẩm), `docs/DESIGN_DB_POS_SYSTEM.md` (28 bảng và field), `docs/BUSINESS_RULES.md` (business rule theo mã BR-xx). Các rule giao diện bên dưới có ghi mã BR tương ứng.
 
 ---
 
 ## 1. Tổng quan
 
-| Mục                           | Nội dung                                                                                       |
-| ----------------------------- | ---------------------------------------------------------------------------------------------- |
-| Sản phẩm                      | POS và quản lý kho cho chuỗi quán cà phê, nhiều chi nhánh, có sơ đồ bàn                        |
-| Người dùng                    | Thu ngân (dùng nhiều nhất), quản lý chi nhánh, chủ cửa hàng, quản trị nền tảng                 |
-| Công việc chính của giao diện | Ghi đơn nhanh và đúng. Thanh toán không nhầm tiền. Đóng ca khớp tiền                           |
-| Thiết bị chính                | Máy tính bảng ngang (10 đến 13 inch) tại quầy, cảm ứng. Màn hình máy tính cho quản lý và quản trị |
-| Ngôn ngữ                      | Tiếng Việt. Mọi chữ trên giao diện đều là tiếng Việt                                           |
+| Mục                           | Nội dung                                                                                                                   |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Sản phẩm                      | POS và quản lý kho cho quán cà phê dạng nhiều cửa hàng (SaaS). Mỗi cửa hàng có nhiều chi nhánh, mỗi chi nhánh có sơ đồ bàn |
+| Người dùng                    | Thu ngân (dùng nhiều nhất), quản lý chi nhánh, chủ cửa hàng, quản trị nền tảng                                             |
+| Công việc chính của giao diện | Ghi đơn nhanh và đúng. Thanh toán không nhầm tiền. Đóng ca khớp tiền                                                       |
+| Thiết bị chính                | Máy tính bảng ngang (10 đến 13 inch) tại quầy, cảm ứng. Màn hình máy tính cho quản lý, chủ cửa hàng và quản trị nền tảng   |
+| Ngôn ngữ                      | Tiếng Việt. Mọi chữ trên giao diện đều là tiếng Việt                                                                       |
 
 ### Hướng thị giác
 
@@ -39,12 +39,12 @@ Tài liệu đi kèm: danh sách bảng và field (28 bảng), danh sách busine
 
 ## 3. Người dùng và thiết bị
 
-| Vai trò           | Thiết bị                              | Việc chính                                       | Ưu tiên giao diện                   |
-| ----------------- | ------------------------------------- | ------------------------------------------------ | ----------------------------------- |
-| Thu ngân          | Máy tính bảng ngang, cảm ứng, một tay | Chọn món, thanh toán, mở và đóng ca              | Nhanh, mục tiêu chạm lớn, ít chữ    |
-| Quản lý chi nhánh | Máy tính bảng hoặc máy tính           | Xem báo cáo, quản lý tồn kho, duyệt hủy đơn      | Bảng dữ liệu rõ, lọc nhanh          |
-| Chủ cửa hàng     | Máy tính, đôi khi điện thoại          | Xem nhiều chi nhánh, cấu hình, quản lý tài khoản | Chọn chi nhánh dễ, báo cáo tổng hợp |
-| Quản trị nền tảng | Máy tính                             | Tạo cửa hàng, cấp tài khoản chủ, khóa hoặc mở cửa hàng | Quản lý cửa hàng, không xem dữ liệu vận hành |
+| Vai trò                              | Thiết bị                              | Việc chính                                                                      | Ưu tiên giao diện                                                   |
+| ------------------------------------ | ------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Thu ngân (`CASHIER`)                 | Máy tính bảng ngang, cảm ứng, một tay | Chọn món, thanh toán, mở và đóng ca                                             | Nhanh, mục tiêu chạm lớn, ít chữ                                    |
+| Quản lý chi nhánh (`MANAGER`)        | Máy tính bảng hoặc máy tính           | Xem báo cáo, nhập kho, kiểm kê, duyệt hủy đơn                                   | Bảng dữ liệu rõ, lọc nhanh                                          |
+| Chủ cửa hàng (`OWNER`)               | Máy tính, đôi khi điện thoại          | Xem nhiều chi nhánh, cấu hình chi nhánh, bàn, thực đơn, cấp tài khoản nhân viên | Chọn chi nhánh dễ, báo cáo tổng hợp, thiết lập ban đầu có hướng dẫn |
+| Quản trị nền tảng (`PLATFORM_ADMIN`) | Máy tính                              | Tạo cửa hàng, cấp tài khoản chủ cửa hàng, khóa hoặc mở lại cửa hàng             | Ít màn hình, thao tác rõ và an toàn. Không thấy dữ liệu vận hành    |
 
 ### Điểm ngắt (breakpoint)
 
@@ -99,7 +99,7 @@ Quy tắc dùng màu:
 
 - Màu trạng thái **luôn đi kèm biểu tượng và chữ**, không bao giờ là tín hiệu duy nhất (người mù màu vẫn phải hiểu).
 - Nút nguy hiểm (hủy đơn, đóng cưỡng chế) dùng nền `danger` với chữ trắng (6,5:1).
-- Khi cửa hàng muốn đổi nhận diện, chỉ đổi nhóm `--color-brand-*`. Giữ nguyên bề mặt, chữ và màu trạng thái.
+- Khi cửa hàng muốn đổi nhận diện, chỉ đổi nhóm `--color-brand-*`. Giữ nguyên bề mặt, chữ và màu trạng thái. Cơ sở dữ liệu chưa có field lưu theme theo cửa hàng, nên MVP dùng một theme chung. Theme riêng từng cửa hàng là giai đoạn 2.
 
 ### 4.2 Chữ
 
@@ -138,7 +138,7 @@ Quy tắc:
 | Nút, ô chọn thông thường                   | 48px      |
 | Nút hành động chính (Thanh toán, Xác nhận) | 56px      |
 | Phím số trên bàn phím nhập tiền            | 64px      |
-| Nút tăng giảm số lượng                     | 48px      |
+| Nút tăng giảm số lượng                     | 44px      |
 
 **Bo góc theo thứ bậc** (không dùng một giá trị cho mọi thứ):
 
@@ -177,9 +177,19 @@ Chuyển động chỉ trả lời thao tác của người dùng. Khi thêm mó
 └────┴──────────────────────────────────────────────────────────┘
 ```
 
-- **Thanh điều hướng trái (rail):** rộng 80px, nền `brand-800`, biểu tượng kèm nhãn ngắn bên dưới, chữ trắng. Mục đang chọn có nền `brand-600`. Với người dùng thuộc cửa hàng: Bán hàng, Bàn, Hóa đơn, Ca làm, Kho, Báo cáo, Cài đặt; chỉ hiện mục có quyền. Quản trị nền tảng chỉ thấy Cửa hàng, Tài khoản chủ, Vai trò và quyền.
+- **Thanh điều hướng trái (rail):** rộng 80px, nền `brand-800`, biểu tượng kèm nhãn ngắn bên dưới, chữ trắng. Mục đang chọn có nền `brand-600`. Các mục: Bán hàng, Bàn, Hóa đơn, Ca làm, Thực đơn, Kho, Báo cáo, Cài đặt. **Chỉ hiện mục người dùng có quyền** (BR-05).
 - **Thanh trên:** cao 56px, nền trắng, viền dưới `--color-border`. Bên trái là tên chi nhánh. Ở giữa là chip trạng thái ca ("Ca thu ngân đang mở, 3 giờ 12 phút"). Bên phải là tên người dùng và menu tài khoản.
-- **Chủ cửa hàng:** tên chi nhánh là nút chọn chi nhánh, có mục "Tất cả chi nhánh" khi xem báo cáo và dữ liệu tổng hợp. Khi thực hiện thao tác vận hành, phải chọn một chi nhánh cụ thể. Người khác chỉ thấy tên chi nhánh của mình, không bấm đổi được. Quản trị nền tảng không vào các màn hình vận hành của cửa hàng (BR-71, BR-71b, BR-81).
+- **Chủ cửa hàng:** tên chi nhánh là nút chọn chi nhánh, có mục "Tất cả chi nhánh" (BR-71b). Quản lý và thu ngân chỉ thấy tên chi nhánh của mình, không bấm đổi được (BR-70, BR-71).
+- **Quản trị nền tảng** dùng khung riêng: không có thanh chọn chi nhánh, không có màn hình dữ liệu vận hành (BR-81). Xem mục 5.8.
+
+Mục trên thanh điều hướng theo vai trò:
+
+| Vai trò           | Các mục                                                                                             |
+| ----------------- | --------------------------------------------------------------------------------------------------- |
+| Thu ngân          | Bán hàng, Bàn, Hóa đơn (của ca mình), Ca làm                                                        |
+| Quản lý           | Bán hàng, Bàn, Hóa đơn, Ca làm, Thực đơn, Kho, Báo cáo (chi nhánh mình), Cài đặt (bàn, mã giảm giá) |
+| Chủ cửa hàng      | Như quản lý, thêm báo cáo toàn cửa hàng và Cài đặt đầy đủ (chi nhánh, tài khoản)                    |
+| Quản trị nền tảng | Cửa hàng, Nhật ký                                                                                   |
 
 ### 5.2 Màn hình POS chính (tablet ngang, từ 1024px)
 
@@ -209,6 +219,10 @@ Chuyển động chỉ trả lời thao tác của người dùng. Khi thêm mó
 - **Panel đơn:** đầu panel ghi bàn và loại đơn (Tại chỗ, Mang đi). Giữa là danh sách món cuộn được. Cuối panel cố định: tạm tính, giảm giá, tổng cộng (`text-2xl`), nút Thanh toán (56px, toàn chiều rộng, ghi kèm số tiền).
 - Món vừa thêm hiện sáng nền `brand-100` rồi mờ dần.
 - Bỏ món có nút xóa rõ ràng trên dòng món. Sau khi bỏ, hiện thông báo "Đã bỏ Cà phê sữa. Hoàn tác" trong 5 giây.
+- **Gọi thêm món vào đơn đang mở:** mỗi lần thêm là **một dòng món mới**, không gộp với dòng giống nhau (BR-90). Giao diện có thể nhóm hiển thị cho dễ đọc, nhưng sửa và xóa vẫn theo từng dòng. Sau mỗi thay đổi, tổng tiền lấy lại từ máy chủ, giao diện không tự cộng.
+- Đơn của bàn đang phục vụ: đầu panel có thêm giờ mở đơn ("Mở lúc 19:00, 25 phút") và nút "Chuyển bàn" (BR-92).
+- Đơn mang đi không có bàn, đầu panel ghi "Mang đi". Đơn tại chỗ phải chọn bàn trước khi thanh toán (BR-69).
+- Đổi giá món giữa chừng không làm đổi giá các dòng đã thêm vào đơn (BR-12).
 
 ### 5.3 Sơ đồ bàn
 
@@ -225,13 +239,16 @@ Tầng 1 | Sân vườn | Tất cả                                   Còn tr�
 | --------------------------------------------- | ----------------------- | -------------------------------------- | ---------------------------------------------- |
 | Trống                                         | `surface`               | `border-control`                       | Tên bàn, chữ "Trống"                           |
 | Đang phục vụ (có đơn mở)                      | `brand-100`             | `brand-600` 2px                        | Tên bàn, tổng tiền tạm tính, thời gian đã ngồi |
+| Ngồi lâu (quá ngưỡng cấu hình, ví dụ 90 phút) | `warning-bg`            | `warning` 2px                          | Như trên, kèm biểu tượng đồng hồ               |
 | Ngưng dùng                                    | `surface-sunken`        | không viền                             | Chữ `text-disabled`, không chạm được           |
 | Đang chọn                                     | giữ nền theo trạng thái | viền `brand-600` 3px và vòng ngoài 2px |                                                |
 
-- Trạng thái bàn **tính từ dữ liệu** (có đơn `OPEN` hay không), không có nút đổi tay.
-- Chạm bàn trống: tạo đơn mới. Chạm bàn đang phục vụ: mở đơn đó để gọi thêm món hoặc thanh toán. Khách ngồi chung thì gọi thêm vào cùng một đơn.
+- Trạng thái bàn **tính từ dữ liệu** (có đơn `OPEN` hay không), không có nút đổi tay (BR-99).
+- Chạm bàn trống: tạo đơn mới. Chạm bàn đang phục vụ: mở đơn đó để gọi thêm món hoặc thanh toán. Khách ngồi chung, hoặc bạn của khách tới sau, thì gọi thêm vào **cùng một đơn**, không tạo đơn thứ hai (BR-74, BR-91).
+- **Chuyển bàn:** từ đơn của bàn đang phục vụ, bấm "Chuyển bàn". Sơ đồ bàn hiện lên và chỉ các bàn **trống cùng chi nhánh** chọn được. Chọn bàn mới là đổi bàn của đơn (BR-92). Bàn ngưng dùng hoặc bàn của chi nhánh khác không xuất hiện (BR-95).
+- Tách bill và gộp bill chưa có ở MVP (BR-101), giao diện không hiện các nút này.
+- Chi nhánh chưa có bàn: hiện câu hướng dẫn "Chi nhánh chưa có bàn. Thêm bàn trong Cài đặt, hoặc bán đơn mang đi." Đơn mang đi vẫn tạo được.
 - Chia khu vực bằng tab (Tầng 1, Sân vườn). Bàn xếp theo lưới, thẻ cao tối thiểu 96px.
-- Cảnh báo bàn ngồi lâu theo ngưỡng cấu hình thuộc giai đoạn 2.
 
 ### 5.4 Hộp thoại thanh toán (điểm nhấn của giao diện)
 
@@ -260,9 +277,11 @@ Tầng 1 | Sân vườn | Tất cả                                   Còn tr�
 - Chip tiền gợi ý: "Đủ tiền" (đúng số cần trả) và các mệnh giá tròn lớn hơn số cần trả. Chạm chip là điền luôn "Khách đưa".
 - Bàn phím số 64px mỗi phím, có phím "000" để nhập nhanh.
 - Nếu khách đưa thiếu: hiện "Còn thiếu 20.000đ" màu `danger`, nút Xác nhận bị vô hiệu.
-- Mỗi hóa đơn dùng một phương thức thanh toán: tiền mặt hoặc chuyển khoản.
 - **Chuyển khoản:** hiện số tiền cần nhận, ô "Mã giao dịch" (không bắt buộc), ô tích "Đã nhận đủ tiền". Nút Xác nhận chỉ sáng khi đã tích.
-- Sau khi bấm Xác nhận, nút chuyển sang trạng thái đang xử lý (có vòng quay) và **bị vô hiệu ngay**. Yêu cầu thanh toán phải gửi `idempotency_key`; khi thử lại cùng yêu cầu, dùng lại khóa đó (BR-34).
+- Mỗi đơn có tối đa một mã giảm giá và thanh toán một lần, đủ toàn bộ bằng một phương thức (BR-31, BR-40).
+- **Đơn 0đ:** thay hai lựa chọn phương thức và ô nhập tiền bằng thông báo "Tổng đơn 0đ" và nút "Hoàn tất đơn". Gửi `POST /invoices/{id}/complete-zero` với `Idempotency-Key`; không tạo khoản thanh toán (BR-104).
+- Sau khi bấm Xác nhận, nút chuyển sang trạng thái đang xử lý (có vòng quay) và **bị vô hiệu ngay** để chống thanh toán hai lần (BR-34).
+- Mất mạng hoặc không nhận được phản hồi sau khi bấm Xác nhận: giữ nút khóa, hiện "Đang kiểm tra kết quả thanh toán..." và tự gửi lại với **cùng mã `Idempotency-Key`**. Chỉ sinh mã mới khi người dùng chủ động bắt đầu một lần thanh toán khác.
 - Thanh toán xong: hiện thông báo "Đã thanh toán 95.000đ" và nút "Đơn mới". Không tự đóng hộp thoại khi chưa có phản hồi từ máy chủ.
 
 ### 5.5 Mở ca và đóng ca
@@ -283,7 +302,10 @@ Tầng 1 | Sân vườn | Tất cả                                   Còn tr�
 ```
 
 - **Tiền đầu ca là chữ, không phải ô nhập** (BR-55). Dòng giải thích nói rõ số tiền lấy từ đâu. Ca đầu tiên của chi nhánh ghi "Quỹ ban đầu do chủ cửa hàng cài đặt".
-- "Báo lệch tiền giao ca" là liên kết phụ, mở form báo cho quản lý khi két thực tế khác số hiển thị.
+- "Báo lệch tiền giao ca" là liên kết phụ, mở form báo cho quản lý khi két thực tế khác số hiển thị. Thu ngân không sửa được tiền đầu ca (BR-55, BR-102).
+- **Mỗi chi nhánh một ca thu ngân đang mở** (BR-87). Nếu người khác đang giữ ca, nút Mở ca được thay bằng thông báo nói rõ ai và từ lúc nào: "Chi nhánh đang có ca thu ngân của An (từ 07:02). Đợi An đóng ca, hoặc nhờ quản lý đóng ca thay." Người có quyền thấy thêm nút "Đóng cưỡng chế ca".
+- **Nhân viên ca `STAFF`** (pha chế, phục vụ) có màn hình đơn giản: một nút lớn "Vào ca" hoặc "Tan ca", hiện giờ vào và thời gian đã làm. Không có tiền đầu ca hay đối soát (BR-15).
+- **Đóng cưỡng chế** (quản lý hoặc chủ cửa hàng): hộp thoại bắt buộc nhập lý do, sau đó đi qua đủ hai bước đếm tiền và đối soát như ca thường, vì ca sau cần `tiền đã đếm` (BR-20, BR-88). Nút xác nhận là nút nguy hiểm, ghi rõ tên: "Đóng ca thay An".
 
 **Đóng ca (hai bước, đếm mù, BR-58).**
 
@@ -328,19 +350,102 @@ Bước 2: kết quả đối soát.
 
 ### 5.6 Các màn hình quản lý
 
-| Màn hình | Bố cục                                                                                                               | Ghi chú                                                                 |
-| -------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Hóa đơn  | Bảng + bộ lọc (ngày, trạng thái, bàn, thu ngân). Bấm dòng mở chi tiết ở ngăn bên phải                                | Hủy đơn đã thanh toán: chỉ khi ca của đơn còn mở, cần quyền quản lý và lý do |
-| Ca làm   | Danh sách ca. Chi tiết ca có tiền đầu ca, kỳ vọng, đã đếm, chênh lệch, các khoản chi                                 | Ca lệch được đánh dấu bằng nhãn Thiếu hoặc Thừa ở đầu dòng              |
-| Sản phẩm | Bảng món + form sửa ở ngăn bên phải. Tab "Size và giá", "Topping", "Công thức"                                       | Đổi giá chỉ áp cho đơn mới (BR-12), có dòng chú thích dưới ô giá        |
-| Kho      | Bảng tồn kho theo chi nhánh. Cột: nguyên liệu, tồn, tồn tối thiểu, đơn vị. Tab "Sổ kho"                              | Tồn âm dùng chữ `danger`. Cảnh báo sắp hết hàng thuộc giai đoạn 2 |
-| Báo cáo  | Hàng chỉ số nhỏ (doanh thu, số đơn, tiền mặt, chuyển khoản), biểu đồ cột doanh thu theo ngày | Tách tiền mặt và chuyển khoản (BR-64). Chủ cửa hàng có bộ chọn chi nhánh |
-| Cài đặt  | Chi nhánh, bàn, tài khoản                                                                                         | Chỉ hiện với người có quyền                                             |
-| Quản trị nền tảng | Cửa hàng, tài khoản chủ, vai trò và quyền dùng chung toàn nền tảng                                      | Không hiện hóa đơn, ca, kho hay báo cáo của cửa hàng                     |
+| Màn hình | Bố cục                                                                                                               | Ghi chú                                                                                                                                                                                                                                          |
+| -------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Hóa đơn  | Bảng + bộ lọc (ngày, trạng thái, bàn, thu ngân). Bấm dòng mở chi tiết ở ngăn bên phải                                | Hủy đơn đã thanh toán: nút ở ngăn chi tiết, cần quyền quản lý, lý do, và chỉ khi ca của đơn còn mở. Hộp thoại nhắc hoàn tiền: tiền mặt thì "Hoàn lại 95.000đ cho khách từ két", chuyển khoản thì "Hoàn tiền chuyển khoản ngoài hệ thống" (BR-29) |
+| Ca làm   | Danh sách ca. Chi tiết ca có tiền đầu ca, kỳ vọng, đã đếm, chênh lệch, các khoản chi                                 | Ca lệch được đánh dấu bằng nhãn Thiếu hoặc Thừa ở đầu dòng                                                                                                                                                                                       |
+| Thực đơn | Bảng món + form sửa ở ngăn bên phải. Tab "Size và giá", "Topping", "Công thức"                                       | Đổi giá chỉ áp cho đơn mới (BR-12). Có nút tải ảnh món lên hệ thống; ảnh không bắt buộc (BR-105)                                                                                                                                               |
+| Kho      | Bảng tồn kho theo chi nhánh. Cột: nguyên liệu, tồn, tồn tối thiểu, đơn vị. Tab "Sổ kho"                              | Nguyên liệu sắp hết có nhãn Sắp hết (warning). Tồn âm dùng chữ `danger`                                                                                                                                                                          |
+| Báo cáo  | Hàng chỉ số nhỏ (doanh thu, số đơn, tiền mặt, chuyển khoản), biểu đồ cột doanh thu theo ngày, danh sách món bán chạy | Tách tiền mặt và chuyển khoản (BR-64). Chủ cửa hàng có bộ chọn chi nhánh                                                                                                                                                                         |
+| Cài đặt  | Tab: Chi nhánh, Bàn, Tài khoản, Mã giảm giá. Xem mục 5.10                                                            | Chủ cửa hàng thấy đủ. Quản lý chỉ thấy Bàn và Mã giảm giá                                                                                                                                                                                        |
 
 Chỉ số báo cáo là một hàng gọn: nhãn nhỏ phía trên, số ở dưới, không nền gradient, không biểu tượng trang trí.
 
-Trong màn hình Vai trò và quyền, chỉ quản trị nền tảng được chỉnh quyền dùng chung. Không cho cấp quyền xem dữ liệu vận hành cho `PLATFORM_ADMIN` hoặc cấp `branch.access_all` cho vai trò khác `OWNER` (BR-103).
+### 5.7 Đăng nhập, đổi mật khẩu, cửa hàng bị khóa
+
+- **Đăng nhập:** tên đăng nhập và mật khẩu. **Không có nút Đăng ký** (BR-78). Sai thông tin: "Tên đăng nhập hoặc mật khẩu chưa đúng." Tài khoản bị khóa: "Tài khoản đã bị khóa. Liên hệ quản lý của bạn."
+- **Đổi mật khẩu bắt buộc** (BR-84): tài khoản mới cấp hoặc vừa đặt lại mật khẩu chỉ thấy màn hình này sau khi đăng nhập, không đi tới màn hình khác được cho đến khi đổi xong.
+
+```
+┌──────────────────────────────────────────┐
+│ Đổi mật khẩu để tiếp tục                  │
+│ Mật khẩu hiện tại                         │
+│ [                                  ]      │
+│ Mật khẩu mới                              │
+│ [                                  ]      │
+│ Nhập lại mật khẩu mới                     │
+│ [                                  ]      │
+│ [ Đổi mật khẩu ]                          │
+└──────────────────────────────────────────┘
+```
+
+- **Cửa hàng bị tạm khóa** (BR-82): người dùng của cửa hàng đăng nhập thấy một màn hình duy nhất: "Cửa hàng đang tạm khóa. Liên hệ nhà cung cấp dịch vụ để mở lại." Không có thao tác nào khác. Lý do nội bộ không hiển thị cho người dùng cửa hàng.
+
+### 5.8 Khu quản trị nền tảng (`PLATFORM_ADMIN`)
+
+Khung riêng, thanh trên ghi "Quản trị nền tảng", không có bộ chọn chi nhánh. Rail chỉ có **Cửa hàng** và **Nhật ký** (BR-86, MVP ghi log đơn giản). **Không có số liệu vận hành** (hóa đơn, ca, kho, doanh thu) ở bất kỳ màn hình nào (BR-81).
+
+| Màn hình               | Nội dung                                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Danh sách cửa hàng     | Bảng: tên, trạng thái (Hoạt động, Tạm khóa), số chi nhánh, chủ cửa hàng, ngày tạo. Nút chính "Tạo cửa hàng"                     |
+| Tạo cửa hàng           | Hai phần trong một form: thông tin cửa hàng (tên, điện thoại, email, địa chỉ) và tài khoản chủ cửa hàng (họ tên, tên đăng nhập) |
+| Chi nhánh của cửa hàng | Chỉ số lượng và trạng thái. Không có dữ liệu bán hàng                                                                           |
+| Chi tiết cửa hàng      | Thông tin, danh sách chủ cửa hàng. Hành động: "Tạm khóa cửa hàng", "Mở lại cửa hàng", "Đặt lại mật khẩu chủ cửa hàng"           |
+
+- "Tạm khóa cửa hàng" là nút nguy hiểm, bắt buộc nhập lý do (BR-96), hộp thoại nói rõ hậu quả: "Mọi người dùng của cửa hàng sẽ bị đăng xuất và không đăng nhập được. Dữ liệu được giữ nguyên."
+- Sau khi tạo cửa hàng hoặc đặt lại mật khẩu, hiện hộp thoại **mật khẩu tạm một lần** (BR-84):
+
+```
+┌──────────────────────────────────────────┐
+│ Đã tạo cửa hàng "Cafe Ông Long"           │
+│ Tài khoản chủ cửa hàng                    │
+│ Tên đăng nhập     ongchu                  │
+│ Mật khẩu tạm      Kx7-9fQ2-mP  [Sao chép] │
+│ Mật khẩu này chỉ hiển thị một lần.        │
+│ Sao chép và gửi cho chủ cửa hàng.         │
+│ [x] Tôi đã lưu mật khẩu                   │
+│ [ Đóng ]                                  │
+└──────────────────────────────────────────┘
+```
+
+- Nút Đóng chỉ sáng khi đã tích "Tôi đã lưu mật khẩu". Đóng rồi thì mật khẩu không xem lại được.
+
+### 5.9 Thiết lập ban đầu cho chủ cửa hàng
+
+Cửa hàng mới thì trang đầu của chủ cửa hàng hiện danh sách việc cần làm. Đây là một chuỗi thực sự theo thứ tự, nên đánh số:
+
+1. Tạo chi nhánh: nhập mã chi nhánh và quỹ tiền ban đầu của két.
+2. Tạo bàn cho từng chi nhánh.
+3. Tạo thực đơn: danh mục, món, size, topping.
+4. Nhập nguyên liệu và công thức cho món.
+5. Cấp tài khoản quản lý và thu ngân.
+
+- Mỗi bước hiện trạng thái Xong hoặc Chưa làm, **tính từ dữ liệu** (có chi nhánh chưa, có bàn chưa...), bấm vào dẫn tới đúng màn hình.
+- Danh sách tự ẩn khi cả năm bước xong.
+- Khi thu ngân đăng nhập vào chi nhánh chưa có thực đơn, màn hình bán hàng hiện trạng thái trống có hướng dẫn: "Chưa có món nào. Nhờ quản lý hoặc chủ cửa hàng tạo thực đơn."
+
+### 5.10 Cài đặt cửa hàng
+
+**Tab Chi nhánh** (chủ cửa hàng):
+
+| Ô nhập                             | Ghi chú giao diện                                                                                                                  |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Tên chi nhánh, địa chỉ, điện thoại |                                                                                                                                    |
+| Mã chi nhánh                       | 2 đến 10 ký tự. Chú thích: "Dùng làm tiền tố mã hóa đơn, ví dụ NL-20261027-0001" (BR-75)                                           |
+| Quỹ tiền ban đầu của két           | Ô nhập tiền. Chú thích: "Là tiền đầu ca của ca thu ngân đầu tiên. Từ ca sau, hệ thống tự lấy từ tiền đã đếm của ca trước." (BR-55) |
+| Trạng thái                         | Ngưng hoạt động thì không mở ca, không tạo đơn mới. Dữ liệu cũ giữ nguyên (BR-76)                                                  |
+
+**Tab Bàn** (chủ cửa hàng, quản lý chi nhánh mình): danh sách bàn theo khu vực, thêm bàn, đổi tên, ngưng dùng. Không có nút xóa khi bàn đã có hóa đơn (BR-10).
+
+**Tab Tài khoản** (chủ cửa hàng):
+
+- Khi tạo tài khoản, ô Vai trò **chỉ liệt kê vai trò thấp hơn** vai trò của người tạo (BR-83). Chủ cửa hàng chọn được Quản lý hoặc Thu ngân.
+- Quản lý và Thu ngân **bắt buộc chọn chi nhánh** (BR-70).
+- Mật khẩu tạm hiển thị một lần như mục 5.8.
+- Khóa tài khoản thay cho xóa (BR-07). Nút khóa của chủ cửa hàng cuối cùng bị vô hiệu kèm dòng giải thích: "Cửa hàng cần ít nhất một chủ cửa hàng đang hoạt động." (BR-85)
+- Người dùng không tự khóa hay tự hạ quyền chính mình (BR-06).
+
+**Tab Mã giảm giá** (chủ cửa hàng, quản lý): mã dùng chung toàn cửa hàng. Danh sách có cột đã dùng và giới hạn lượt dùng.
 
 ---
 
@@ -366,24 +471,29 @@ Nền trắng, viền `border`, bo `radius-tile`, cao tối thiểu 96px. Tên m
 
 ### 6.3 Dòng món trong đơn
 
-Tên món và size ở dòng đầu (`text-base`, 600). Topping ở dòng thứ hai (`text-sm`, `text-muted`), ghi chú ở dòng thứ ba nếu có. Bên phải là bộ tăng giảm số lượng (nút 48px) và thành tiền canh phải. Thành tiền do máy chủ tính, **không có ô sửa giá** (BR-24).
+Tên món và size ở dòng đầu (`text-base`, 600). Topping ở dòng thứ hai (`text-sm`, `text-muted`), ghi chú ở dòng thứ ba nếu có. Bên phải là bộ tăng giảm số lượng (nút 44px) và thành tiền canh phải. Thành tiền do máy chủ tính, **không có ô sửa giá** (BR-24).
 
 ### 6.4 Nhãn trạng thái (badge)
 
 Dạng viên thuốc (`radius-pill`), nền nhạt, chữ đậm 600 cỡ `text-sm`, **luôn có biểu tượng nhỏ phía trước**.
 
-| Đối tượng  | Giá trị                             | Nhãn                    | Màu                           |
-| ---------- | ----------------------------------- | ----------------------- | ----------------------------- |
-| Hóa đơn    | `OPEN`                              | Đang mở                 | Thông tin                     |
-| Hóa đơn    | `PAID`                              | Đã thanh toán           | Thành công                    |
-| Hóa đơn    | `CANCELLED`                         | Đã hủy                  | Nguy hiểm                     |
-| Ca làm     | `OPEN`                              | Đang mở                 | Thông tin                     |
-| Ca làm     | `CLOSED`                            | Đã đóng                 | Trung tính (`surface-sunken`) |
-| Đối soát   | `PENDING`                           | Chưa đối soát           | Trung tính                    |
-| Đối soát   | `MATCHED`                           | Khớp                    | Thành công                    |
-| Đối soát   | `SHORTAGE`                          | Thiếu                   | Nguy hiểm                     |
-| Đối soát   | `OVERAGE`                           | Thừa                    | Cảnh báo                      |
-| Thanh toán | `CASH` / `TRANSFER`                 | Tiền mặt / Chuyển khoản | Trung tính                    |
+| Đối tượng                 | Giá trị                             | Nhãn                    | Màu                           |
+| ------------------------- | ----------------------------------- | ----------------------- | ----------------------------- |
+| Hóa đơn                   | `OPEN`                              | Đang mở                 | Thông tin                     |
+| Hóa đơn                   | `PAID`                              | Đã thanh toán           | Thành công                    |
+| Hóa đơn                   | `CANCELLED`                         | Đã hủy                  | Nguy hiểm                     |
+| Ca làm                    | `OPEN`                              | Đang mở                 | Thông tin                     |
+| Ca làm                    | `CLOSED`                            | Đã đóng                 | Trung tính (`surface-sunken`) |
+| Đối soát                  | `PENDING`                           | Chưa đối soát           | Trung tính                    |
+| Đối soát                  | `MATCHED`                           | Khớp                    | Thành công                    |
+| Đối soát                  | `SHORTAGE`                          | Thiếu                   | Nguy hiểm                     |
+| Đối soát                  | `OVERAGE`                           | Thừa                    | Cảnh báo                      |
+| Kho                       | tồn nhỏ hơn hoặc bằng mức tối thiểu | Sắp hết                 | Cảnh báo                      |
+| Thanh toán                | `CASH` / `TRANSFER`                 | Tiền mặt / Chuyển khoản | Trung tính                    |
+| Cửa hàng                  | `ACTIVE`                            | Hoạt động               | Thành công                    |
+| Cửa hàng                  | `SUSPENDED`                         | Tạm khóa                | Nguy hiểm                     |
+| Chi nhánh, bàn, tài khoản | `is_active = false`                 | Ngưng hoạt động         | Trung tính                    |
+| Tài khoản                 | `must_change_password = true`       | Chờ đổi mật khẩu        | Cảnh báo                      |
 
 ### 6.5 Ô nhập, chọn
 
@@ -424,22 +534,33 @@ MVP không hỗ trợ bán hàng ngoại tuyến. Khi mất mạng, không cho t
 
 ## 8. Quy tắc giao diện gắn với business rule
 
-| Quy tắc giao diện                                                       | Rule         |
-| ----------------------------------------------------------------------- | ------------ |
-| Không có ô nhập đơn giá hay tổng tiền. Giá lấy từ máy chủ               | BR-24        |
-| Tiền đầu ca hiển thị dạng chữ chỉ đọc, kèm nguồn gốc                    | BR-55        |
-| Đóng ca đếm mù: không hiện tiền kỳ vọng trước khi nhập số đã đếm        | BR-58        |
-| Chưa mở ca thì chặn toàn bộ màn hình bán hàng, thay bằng màn hình mở ca | BR-16        |
-| Không đóng được ca khi còn đơn mở. Hiện danh sách đơn đó                | BR-19        |
-| Hủy đơn đã thanh toán chỉ khi ca còn mở, người dùng có quyền và nhập lý do | BR-29        |
-| Nút Thanh toán bị khóa ngay sau khi bấm                                 | BR-34        |
-| Bàn đang có đơn mở: chạm vào mở đơn đó, không tạo đơn thứ hai           | BR-74        |
-| Chủ đơn mang đi không chọn bàn. Đơn tại chỗ bắt buộc chọn bàn           | BR-69        |
-| Ca đóng rồi thì mọi ô nhập của ca đó chỉ đọc                            | BR-17        |
-| Chỉ hiện dữ liệu của chi nhánh người dùng. Chủ cửa hàng có bộ chọn chi nhánh | BR-71, BR-71b |
-| Tách tiền mặt và chuyển khoản trong mọi báo cáo                         | BR-64        |
-| Ngày tính doanh thu theo múi giờ Việt Nam (UTC+7)                       | BR-63        |
-| Món chưa có công thức vẫn bán được, nhưng cảnh báo ở màn hình sản phẩm  | BR-49        |
+| Quy tắc giao diện                                                                             | Rule                 |
+| --------------------------------------------------------------------------------------------- | -------------------- |
+| Không có ô nhập đơn giá hay tổng tiền. Giá lấy từ máy chủ                                     | BR-24                |
+| Tiền đầu ca hiển thị dạng chữ chỉ đọc, kèm nguồn gốc                                          | BR-55                |
+| Đóng ca đếm mù: không hiện tiền kỳ vọng trước khi nhập số đã đếm                              | BR-58                |
+| Chưa mở ca thì chặn toàn bộ màn hình bán hàng, thay bằng màn hình mở ca                       | BR-16                |
+| Không đóng được ca khi còn đơn mở. Hiện danh sách đơn đó                                      | BR-19                |
+| Hủy đơn đã thanh toán chỉ có ở người có quyền. Bắt buộc nhập lý do                            | BR-29                |
+| Nút Thanh toán bị khóa ngay sau khi bấm                                                       | BR-34                |
+| Bàn đang có đơn mở: chạm vào mở đơn đó, không tạo đơn thứ hai                                 | BR-74                |
+| Chủ đơn mang đi không chọn bàn. Đơn tại chỗ bắt buộc chọn bàn                                 | BR-69                |
+| Ca đóng rồi thì mọi ô nhập của ca đó chỉ đọc                                                  | BR-17                |
+| Chỉ hiện dữ liệu của chi nhánh người dùng. Chủ cửa hàng có bộ chọn chi nhánh                  | BR-70, BR-71, BR-71b |
+| Tách tiền mặt và chuyển khoản trong mọi báo cáo                                               | BR-64                |
+| Ngày tính doanh thu theo múi giờ Việt Nam (UTC+7)                                             | BR-63                |
+| Món chưa có công thức vẫn bán được, nhưng cảnh báo ở màn hình thực đơn                        | BR-49                |
+| Một chi nhánh một ca thu ngân: chặn nút Mở ca khi người khác đang giữ ca, nói rõ ai           | BR-87                |
+| Đóng cưỡng chế ca bắt buộc lý do và tiền đã đếm                                               | BR-20, BR-88         |
+| Thêm món là thêm dòng mới, tổng tiền lấy lại từ máy chủ                                       | BR-90                |
+| Bạn của khách tới sau thì gọi thêm vào cùng đơn. Chuyển bàn chỉ chọn bàn trống cùng chi nhánh | BR-91, BR-92, BR-95  |
+| Trạng thái bàn tính từ dữ liệu, không có nút đổi tay                                          | BR-99                |
+| Đổi giá chỉ áp cho món thêm sau đó, có chú thích dưới ô giá                                   | BR-12                |
+| Không có đăng ký công khai. Mật khẩu tạm chỉ hiện một lần. Tài khoản mới bị buộc đổi mật khẩu | BR-78, BR-84         |
+| Khu quản trị nền tảng không có màn hình dữ liệu vận hành                                      | BR-81                |
+| Tạm khóa cửa hàng bắt buộc lý do. Người dùng cửa hàng bị khóa không đăng nhập được            | BR-96, BR-82         |
+| Ô Vai trò chỉ liệt kê vai trò thấp hơn. Chủ cửa hàng cuối cùng không khóa được                | BR-83, BR-85         |
+| Quỹ tiền ban đầu của két do chủ cửa hàng cài. Thu ngân không sửa tiền đầu ca                  | BR-55, BR-102        |
 
 ---
 
@@ -462,20 +583,36 @@ Ngắn, rõ, nói theo việc người dùng đang làm. Dùng động từ cụ
 | Tồn kho, Nhập kho, Kiểm kê, Hao hụt                  | Stock, Import (hiển thị)           |
 | Chi nhánh                                            | Branch, cơ sở                      |
 | Mã giảm giá                                          | Voucher, coupon                    |
+| Cửa hàng                                             | Store, tenant, thương hiệu         |
+| Chủ cửa hàng                                         | Owner, admin                       |
+| Quản trị nền tảng                                    | Super admin, platform admin        |
+| Mật khẩu tạm                                         | Mật khẩu mặc định                  |
+| Tạm khóa (cửa hàng), Khóa (tài khoản)                | Vô hiệu hóa, ban                   |
+| Quỹ tiền ban đầu                                     | Initial cash                       |
+| Đóng cưỡng chế ca                                    | Force close                        |
+| Thực đơn                                             | Menu (khi hiển thị tên mục)        |
 
 ### 9.3 Mẫu thông báo
 
-| Tình huống                   | Nội dung                                                                        |
-| ---------------------------- | ------------------------------------------------------------------------------- |
-| Chưa mở ca                   | "Chưa mở ca. Mở ca thu ngân để bắt đầu bán hàng."                               |
-| Bàn đã có đơn                | "Bàn 5 đang có đơn. Mở đơn để gọi thêm món."                                    |
-| Khách đưa thiếu tiền         | "Khách đưa chưa đủ. Cần thêm 20.000đ."                                          |
-| Còn đơn chưa trả khi đóng ca | "Còn 2 đơn chưa thanh toán. Thanh toán hoặc hủy các đơn này trước khi đóng ca." |
-| Thiếu quyền                  | "Cần quyền quản lý để hủy đơn đã thanh toán."                                   |
-| Thanh toán thành công        | "Đã thanh toán 95.000đ."                                                        |
-| Lỗi máy chủ                  | "Chưa lưu được. Kiểm tra kết nối rồi thử lại."                                  |
-| Danh sách đơn trống          | "Chưa có đơn nào trong ca này. Chọn món để tạo đơn đầu tiên."                   |
-| Kho trống                    | "Chưa có nguyên liệu nào. Thêm nguyên liệu đầu tiên để theo dõi tồn kho."       |
+| Tình huống                                   | Nội dung                                                                                                     |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Chưa mở ca                                   | "Chưa mở ca. Mở ca thu ngân để bắt đầu bán hàng."                                                            |
+| Bàn đã có đơn                                | "Bàn 5 đang có đơn. Mở đơn để gọi thêm món."                                                                 |
+| Khách đưa thiếu tiền                         | "Khách đưa chưa đủ. Cần thêm 20.000đ."                                                                       |
+| Còn đơn chưa trả khi đóng ca                 | "Còn 2 đơn chưa thanh toán. Thanh toán hoặc hủy các đơn này trước khi đóng ca."                              |
+| Thiếu quyền                                  | "Cần quyền quản lý để hủy đơn đã thanh toán."                                                                |
+| Thanh toán thành công                        | "Đã thanh toán 95.000đ."                                                                                     |
+| Lỗi máy chủ                                  | "Chưa lưu được. Kiểm tra kết nối rồi thử lại."                                                               |
+| Danh sách đơn trống                          | "Chưa có đơn nào trong ca này. Chọn món để tạo đơn đầu tiên."                                                |
+| Kho trống                                    | "Chưa có nguyên liệu nào. Thêm nguyên liệu đầu tiên để theo dõi tồn kho."                                    |
+| Chi nhánh đang có ca thu ngân của người khác | "Chi nhánh đang có ca thu ngân của An (từ 07:02). Đợi An đóng ca, hoặc nhờ quản lý đóng ca thay."            |
+| Chưa có bàn                                  | "Chi nhánh chưa có bàn. Thêm bàn trong Cài đặt, hoặc bán đơn mang đi."                                       |
+| Chưa có thực đơn                             | "Chưa có món nào. Nhờ quản lý hoặc chủ cửa hàng tạo thực đơn."                                               |
+| Tài khoản bị khóa                            | "Tài khoản đã bị khóa. Liên hệ quản lý của bạn."                                                             |
+| Cửa hàng bị tạm khóa                         | "Cửa hàng đang tạm khóa. Liên hệ nhà cung cấp dịch vụ để mở lại."                                            |
+| Phải đổi mật khẩu                            | "Bạn cần đổi mật khẩu trước khi tiếp tục."                                                                   |
+| Hiển thị mật khẩu tạm                        | "Mật khẩu này chỉ hiển thị một lần. Sao chép và gửi cho người dùng trước khi đóng."                          |
+| Khóa chủ cửa hàng cuối cùng                  | "Cửa hàng cần ít nhất một chủ cửa hàng đang hoạt động. Thêm chủ cửa hàng khác trước khi khóa tài khoản này." |
 
 Lỗi không xin lỗi dài dòng và không nói mơ hồ: nêu việc đã xảy ra và cách sửa.
 
@@ -630,9 +767,9 @@ export default {
 ```ts
 const vnd = new Intl.NumberFormat("vi-VN");
 
-export function formatVND(amount: bigint): string {
-  const abs = vnd.format(amount < 0n ? -amount : amount);
-  return (amount < 0n ? "\u2212" : "") + abs + "đ";
+export function formatVND(amount: number): string {
+  const abs = vnd.format(Math.abs(amount));
+  return (amount < 0 ? "\u2212" : "") + abs + "đ";
 }
 ```
 
@@ -640,14 +777,14 @@ Lưu và tính tiền bằng số nguyên (đồng). Không dùng số thực ch
 
 ### 12.4 Gợi ý thư viện (React)
 
-| Nhu cầu                               | Gợi ý                                                           |
-| ------------------------------------- | --------------------------------------------------------------- |
-| Thành phần nền (hộp thoại, menu, tab) | Radix UI hoặc shadcn/ui, tùy biến theo token trong tài liệu này |
-| Biểu tượng                            | `lucide-react`, nét 1,75px, cỡ 20 đến 24px                      |
-| Bảng dữ liệu                          | TanStack Table                                                  |
-| Gọi API và bộ nhớ đệm                 | TanStack Query                                                  |
-| Biểu đồ                               | Recharts. Màu cột dùng token, không dùng bảng màu mặc định      |
-| Biểu mẫu                              | React Hook Form kèm Zod                                         |
+| Nhu cầu                               | Gợi ý                                                                                                                                                         |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Thành phần nền (hộp thoại, menu, tab) | Radix UI hoặc shadcn/ui, tùy biến theo token trong tài liệu này. Nếu dự án dùng MUI thì ánh xạ token vào `createTheme` (màu, bo góc, chữ), giữ nguyên giá trị |
+| Biểu tượng                            | `lucide-react`, nét 1,75px, cỡ 20 đến 24px                                                                                                                    |
+| Bảng dữ liệu                          | TanStack Table                                                                                                                                                |
+| Gọi API và bộ nhớ đệm                 | TanStack Query                                                                                                                                                |
+| Biểu đồ                               | Recharts. Màu cột dùng token, không dùng bảng màu mặc định                                                                                                    |
+| Biểu mẫu                              | React Hook Form kèm Zod                                                                                                                                       |
 
 ### 12.5 Cấu trúc thư mục gợi ý
 
@@ -661,7 +798,11 @@ src/
     shifts/          OpenShiftGate, CashCount, ReconcileResult
     inventory/       StockTable, StockMovements
     reports/
-  app/               layout (Rail, Topbar), routes, guards theo quyền
+    auth/            LoginPage, ForceChangePassword, SuspendedStore
+    platform/        StoreList, CreateStoreForm, TempPasswordDialog, StoreDetail
+    settings/        BranchForm, TableManager, UserManager, PromotionManager
+    onboarding/      SetupChecklist
+  app/               layout (Rail, Topbar, PlatformShell), routes, guards theo quyền và chi nhánh
 ```
 
 ---
@@ -678,6 +819,10 @@ src/
 - Không để nút nguy hiểm nằm sát nút chính.
 - Không dùng animation tự chạy hoặc hiệu ứng hover là cách duy nhất để lộ chức năng.
 - Không viết mã hex trực tiếp trong component. Luôn dùng token.
+- Không có nút Đăng ký công khai.
+- Không hiển thị dữ liệu vận hành (hóa đơn, ca, kho, doanh thu) trong khu quản trị nền tảng.
+- Không hiển thị lại mật khẩu tạm sau khi hộp thoại đã đóng.
+- Không hiện nút tách bill, gộp bill khi chưa hỗ trợ.
 
 ---
 
@@ -691,6 +836,8 @@ src/
 - [ ] Có đủ trạng thái: đang tải, trống, lỗi, mất kết nối, không đủ quyền.
 - [ ] Nội dung chữ theo từ vựng ở mục 9, không lẫn tiếng Anh.
 - [ ] Thao tác nguy hiểm có xác nhận và lý do bắt buộc khi business rule yêu cầu.
-- [ ] Dữ liệu được lọc theo chi nhánh của người dùng.
+- [ ] Dữ liệu được lọc theo cửa hàng và chi nhánh của người dùng, không tin tham số từ giao diện.
+- [ ] Mục điều hướng và nút hành động chỉ hiện khi có quyền, đúng ma trận quyền trong `BUSINESS_RULES.md`.
+- [ ] Màn hình mới có mã BR tương ứng được ghi ở mục 8.
 - [ ] Làm được bằng bàn phím trên máy tính, có focus nhìn thấy.
 - [ ] Kiểm tra ở 1024px (tablet ngang) và 768px (tablet dọc).
