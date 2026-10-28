@@ -19,6 +19,8 @@ Mọi đường dẫn dưới đây tính từ **gốc repository** (thư mục 
 | `docs/architecture/auth.md` | Phiên, JWT, cookie, mật khẩu và giới hạn thử. |
 | `DESIGN.md` | Giao diện POS, component, tương tác, ngôn ngữ và thiết bị. |
 | `rules/` | Quy tắc làm việc chung; chọn file phù hợp theo bảng bên dưới. |
+| `.codex/agents/` | Cấu hình `explorer` để định vị code, `code-reviewer` để review và `qa` để kiểm thử/báo lỗi; các agent không sửa source theo chỉ dẫn. |
+| `qa-evidence/` | Dấu vết các lần chạy QA và kiểm tra thủ công; chỉ tạo khi có lần chạy thật. |
 | `POS_UI/`, `POS_API/`, `POS_INFRA/` | Mã UI, backend và hạ tầng; kiểm tra mã thực tế trước khi nói tính năng đã chạy. |
 | `plans/`, `tasks/`, `errors/` | Kế hoạch, tiến độ và lỗi đã gặp được lưu trên đĩa; quy trình ở mục dưới. |
 
@@ -62,3 +64,10 @@ Trong `rules/`: đọc `clean-code.md`, `coding-style.md`, `naming.md` khi viế
 - `errors/`: lưu một file cho mỗi lỗi đáng kể gặp khi làm hoặc review. Ghi triệu chứng, điều kiện tái hiện, nguyên nhân đã xác minh, cách sửa, cách kiểm chứng, task/commit liên quan; lỗi chưa giải quyết đánh dấu rõ. Tra thư mục này trước khi xử lý lỗi tương tự. Không ghi secret, token hoặc dữ liệu cá nhân thật.
 
 Tên file dùng `YYYY-MM-DD-ten-ngan.md`; task thuộc plan ghi đường dẫn plan trong nội dung. Mỗi file ghi trạng thái ở đầu và giữ nguyên tên khi chuyển thư mục; không tạo bản sao ở nhiều trạng thái. Không tạo plan cho việc một bước đơn giản, nhưng mọi việc kéo dài qua phiên phải có task active để tiếp tục được. Nội dung user yêu cầu và mã/test hiện tại luôn được đối chiếu trước khi áp dụng ghi chép cũ.
+
+## Bằng chứng thực thi QA
+
+- Không coi câu “67 pass, 0 fail” là bằng chứng. Với mỗi lần chạy, tạo `qa-evidence/<ngày-giờ>-<short-commit>/run.md` ghi lệnh chính xác, commit SHA, working tree có dirty hay không, môi trường, thời điểm bắt đầu/kết thúc, exit code, số test và đường dẫn đến **output/test report do công cụ tạo**. Giữ stdout/stderr hoặc artifact phù hợp trong cùng thư mục; không tự viết lại log để khớp kết luận. Liên kết run từ task/error và báo cáo QA.
+- Với kiểm tra API/UI thủ công, mỗi tình huống có ID và dấu vết đối chiếu được: bước thao tác, expected/actual, request/response hoặc request ID đã che dữ liệu nhạy cảm, ảnh/video khi cần, trạng thái DB trước/sau bằng truy vấn chỉ đọc nếu có tác dụng phụ. Không dùng ảnh màn hình đơn lẻ để chứng minh tác dụng phụ trong DB.
+- Gắn nhãn **CI/runner độc lập**, **local do agent chạy** hoặc **chưa xác minh**. File agent tự tạo không chứng minh độc lập rằng nó đã chạy; để xác thực mạnh hơn, cung cấp URL/ID của lần chạy CI với commit, log và artifact để người dùng tự đối chiếu. Khi chưa có CI, đưa lệnh tái chạy và không gọi bằng chứng local là xác nhận độc lập.
+- Không đưa token, secret, dữ liệu cá nhân thật hoặc log/binary lớn vào Git. Giữ bản đã che dữ liệu cần thiết để tái hiện và ghi rõ phần nào đã che; đặt artifact lớn ở nơi lưu phù hợp và liên kết từ `run.md`. Không tạo thư mục run hay số liệu giả khi chưa thực thi.
