@@ -2,12 +2,17 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { bootstrapAdmin } from './bootstrap-admin';
 import { dataSource } from './data-source';
+import { assertSchemaCurrent, validateAuthConfig } from './auth/auth-config';
+import { setupDevelopmentDocs } from './swagger-docs';
 
 async function main(): Promise<void> {
   try {
+    validateAuthConfig();
     await dataSource.initialize();
+    await assertSchemaCurrent(dataSource);
     await bootstrapAdmin(dataSource);
     const app = await NestFactory.create(AppModule);
+    setupDevelopmentDocs(app);
     await app.listen(Number(process.env.PORT || 3000));
   } catch {
     if (dataSource.isInitialized) await dataSource.destroy();

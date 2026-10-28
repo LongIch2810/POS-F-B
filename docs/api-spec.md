@@ -193,6 +193,31 @@ Danh sách:
 - `204 No Content` (không có body) cho `DELETE` và hành động không trả dữ liệu.
 - Không trả `passwordHash`, `tokenHash` ở bất kỳ response nào (BR-01).
 
+### Schema DTO chung
+
+```ts
+type SuccessResponse<T> = { data: T };
+type ListResponse<T> = {
+  data: T[];
+  meta: { limit: number; nextCursor: string | null; total: number };
+};
+type NoContentResponse = undefined; // HTTP 204: không có JSON body
+type ErrorResponse = {
+  error: {
+    code: string;
+    message: string;
+    details: Array<{
+      location: 'path' | 'query' | 'header' | 'body';
+      field: string;
+      message: string;
+    }>;
+    requestId: string;
+  };
+};
+```
+
+`T` là DTO response của endpoint, không phải entity DB. Spec module khai báo schema request và `T` cụ thể, kể cả các field `null` hoặc tùy chọn; không dùng một DTO chung mơ hồ cho mọi endpoint. `ErrorResponse` áp dụng cho mọi lỗi theo mục 6. Các schema PB-02 xem [specs/auth.md](../specs/auth.md).
+
 ### Kiểu dữ liệu
 
 
@@ -220,6 +245,9 @@ Danh sách:
 ### Request
 
 - Request body bị **whitelist** trong NestJS (`ValidationPipe` với `whitelist` và `forbidNonWhitelisted`). Field lạ trả `422`.
+- Mỗi spec endpoint ghi tên DTO/schema request và response cụ thể, gồm path/query/header/body khi có; kiểu JSON, bắt buộc/tùy chọn, `null`, mặc định, giới hạn và quan hệ điều kiện giữa các field. Ghi rõ route không nhận body/query và response `204` không có body. Schema lỗi dùng envelope ở mục 6 và liệt kê mã HTTP/code của endpoint.
+- DTO request trong NestJS dùng class và `class-validator`; `ValidationPipe` không âm thầm ép kiểu sai hoặc bỏ field lạ. `exceptionFactory` chuyển lỗi dữ liệu thành `422 VALIDATION_ERROR` và `details` với `location`, `field`, `message`. `400 BAD_REQUEST` dành cho JSON/Content-Type không đọc được. Response DTO và decorator `@nestjs/swagger` mô tả schema OpenAPI; không dùng entity DB làm DTO trả ra.
+- Swagger UI `/api/docs` và OpenAPI JSON `/api/docs-json` chỉ đăng ký khi `NODE_ENV=development`; không mở các route này ở môi trường khác. Schema auth cụ thể xem [specs/auth.md](../specs/auth.md).
 - **Giá và tổng tiền do máy chủ tính** (BR-24). Không route nào nhận `unitPrice`, `lineTotal`, `subtotal`, `discountAmount`, `totalAmount`, `expectedCash`, `difference` từ client. Gửi lên thì trả `422`.
 - Chuỗi được cắt khoảng trắng đầu cuối. Độ dài tối đa theo cột DB.
 
@@ -284,6 +312,7 @@ Phân biệt `400` và `422`: `400` **là máy chủ không đọc nổi request
 | `BAD_REQUEST`            | 400  | Request không đọc được (JSON hỏng, sai `Content-Type`)                                                |
 | `VALIDATION_ERROR`       | 422  | Sai kiểu, sai định dạng, thiếu, field lạ, vượt giới hạn ở path, query, header hoặc body. Có `details` |
 | `UNAUTHENTICATED`        | 401  | Chưa đăng nhập hoặc token sai                                                                         |
+| `CURRENT_PASSWORD_INVALID` | 401 | Mật khẩu hiện tại sai khi đổi mật khẩu tự nguyện; không thử refresh, phiên còn hiệu lực                 |
 | `TOKEN_EXPIRED`          | 401  | Access token hết hạn                                                                                  |
 | `PERMISSION_DENIED`      | 403  | Thiếu quyền                                                                                           |
 | `CSRF_INVALID`           | 403  | Origin hoặc CSRF token thiếu/sai; tải lại trang rồi thử lại                                            |
@@ -445,7 +474,7 @@ Chỉ liệt kê **nhóm route** và người dùng chính. Danh sách endpoint,
 | Báo cáo            | `/reports`                                                                   | Theo vai trò (BR-65)                           | `specs/reports.md`           |
 
 
-- Các file spec ở cột cuối là **tên dự kiến**, chưa có. Tên chính thức chốt khi bắt đầu viết spec.
+- Kiểm tra trạng thái từng file spec ở cột cuối: `specs/auth.md` đã chốt cho PB-02; các file khác có thể chưa được tạo hoặc chưa chốt.
 - Nhóm route phải khớp với phạm vi MVP và giai đoạn 2 trong [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md). Không tạo route cho tính năng chưa được yêu cầu.
 
 ---
@@ -459,8 +488,8 @@ Mỗi endpoint trong `specs/<module>.md` phải có đủ các mục sau, theo t
 3. **Quyền** cần có (mã `permission`) và vai trò mặc định.
 4. **Phạm vi**: dùng ngữ cảnh cửa hàng, chi nhánh theo mục 3 nào.
 5. **Business rule** liên quan (mã `BR-xx`).
-6. **Request**: tham số đường dẫn, truy vấn, body, kèm kiểu, bắt buộc hay không, ràng buộc.
-7. **Response thành công**: mã HTTP và cấu trúc `data`.
+6. **Request**: tên DTO/schema; tham số đường dẫn, truy vấn, header, body, kèm kiểu, bắt buộc hay không, nullable, ràng buộc.
+7. **Response thành công**: tên DTO/schema, mã HTTP và cấu trúc `data`; nêu rõ `204` không body.
 8. **Lỗi**: bảng mã lỗi, HTTP, điều kiện (dùng mã ở mục 6).
 9. **Ghi chú xử lý**: transaction, khóa, thứ tự thao tác, tác dụng phụ (trừ kho, ghi sổ kho...).
 10. **Ví dụ** request và response.

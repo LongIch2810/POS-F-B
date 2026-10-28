@@ -1,22 +1,21 @@
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 import { randomUUID } from 'node:crypto';
 import { NextFunction, Request, Response } from 'express';
-import { DataSource } from 'typeorm';
 import { ApiErrorFilter } from './api-error.filter';
-import { dataSource } from './data-source';
+import { AuthModule } from './auth/auth.module';
+import { DatabaseModule } from './database.module';
 import { HealthController } from './health.controller';
 
 @Module({
+  imports: [DatabaseModule, AuthModule],
   controllers: [HealthController],
-  providers: [
-    { provide: DataSource, useValue: dataSource },
-    { provide: APP_FILTER, useClass: ApiErrorFilter },
-  ],
+  providers: [{ provide: APP_FILTER, useClass: ApiErrorFilter }],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply((request: Request, response: Response, next: NextFunction) => {
+    consumer.apply(cookieParser(), (request: Request, response: Response, next: NextFunction) => {
       const suppliedId = request.header('X-Request-Id');
       const requestId = suppliedId && /^[a-zA-Z0-9-]{1,80}$/.test(suppliedId) ? suppliedId : randomUUID();
       response.setHeader('X-Request-Id', requestId);

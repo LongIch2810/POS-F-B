@@ -6,15 +6,15 @@
 
 Đọc [PRODUCT_OVERVIEW.md](../PRODUCT_OVERVIEW.md) trước để nắm phạm vi, vai trò và bất biến. Quy tắc theo mã BR ở [BUSINESS_RULES.md](../BUSINESS_RULES.md); hợp đồng HTTP chung ở [api-spec.md](../api-spec.md); bảng, công thức và ràng buộc ở [DESIGN_DB_POS_SYSTEM.md](../DESIGN_DB_POS_SYSTEM.md); phiên và mật khẩu ở [auth.md](auth.md); giao diện ở [DESIGN.md](../../DESIGN.md). File này giải thích **ranh giới và luồng giữa các thành phần**, không sao chép đặc tả endpoint hay từng cột DB.
 
-Nếu các nguồn mâu thuẫn về kết quả nghiệp vụ hoặc bảo mật, hỏi người dùng và sửa đồng bộ những tài liệu bị ảnh hưởng. `specs/` ở gốc repository dành cho các đặc tả đã chốt; hiện chưa có file spec.
+Nếu các nguồn mâu thuẫn về kết quả nghiệp vụ hoặc bảo mật, hỏi người dùng và sửa đồng bộ những tài liệu bị ảnh hưởng. `specs/` ở gốc repository dành cho các đặc tả đã chốt. Công nghệ đã dùng xem [TECH_STACK.md](TECH_STACK.md).
 
 ## 2. Hiện trạng repository và phạm vi MVP
 
 | Thư mục | Hiện trạng khi viết tài liệu | Đích MVP |
 | --- | --- | --- |
 | `POS_UI/` | React/TypeScript/Vite có màn hình demo; `src/services` gọi `src/mock/mockEngine.ts`, dữ liệu mô phỏng nằm trong browser | Thay lớp service mô phỏng bằng lời gọi API, giữ feature/UI phù hợp |
-| `POS_API/` | Chưa có mã ứng dụng | Một ứng dụng NestJS/TypeScript chia module nghiệp vụ |
-| `POS_INFRA/` | Chưa có cấu hình triển khai | Docker Compose, reverse proxy, cấu hình production và sao lưu |
+| `POS_API/` | Đã có nền tảng PB-01 và API xác thực/phiên PB-02; chưa có các module nghiệp vụ còn lại | Một ứng dụng NestJS/TypeScript chia module nghiệp vụ |
+| `POS_INFRA/` | Đã có Docker Compose PostgreSQL local; chưa có cấu hình production | Docker Compose, reverse proxy, cấu hình production và sao lưu |
 
 UI demo, kể cả đăng nhập, thanh toán và trạng thái offline, **không phải** bằng chứng backend hoặc bán hàng offline đã được triển khai. MVP không bán hàng offline. Chỉ làm tính năng MVP trong mục 5 của product overview; giai đoạn 2 và tùy chọn cần yêu cầu riêng.
 
@@ -38,7 +38,7 @@ Browser hiển thị và gửi ý định thao tác; **API là nguồn sự th�
 
 - Production ban đầu chạy trên **một VPS** tự quản lý. Docker Compose chạy các dịch vụ riêng: reverse proxy, web tĩnh đã build, NestJS API và PostgreSQL. Web/API dùng **cùng origin**; proxy định tuyến đường API đến NestJS, đường web đến React. TLS kết thúc tại proxy. Không chọn sẵn nhà cung cấp VPS hoặc phần mềm proxy.
 - PostgreSQL chỉ truy cập qua mạng nội bộ Compose, không công khai cổng DB. Ảnh món cũng nằm trong PostgreSQL. Secret (khóa JWT/CSRF, mật khẩu DB) được cấp qua cấu hình bí mật bên ngoài repository; không nhúng vào image hoặc commit.
-- Local dùng UI Vite và các dịch vụ cần thiết để phát triển; chưa có staging riêng. Không suy ra lệnh chạy API/Compose trước khi các manifest tương ứng được tạo. Lệnh UI đang có xem `POS_UI/package.json`.
+- Local dùng UI Vite, API NestJS và PostgreSQL qua Docker Compose; chưa có staging riêng. Lệnh hiện có xem `POS_UI/package.json`, `POS_API/package.json` và `POS_INFRA/compose.local.yml`.
 - Deploy: build image, chạy **lệnh TypeORM migration riêng** trên DB, chỉ đưa API phiên bản mới vào phục vụ khi migration thành công; không để API tự migration lúc khởi động. Migration cần tương thích với thời điểm chuyển phiên bản; khi thất bại, dừng deploy và xử lý/khôi phục theo bản sao lưu.
 - Sao lưu PostgreSQL **hằng ngày**, giữ **7 ngày**, lưu **ngoài VPS**; ảnh món trong DB nằm trong cùng bản sao lưu. Kiểm tra khả năng khôi phục định kỳ. Một VPS là điểm lỗi đơn, nên sự cố VPS có thể làm ngừng dịch vụ cho đến khi khôi phục.
 - Redis/BullMQ chưa là thành phần MVP mặc định. Chỉ thêm khi một nhu cầu cache/job nền cụ thể được chứng minh và ghi lại quyết định.
@@ -121,7 +121,7 @@ Theo dõi lỗi API, thời gian phản hồi, tình trạng DB, dung lượng V
 
 Ưu tiên kiểm thử ranh giới tenant/branch, quyền `PLATFORM_ADMIN`, tiền và idempotency, transaction thanh toán–kho, tranh chấp ca/bàn, đối soát đếm mù, thu hồi phiên và ảnh chỉ đọc được trong store. Test integration dùng PostgreSQL thật cho constraint/transaction/migration; UI kiểm tra luồng với API khi backend có mặt. Không coi demo mock là test backend.
 
-Chạy lệnh build/test thực tế của từng phần khi manifest xuất hiện. Hiện UI có `dev`, `build`, `preview`, `typecheck` trong `POS_UI/package.json`; API và infra chưa có lệnh để chạy. Quy tắc kiểm thử chung ở [rules/testing.md](../../rules/testing.md).
+Chạy lệnh build/test thực tế của từng phần theo manifest. UI có `dev`, `build`, `preview`, `typecheck` trong `POS_UI/package.json`; API có `build`, `start`, `migration:run`, `test` trong `POS_API/package.json`; PostgreSQL local dùng `POS_INFRA/compose.local.yml`. Quy tắc kiểm thử chung ở [rules/testing.md](../../rules/testing.md).
 
 ## 13. Quyết định đã chốt và còn mở
 
