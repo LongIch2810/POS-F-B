@@ -43,9 +43,7 @@ export const ShiftsScreen: React.FC<ShiftsScreenProps> = ({ onNavigateToInvoice 
   const isCashierShift = hasOpenShift && myShift.shift_type === 'CASHIER';
   const isStaffShift = hasOpenShift && myShift.shift_type === 'STAFF';
 
-  const canForceClose =
-    session.permissions.includes('shift.force_close') ||
-    session.user.role_code === 'OWNER';
+  const canForceClose = session.permissions.includes('shift.force_close');
 
   // Thao tác Check-in ca nhân viên (không gắn két) per BR-15
   const handleCheckInStaff = async () => {
@@ -199,7 +197,7 @@ export const ShiftsScreen: React.FC<ShiftsScreenProps> = ({ onNavigateToInvoice 
   ];
 
   return (
-    <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ flex: 1, padding: 'clamp(14px, 2.5vw, 24px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Tiêu đề & Thông tin ca hiện tại */}
       <div
         style={{

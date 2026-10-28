@@ -19,6 +19,19 @@ import { DailyReportScreen } from './features/reports/DailyReportScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 import { PlatformAdminScreen } from './features/platform/PlatformAdminScreen';
 
+const AccessDenied: React.FC<{ message?: string }> = ({ message }) => (
+  <div style={{ flex: 1, padding: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ textAlign: 'center', maxWidth: 420 }}>
+      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-danger)', marginBottom: 8 }}>
+        Không có quyền truy cập
+      </div>
+      <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
+        {message || 'Tài khoản của bạn không có quyền truy cập chức năng này.'}
+      </p>
+    </div>
+  </div>
+);
+
 const MainRouter: React.FC = () => {
   const { session, isAuthenticated } = useAuth();
 
@@ -59,9 +72,13 @@ const MainRouter: React.FC = () => {
     }
   }, [isPlatformAdmin]);
 
+  const perms = session?.permissions || [];
+  const has = (p: string) => perms.includes(p as any);
+
   const renderContent = () => {
     switch (currentTab) {
       case 'pos':
+        if (!has('pos.sell')) return <AccessDenied message="Yêu cầu quyền bán hàng (pos.sell)." />;
         return (
           <PosScreen
             activeMode="pos"
@@ -71,6 +88,7 @@ const MainRouter: React.FC = () => {
           />
         );
       case 'tables':
+        if (!has('pos.sell') && !has('table.manage')) return <AccessDenied message="Yêu cầu quyền pos.sell hoặc table.manage." />;
         return (
           <PosScreen
             activeMode="tables"
@@ -80,16 +98,30 @@ const MainRouter: React.FC = () => {
           />
         );
       case 'invoices':
+        if (!has('pos.sell') && !has('invoice.cancel_open') && !has('invoice.cancel_paid')) {
+          return <AccessDenied message="Yêu cầu quyền xem hoặc xử lý hóa đơn." />;
+        }
         return <InvoicesScreen />;
       case 'shifts':
+        if (!has('shift.open_close') && !has('shift.force_close')) {
+          return <AccessDenied message="Yêu cầu quyền ca làm việc (shift.open_close hoặc shift.force_close)." />;
+        }
         return <ShiftsScreen onNavigateToInvoice={handleNavigateToInvoice} />;
       case 'products':
+        if (!has('product.manage')) return <AccessDenied message="Yêu cầu quyền quản lý thực đơn (product.manage)." />;
         return <ProductsScreen />;
       case 'inventory':
+        if (!has('inventory.view')) return <AccessDenied message="Yêu cầu quyền xem kho hàng (inventory.view)." />;
         return <InventoryScreen />;
       case 'reports':
+        if (!has('report.view_branch') && !has('report.view_all')) {
+          return <AccessDenied message="Yêu cầu quyền xem báo cáo doanh thu (report.view_branch hoặc report.view_all)." />;
+        }
         return <DailyReportScreen />;
       case 'settings':
+        if (!has('branch.manage') && !has('table.manage')) {
+          return <AccessDenied message="Yêu cầu quyền cài đặt (branch.manage hoặc table.manage)." />;
+        }
         return <SettingsScreen />;
       case 'platform_stores':
         return (

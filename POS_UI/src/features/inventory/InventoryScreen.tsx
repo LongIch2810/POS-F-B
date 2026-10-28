@@ -1,6 +1,7 @@
 // POS-F&B Inventory, Stock Movements & Ingredient Catalog per BR-42..BR-49
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { inventoryService, IngredientStockItem } from '../../services/inventoryService';
 import { MockEngine } from '../../mock/mockEngine';
 import { mockStorage } from '../../mock/mockStorage';
@@ -15,7 +16,9 @@ import { Boxes, History, ListOrdered, Plus, Edit2, Power, AlertTriangle } from '
 import { useToast } from '../../context/ToastContext';
 
 export const InventoryScreen: React.FC = () => {
+  const { session } = useAuth();
   const { showToast } = useToast();
+  const canViewInventory = session.permissions.includes('inventory.view');
   const effectiveBranchId = MockEngine.getEffectiveBranchId();
 
   const [activeTab, setActiveTab] = useState<'stocks' | 'movements' | 'catalog'>('stocks');
@@ -204,8 +207,23 @@ export const InventoryScreen: React.FC = () => {
     ? stocks.filter((s) => s.stock.current_stock < 0)
     : stocks;
 
+  if (!canViewInventory) {
+    return (
+      <div style={{ flex: 1, padding: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: 420 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-danger)', marginBottom: 8 }}>
+            Không có quyền truy cập
+          </div>
+          <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
+            Bạn không có quyền xem kho hàng (cần quyền inventory.view).
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ flex: 1, padding: 'clamp(14px, 2.5vw, 24px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <div>
@@ -253,7 +271,7 @@ export const InventoryScreen: React.FC = () => {
 
       {/* Tabs */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: 8, flexWrap: 'wrap', gap: 12 }}>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           <button
             type="button"
             onClick={() => setActiveTab('stocks')}
@@ -325,13 +343,13 @@ export const InventoryScreen: React.FC = () => {
         </div>
 
         {activeTab === 'stocks' && (
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <button
               type="button"
               onClick={() => setOnlyNegative(!onlyNegative)}
               className="touch-press"
               style={{
-                height: 36,
+                height: 44,
                 padding: '0 14px',
                 borderRadius: 'var(--radius-pill)',
                 border: onlyNegative ? '1px solid var(--color-danger)' : '1px solid var(--color-border)',

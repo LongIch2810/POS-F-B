@@ -108,7 +108,7 @@ export const InvoicesScreen: React.FC = () => {
   ];
 
   return (
-    <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ flex: 1, padding: 'clamp(14px, 2.5vw, 24px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header & Filter */}
       <div
         style={{
@@ -129,7 +129,7 @@ export const InvoicesScreen: React.FC = () => {
         </div>
 
         {/* Filter Pills */}
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           <Filter size={18} color="var(--color-text-muted)" />
           {['ALL', 'OPEN', 'PAID', 'CANCELLED'].map((st) => {
             const isSelected = statusFilter === st;
@@ -145,7 +145,7 @@ export const InvoicesScreen: React.FC = () => {
                 type="button"
                 onClick={() => setStatusFilter(st)}
                 style={{
-                  height: 36,
+                  height: 44,
                   padding: '0 14px',
                   borderRadius: 'var(--radius-pill)',
                   border: `1px solid ${isSelected ? 'var(--color-brand-600)' : 'var(--color-border-control)'}`,
@@ -154,6 +154,8 @@ export const InvoicesScreen: React.FC = () => {
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                 }}
               >
                 {labels[st]}

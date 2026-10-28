@@ -33,7 +33,14 @@ export const SettingsScreen: React.FC = () => {
   const currentUser = session.user;
   const storeId = currentUser.store_id || 'store-1';
 
-  const [activeTab, setActiveTab] = useState<'branches' | 'tables' | 'staff'>('branches');
+  const canManageBranches = session.permissions.includes('branch.manage');
+  const canManageTables = session.permissions.includes('table.manage');
+
+  const [activeTab, setActiveTab] = useState<'branches' | 'tables' | 'staff'>(() => {
+    if (canManageBranches) return 'branches';
+    if (canManageTables) return 'tables';
+    return 'tables';
+  });
 
   const [branches, setBranches] = useState<Branch[]>(() => adminService.getBranches(storeId));
   const [selectedBranchId, setSelectedBranchId] = useState<string>(branches[0]?.id || '');
@@ -429,7 +436,7 @@ export const SettingsScreen: React.FC = () => {
             >
               Mật khẩu tạm
             </Button>
-            {!isOwnerAccount && !isSelf && (
+            {!isOwnerAccount && !isSelf && canManageBranches && (
               <Button
                 variant="text"
                 size="sm"
@@ -451,7 +458,7 @@ export const SettingsScreen: React.FC = () => {
   ];
 
   return (
-    <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ flex: 1, padding: 'clamp(14px, 2.5vw, 24px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <div>
@@ -463,19 +470,19 @@ export const SettingsScreen: React.FC = () => {
           </p>
         </div>
 
-        {/* Action Button based on Tab */}
+        {/* Action Button based on Tab and Permission (BR-05) */}
         <div>
-          {activeTab === 'branches' && (
+          {activeTab === 'branches' && canManageBranches && (
             <Button variant="primary" icon={<Plus size={16} />} onClick={handleOpenCreateBranch}>
               Thêm chi nhánh
             </Button>
           )}
-          {activeTab === 'tables' && (
+          {activeTab === 'tables' && canManageTables && (
             <Button variant="primary" icon={<Plus size={16} />} onClick={handleOpenCreateTable}>
               Thêm bàn ăn
             </Button>
           )}
-          {activeTab === 'staff' && (
+          {activeTab === 'staff' && canManageBranches && (
             <Button variant="primary" icon={<Plus size={16} />} onClick={handleOpenCreateStaff}>
               Thêm nhân viên
             </Button>
@@ -483,70 +490,76 @@ export const SettingsScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 12, borderBottom: '1px solid var(--color-border)', paddingBottom: 4 }}>
-        <button
-          type="button"
-          onClick={() => setActiveTab('branches')}
-          style={{
-            height: 40,
-            padding: '0 16px',
-            borderRadius: 'var(--radius-pill)',
-            border: 'none',
-            background: activeTab === 'branches' ? 'var(--color-brand-100)' : 'transparent',
-            color: activeTab === 'branches' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
-            fontWeight: activeTab === 'branches' ? 700 : 500,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <Building size={16} />
-          <span>Chi nhánh ({branches.length})</span>
-        </button>
+      {/* Tabs theo phân quyền BR-05 & DESIGN.md §5.10 */}
+      <div style={{ display: 'flex', gap: 12, borderBottom: '1px solid var(--color-border)', paddingBottom: 4, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        {canManageBranches && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('branches')}
+            style={{
+              height: 40,
+              padding: '0 16px',
+              borderRadius: 'var(--radius-pill)',
+              border: 'none',
+              background: activeTab === 'branches' ? 'var(--color-brand-100)' : 'transparent',
+              color: activeTab === 'branches' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
+              fontWeight: activeTab === 'branches' ? 700 : 500,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <Building size={16} />
+            <span>Chi nhánh ({branches.length})</span>
+          </button>
+        )}
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('tables')}
-          style={{
-            height: 40,
-            padding: '0 16px',
-            borderRadius: 'var(--radius-pill)',
-            border: 'none',
-            background: activeTab === 'tables' ? 'var(--color-brand-100)' : 'transparent',
-            color: activeTab === 'tables' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
-            fontWeight: activeTab === 'tables' ? 700 : 500,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <LayoutGrid size={16} />
-          <span>Bàn ăn</span>
-        </button>
+        {canManageTables && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('tables')}
+            style={{
+              height: 40,
+              padding: '0 16px',
+              borderRadius: 'var(--radius-pill)',
+              border: 'none',
+              background: activeTab === 'tables' ? 'var(--color-brand-100)' : 'transparent',
+              color: activeTab === 'tables' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
+              fontWeight: activeTab === 'tables' ? 700 : 500,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <LayoutGrid size={16} />
+            <span>Bàn ăn</span>
+          </button>
+        )}
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('staff')}
-          style={{
-            height: 40,
-            padding: '0 16px',
-            borderRadius: 'var(--radius-pill)',
-            border: 'none',
-            background: activeTab === 'staff' ? 'var(--color-brand-100)' : 'transparent',
-            color: activeTab === 'staff' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
-            fontWeight: activeTab === 'staff' ? 700 : 500,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <Users size={16} />
-          <span>Nhân viên ({staff.length})</span>
-        </button>
+        {canManageBranches && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('staff')}
+            style={{
+              height: 40,
+              padding: '0 16px',
+              borderRadius: 'var(--radius-pill)',
+              border: 'none',
+              background: activeTab === 'staff' ? 'var(--color-brand-100)' : 'transparent',
+              color: activeTab === 'staff' ? 'var(--color-brand-800)' : 'var(--color-text-muted)',
+              fontWeight: activeTab === 'staff' ? 700 : 500,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <Users size={16} />
+            <span>Nhân viên ({staff.length})</span>
+          </button>
+        )}
       </div>
 
       {/* Tab Chi nhánh */}

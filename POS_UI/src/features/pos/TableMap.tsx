@@ -36,7 +36,7 @@ export const TableMap: React.FC<TableMapProps> = ({
   const activeCount = tablesWithInvoices.filter((ti) => !!ti.activeInvoice).length;
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 16 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 'clamp(12px, 2.5vw, 16px)' }}>
       {/* Thanh trên: Tabs khu vực & Tóm tắt & Nút mang đi */}
       <div
         style={{
@@ -50,7 +50,7 @@ export const TableMap: React.FC<TableMapProps> = ({
         }}
       >
         {/* Tabs khu vực */}
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           {areas.map((area) => {
             const isSelected = area === selectedArea;
             return (
@@ -59,7 +59,7 @@ export const TableMap: React.FC<TableMapProps> = ({
                 type="button"
                 onClick={() => setSelectedArea(area)}
                 style={{
-                  height: 40,
+                  height: 44,
                   padding: '0 16px',
                   borderRadius: 'var(--radius-pill)',
                   border: `1px solid ${isSelected ? 'var(--color-brand-600)' : 'var(--color-border-control)'}`,
@@ -69,6 +69,7 @@ export const TableMap: React.FC<TableMapProps> = ({
                   fontWeight: 600,
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
+                  flexShrink: 0,
                 }}
               >
                 {area}

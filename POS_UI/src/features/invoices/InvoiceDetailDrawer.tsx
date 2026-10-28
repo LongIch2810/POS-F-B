@@ -24,7 +24,6 @@ export const InvoiceDetailDrawer: React.FC<InvoiceDetailDrawerProps> = ({
   onOpenCancelModal,
 }) => {
   const { session } = useAuth();
-  const user = session.user;
 
   if (!invoice) return null;
 
@@ -32,8 +31,9 @@ export const InvoiceDetailDrawer: React.FC<InvoiceDetailDrawerProps> = ({
   const isOpenStatus = invoice.status === 'OPEN';
   const isCancelled = invoice.status === 'CANCELLED';
 
-  // Kiểm tra quyền hủy đơn (BR-28, BR-29)
-  const isManagerOrOwner = user.role_code === 'OWNER' || user.role_code === 'MANAGER';
+  // Kiểm tra quyền hủy đơn động (BR-05, BR-28, BR-29)
+  const canCancelPaid = session.permissions.includes('invoice.cancel_paid');
+  const canCancelOpen = session.permissions.includes('invoice.cancel_open');
   const state = mockStorage.getState();
   const shift = state.workShifts.find((s) => s.id === invoice.work_shift_id);
   const isShiftOpen = shift && shift.status === 'OPEN';
@@ -42,12 +42,16 @@ export const InvoiceDetailDrawer: React.FC<InvoiceDetailDrawerProps> = ({
   let cancelDisabledReason = '';
 
   if (isOpenStatus) {
-    canCancel = true;
+    if (canCancelOpen) {
+      canCancel = true;
+    } else {
+      cancelDisabledReason = 'Bạn không có quyền hủy hóa đơn chưa thanh toán (invoice.cancel_open)';
+    }
   } else if (isPaid) {
-    if (!isManagerOrOwner) {
-      cancelDisabledReason = 'Cần quyền quản lý để hủy hóa đơn đã thanh toán';
+    if (!canCancelPaid) {
+      cancelDisabledReason = 'Cần quyền hủy hóa đơn đã thanh toán (invoice.cancel_paid)';
     } else if (!isShiftOpen) {
-      cancelDisabledReason = 'Ca của hóa đơn này đã đóng, không thể hủy đơn';
+      cancelDisabledReason = 'Ca của hóa đơn này đã đóng, không thể hủy đơn (BR-29)';
     } else {
       canCancel = true;
     }

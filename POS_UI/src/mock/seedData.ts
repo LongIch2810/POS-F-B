@@ -586,7 +586,6 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionCode[]> = {
     'shift.open_close',
     'pos.sell',
     'invoice.cancel_open',
-    'inventory.view',
     'report.view_shift',
   ],
 };

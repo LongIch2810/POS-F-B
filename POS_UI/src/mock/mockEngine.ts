@@ -1668,25 +1668,21 @@ export class MockEngine {
       throw new Error('Quản trị viên nền tảng không có quyền xem dữ liệu vận hành (BR-81)');
     }
 
-    // Phân quyền theo vai trò (BR-77)
+    // Phân quyền theo quyền động (BR-05, BR-65, BR-77)
+    const canViewAll = this.hasPermission('report.view_all');
+    const canViewBranch = this.hasPermission('report.view_branch');
+
+    if (!canViewAll && !canViewBranch) {
+      throw new Error('Bạn không có quyền xem báo cáo doanh thu ngày (BR-65)');
+    }
+
     let effectiveBranch = branchId;
-    if (user.role_code === 'CASHIER') {
-      if (!this.hasPermission('report.view_shift')) {
-        throw new Error('Bạn không có quyền xem báo cáo ca');
-      }
-      effectiveBranch = user.branch_id || '';
-    } else if (user.role_code === 'MANAGER') {
-      if (!this.hasPermission('report.view_branch')) {
-        throw new Error('Bạn không có quyền xem báo cáo chi nhánh');
-      }
-      effectiveBranch = user.branch_id || ''; // Quản lý bị khóa cố định vào chi nhánh mình
-    } else if (user.role_code === 'OWNER') {
-      if (!this.hasPermission('report.view_all')) {
-        throw new Error('Bạn không có quyền xem báo cáo toàn cửa hàng');
-      }
+    if (canViewAll) {
       if (!effectiveBranch || effectiveBranch === 'ALL') {
         effectiveBranch = 'ALL';
       }
+    } else {
+      effectiveBranch = user.branch_id || '';
     }
 
     const targetDate = dateStr || this.toVnDateString(new Date().toISOString());
@@ -1700,10 +1696,7 @@ export class MockEngine {
       return invDate === targetDate;
     });
 
-    // Phạm vi Thu ngân: chỉ xem hóa đơn thuộc ca/tài khoản mình
-    if (user.role_code === 'CASHIER') {
-      paidInvoices = paidInvoices.filter((inv) => inv.user_id === user.id);
-    } else if (effectiveBranch && effectiveBranch !== 'ALL') {
+    if (effectiveBranch && effectiveBranch !== 'ALL') {
       paidInvoices = paidInvoices.filter((inv) => inv.branch_id === effectiveBranch);
     }
 
