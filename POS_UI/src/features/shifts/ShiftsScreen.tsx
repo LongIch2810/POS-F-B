@@ -199,7 +199,7 @@ export const ShiftsScreen: React.FC<ShiftsScreenProps> = ({ onNavigateToInvoice 
   ];
 
   return (
-    <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ flex: 1, padding: 'clamp(14px, 2.5vw, 24px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Tiêu đề & Thông tin ca hiện tại */}
       <div
         style={{

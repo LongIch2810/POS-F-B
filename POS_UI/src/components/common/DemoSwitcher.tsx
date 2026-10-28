@@ -45,7 +45,7 @@ export const DemoSwitcher: React.FC = () => {
           DEMO
         </span>
         <span style={{ color: '#D5DBDE', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          <span>Môi trường kiểm tra Frontend MVP</span>
+          <span className="demo-text-medium">Môi trường kiểm tra Frontend MVP</span>
           <span className="demo-text-long"> &bull; Dữ liệu lưu trong bộ nhớ</span>
         </span>
       </div>
@@ -98,7 +98,7 @@ export const DemoSwitcher: React.FC = () => {
                 }}
               >
                 <div style={{ padding: '6px 16px', fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border)' }}>
-                  CHỌN TÀI KHOẢN ĐỂ KIỂM TRA PHÂN QUYỀN
+                  Chọn tài khoản kiểm tra phân quyền
                 </div>
                 {DEMO_ACCOUNTS.map((acc) => {
                   const isSelected = acc.id === currentUser.id;

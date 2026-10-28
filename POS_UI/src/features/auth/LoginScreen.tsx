@@ -1,16 +1,13 @@
-// POS-F&B Authentication Login Screen per DESIGN.md, WCAG 2.1 AA & taste-skill app screens
+// POS-F&B Authentication Login Screen per DESIGN.md §1, §4, §5.7 & Impeccable craft-floor
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { DEMO_ACCOUNTS } from '../../services/authService';
 import {
-  Coffee,
-  ShieldCheck,
   Lock,
   User as UserIcon,
   Eye,
   EyeOff,
   AlertCircle,
-  Info,
   Store,
   Boxes,
   Clock,
@@ -69,128 +66,120 @@ export const LoginScreen: React.FC = () => {
   return (
     <div
       style={{
-        height: '100vh',
-        maxHeight: '100vh',
+        minHeight: '100vh',
         width: '100vw',
-        overflow: 'hidden',
+        overflowY: 'auto',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'radial-gradient(ellipse at 50% 25%, #2E1A11 0%, #170C07 100%)',
-        padding: '16px 24px',
+        background: 'var(--color-bg)',
+        padding: '24px 20px',
         boxSizing: 'border-box',
-        position: 'relative',
       }}
     >
-      {/* Decorative ambient coffee steam ring */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          width: 600,
-          height: 600,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(199, 107, 34, 0.08) 0%, rgba(0, 0, 0, 0) 70%)',
-          pointerEvents: 'none',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-        }}
-      />
-
       <div
         className="login-stage-grid"
         style={{
           width: '100%',
-          maxWidth: 1240,
+          maxWidth: 1180,
           display: 'grid',
-          gridTemplateColumns: 'minmax(280px, 1fr) minmax(360px, 1.15fr) minmax(310px, 1.05fr)',
+          gridTemplateColumns: 'minmax(280px, 1fr) minmax(360px, 1.15fr) minmax(300px, 1fr)',
           gap: 20,
           alignItems: 'stretch',
-          position: 'relative',
-          zIndex: 1,
         }}
       >
-        {/* ===================== CỘT TRÁI: THƯƠNG HIỆU & GIỚI THIỆU POS F&B ===================== */}
+        {/* ===================== CỘT TRÁI: THƯƠNG HIỆU & GIỚI THIỆU HỆ THỐNG ===================== */}
         <div
           className="login-brand-panel"
           style={{
-            background: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.09)',
-            borderRadius: 16,
-            padding: '24px 22px',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-sheet)',
+            padding: '28px 24px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            backdropFilter: 'blur(10px)',
-            color: '#FFFFFF',
           }}
         >
-          {/* Brand header */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            {/* Logo phin cà phê thương hiệu */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
               <div
                 style={{
-                  width: 46,
-                  height: 46,
-                  borderRadius: 12,
-                  background: 'var(--color-brand-600, #C76B22)',
+                  width: 48,
+                  height: 48,
+                  borderRadius: 'var(--radius-tile)',
+                  background: 'var(--color-brand-800)',
                   color: '#FFFFFF',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 8px 18px rgba(199, 107, 34, 0.35)',
                   flexShrink: 0,
                 }}
               >
-                <Coffee size={24} />
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-label="Logo Phin Cà Phê"
+                >
+                  <circle cx="16" cy="5" r="1.8" fill="#f1e4d9" />
+                  <path d="M9 8.5C9 7.8 10 7.2 16 7.2C22 7.2 23 7.8 23 8.5L22 10.5H10L9 8.5Z" fill="#f1e4d9" />
+                  <path d="M10 11H22L20.8 19.5H11.2L10 11Z" fill="#f8f0e9" opacity="0.95" />
+                  <rect x="7" y="19.5" width="18" height="2" rx="1" fill="#f1e4d9" />
+                  <path d="M11.5 22.5H20.5L19.5 28C19.5 29 18.5 29.5 16 29.5C13.5 29.5 12.5 29 12.5 28L11.5 22.5Z" stroke="#f1e4d9" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="16" cy="25" r="1.2" fill="#e2cbbe" />
+                </svg>
               </div>
               <div>
-                <h1 style={{ fontSize: 18, fontWeight: 700, color: '#FFFFFF', margin: 0, lineHeight: '22px' }}>
-                  POS & Kho F&B
+                <h1 style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)', margin: 0, lineHeight: '24px' }}>
+                  POS & Quản lý Kho F&B
                 </h1>
-                <p style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.65)', margin: '2px 0 0 0' }}>
+                <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: '2px 0 0 0' }}>
                   Cà phê • Trà sữa • Quán ăn
                 </p>
               </div>
             </div>
 
-            <p style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.8)', lineHeight: '19px', margin: '0 0 18px 0' }}>
-              Hệ thống bán hàng tại quầy và quản trị tồn kho đa chi nhánh theo thời gian thực.
+            <p style={{ fontSize: 14, color: 'var(--color-text-muted)', lineHeight: '21px', margin: '0 0 20px 0' }}>
+              Hệ thống bán hàng quầy cảm ứng và quản trị tồn kho đa chi nhánh theo thời gian thực.
             </p>
 
-            {/* 3 Core Highlights */}
+            {/* Danh sách 3 trụ cột nghiệp vụ */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: 10,
-                  padding: '10px 12px',
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  borderRadius: 10,
+                  gap: 12,
+                  padding: '12px 14px',
+                  background: 'var(--color-surface-sunken)',
+                  borderRadius: 'var(--radius-control)',
                 }}
               >
                 <div
                   style={{
                     width: 32,
                     height: 32,
-                    borderRadius: 8,
-                    background: 'rgba(199, 107, 34, 0.2)',
-                    color: '#FDBA74',
+                    borderRadius: 'var(--radius-control)',
+                    background: 'var(--color-brand-100)',
+                    color: 'var(--color-brand-700)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}
                 >
-                  <Store size={17} />
+                  <Store size={18} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#F3F4F6' }}>Bán hàng cảm ứng tại quầy</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.6)', marginTop: 2, lineHeight: '15px' }}>
-                    Tối ưu tablet ngang, thêm món & ghi đơn dưới 2 chạm, sơ đồ bàn trực quan.
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text)' }}>
+                    Bán hàng cảm ứng tại quầy
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2, lineHeight: '17px' }}>
+                    Tối ưu tablet ngang, chọn món dưới 2 chạm, sơ đồ bàn trực quan.
                   </div>
                 </div>
               </div>
@@ -199,32 +188,33 @@ export const LoginScreen: React.FC = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: 10,
-                  padding: '10px 12px',
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  borderRadius: 10,
+                  gap: 12,
+                  padding: '12px 14px',
+                  background: 'var(--color-surface-sunken)',
+                  borderRadius: 'var(--radius-control)',
                 }}
               >
                 <div
                   style={{
                     width: 32,
                     height: 32,
-                    borderRadius: 8,
-                    background: 'rgba(59, 130, 246, 0.2)',
-                    color: '#93C5FD',
+                    borderRadius: 'var(--radius-control)',
+                    background: 'var(--color-info-bg)',
+                    color: 'var(--color-info)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}
                 >
-                  <Clock size={17} />
+                  <Clock size={18} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#F3F4F6' }}>Đối soát ca đếm mù</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.6)', marginTop: 2, lineHeight: '15px' }}>
-                    Mỗi chi nhánh 1 ca mở, bàn giao tiền mặt đếm mù (Blind drop) chống thất thoát.
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text)' }}>
+                    Đối soát ca đếm mù
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2, lineHeight: '17px' }}>
+                    Mỗi chi nhánh 1 ca mở, bàn giao tiền mặt đếm mù chống thất thoát.
                   </div>
                 </div>
               </div>
@@ -233,51 +223,52 @@ export const LoginScreen: React.FC = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: 10,
-                  padding: '10px 12px',
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  borderRadius: 10,
+                  gap: 12,
+                  padding: '12px 14px',
+                  background: 'var(--color-surface-sunken)',
+                  borderRadius: 'var(--radius-control)',
                 }}
               >
                 <div
                   style={{
                     width: 32,
                     height: 32,
-                    borderRadius: 8,
-                    background: 'rgba(34, 197, 94, 0.2)',
-                    color: '#86EFAC',
+                    borderRadius: 'var(--radius-control)',
+                    background: 'var(--color-success-bg)',
+                    color: 'var(--color-success)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}
                 >
-                  <Boxes size={17} />
+                  <Boxes size={18} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#F3F4F6' }}>Định mức trừ kho tự động</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.6)', marginTop: 2, lineHeight: '15px' }}>
-                    Trừ nguyên vật liệu theo công thức từng ly nước, cảnh báo tồn ngưỡng an toàn.
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text)' }}>
+                    Định mức trừ kho tự động
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2, lineHeight: '17px' }}>
+                    Trừ nguyên vật liệu theo công thức từng ly nước, cảnh báo tồn kho an toàn.
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Footer badge */}
+          {/* Chân trang thông tin */}
           <div
             style={{
-              paddingTop: 14,
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+              paddingTop: 16,
+              borderTop: '1px solid var(--color-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              fontSize: 11,
-              color: 'rgba(255, 255, 255, 0.5)',
+              fontSize: 12,
+              color: 'var(--color-text-muted)',
             }}
           >
-            <span>Bản quyền © Chuỗi F&B</span>
+            <span>Bản quyền © Hệ thống F&B</span>
             <span>Múi giờ Asia/Ho_Chi_Minh</span>
           </div>
         </div>
@@ -285,79 +276,62 @@ export const LoginScreen: React.FC = () => {
         {/* ===================== CỘT GIỮA: FORM ĐĂNG NHẬP CHÍNH ===================== */}
         <div
           style={{
-            background: '#FFFFFF',
-            borderRadius: 16,
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-            padding: '28px 28px',
+            background: 'var(--color-surface)',
+            borderRadius: 'var(--radius-sheet)',
+            boxShadow: 'var(--shadow-overlay)',
+            border: '1px solid var(--color-border)',
+            padding: '32px 28px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            position: 'relative',
           }}
         >
-          {/* Header of Form */}
+          {/* Header biểu mẫu */}
           <div style={{ marginBottom: 20 }}>
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 5,
-                background: 'var(--color-brand-50, #F8F0E9)',
-                color: 'var(--color-brand-600, #7A4A2B)',
-                padding: '3px 9px',
-                borderRadius: 9999,
-                fontSize: 11,
-                fontWeight: 700,
-                marginBottom: 8,
-              }}
-            >
-              <ShieldCheck size={13} />
-              <span>Cổng đăng nhập an toàn</span>
-            </div>
-            <h2 style={{ fontSize: 21, fontWeight: 700, color: '#111827', margin: 0 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-text)', margin: 0 }}>
               Đăng nhập tài khoản
             </h2>
-            <p style={{ fontSize: 13, color: '#6B7280', margin: '4px 0 0 0' }}>
+            <p style={{ fontSize: 14, color: 'var(--color-text-muted)', margin: '6px 0 0 0' }}>
               Nhập tên đăng nhập và mật khẩu được cấp bởi cửa hàng
             </p>
           </div>
 
-          {/* General Error notification */}
+          {/* Thông báo lỗi chung */}
           {generalError && (
             <div
               role="alert"
               style={{
-                background: 'var(--color-danger-bg, #FEF2F2)',
-                border: '1px solid var(--color-danger-border, #FCA5A5)',
-                borderRadius: 8,
-                padding: '10px 12px',
+                background: 'var(--color-danger-bg)',
+                border: '1px solid var(--color-danger)',
+                borderRadius: 'var(--radius-control)',
+                padding: '10px 14px',
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: 8,
                 marginBottom: 16,
-                fontSize: 12,
-                color: 'var(--color-danger, #DC2626)',
+                fontSize: 13,
+                color: 'var(--color-danger)',
               }}
             >
-              <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+              <AlertCircle size={18} style={{ flexShrink: 0, marginTop: 1 }} />
               <span>{generalError}</span>
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* Biểu mẫu */}
+          <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
               <label
                 htmlFor="login-username"
                 style={{
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: 600,
-                  color: '#374151',
+                  color: 'var(--color-text)',
                   display: 'block',
-                  marginBottom: 5,
+                  marginBottom: 6,
                 }}
               >
-                Tên đăng nhập <span style={{ color: 'var(--color-danger)' }}>*</span>
+                Tên đăng nhập
               </label>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <UserIcon
@@ -365,7 +339,7 @@ export const LoginScreen: React.FC = () => {
                   style={{
                     position: 'absolute',
                     left: 14,
-                    color: fieldErrors.username ? 'var(--color-danger)' : '#9CA3AF',
+                    color: fieldErrors.username ? 'var(--color-danger)' : 'var(--color-text-muted)',
                     pointerEvents: 'none',
                   }}
                 />
@@ -382,17 +356,16 @@ export const LoginScreen: React.FC = () => {
                   }}
                   placeholder="Nhập tên đăng nhập..."
                   style={{
-                    height: 46,
+                    height: 48,
                     width: '100%',
                     paddingLeft: 42,
                     paddingRight: 14,
-                    borderRadius: 10,
-                    border: `1.5px solid ${fieldErrors.username ? 'var(--color-danger)' : '#D1D5DB'}`,
-                    fontSize: 14,
-                    color: '#111827',
-                    background: fieldErrors.username ? 'var(--color-danger-bg, #FEF2F2)' : '#F9FAFB',
+                    borderRadius: 'var(--radius-control)',
+                    border: `1px solid ${fieldErrors.username ? 'var(--color-danger)' : 'var(--color-border-control)'}`,
+                    fontSize: 15,
+                    color: 'var(--color-text)',
+                    background: fieldErrors.username ? 'var(--color-danger-bg)' : 'var(--color-surface)',
                     outline: 'none',
-                    transition: 'border-color 150ms ease',
                   }}
                 />
               </div>
@@ -400,7 +373,7 @@ export const LoginScreen: React.FC = () => {
                 <div
                   id="username-error"
                   role="alert"
-                  style={{ fontSize: 11, color: 'var(--color-danger)', marginTop: 4, fontWeight: 500 }}
+                  style={{ fontSize: 12, color: 'var(--color-danger)', marginTop: 4, fontWeight: 500 }}
                 >
                   {fieldErrors.username}
                 </div>
@@ -411,14 +384,14 @@ export const LoginScreen: React.FC = () => {
               <label
                 htmlFor="login-password"
                 style={{
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: 600,
-                  color: '#374151',
+                  color: 'var(--color-text)',
                   display: 'block',
-                  marginBottom: 5,
+                  marginBottom: 6,
                 }}
               >
-                Mật khẩu <span style={{ color: 'var(--color-danger)' }}>*</span>
+                Mật khẩu
               </label>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <Lock
@@ -426,7 +399,7 @@ export const LoginScreen: React.FC = () => {
                   style={{
                     position: 'absolute',
                     left: 14,
-                    color: fieldErrors.password ? 'var(--color-danger)' : '#9CA3AF',
+                    color: fieldErrors.password ? 'var(--color-danger)' : 'var(--color-text-muted)',
                     pointerEvents: 'none',
                   }}
                 />
@@ -443,17 +416,16 @@ export const LoginScreen: React.FC = () => {
                   }}
                   placeholder="Nhập mật khẩu..."
                   style={{
-                    height: 46,
+                    height: 48,
                     width: '100%',
                     paddingLeft: 42,
-                    paddingRight: 46,
-                    borderRadius: 10,
-                    border: `1.5px solid ${fieldErrors.password ? 'var(--color-danger)' : '#D1D5DB'}`,
-                    fontSize: 14,
-                    color: '#111827',
-                    background: fieldErrors.password ? 'var(--color-danger-bg, #FEF2F2)' : '#F9FAFB',
+                    paddingRight: 48,
+                    borderRadius: 'var(--radius-control)',
+                    border: `1px solid ${fieldErrors.password ? 'var(--color-danger)' : 'var(--color-border-control)'}`,
+                    fontSize: 15,
+                    color: 'var(--color-text)',
+                    background: fieldErrors.password ? 'var(--color-danger-bg)' : 'var(--color-surface)',
                     outline: 'none',
-                    transition: 'border-color 150ms ease',
                   }}
                 />
                 <button
@@ -466,17 +438,16 @@ export const LoginScreen: React.FC = () => {
                     right: 0,
                     top: 0,
                     bottom: 0,
-                    width: 46,
-                    height: 46,
+                    width: 48,
+                    height: 48,
                     background: 'transparent',
                     border: 'none',
-                    borderRadius: '0 10px 10px 0',
-                    color: '#6B7280',
+                    borderRadius: '0 var(--radius-control) var(--radius-control) 0',
+                    color: 'var(--color-text-muted)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    outline: 'none',
                   }}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -486,7 +457,7 @@ export const LoginScreen: React.FC = () => {
                 <div
                   id="password-error"
                   role="alert"
-                  style={{ fontSize: 11, color: 'var(--color-danger)', marginTop: 4, fontWeight: 500 }}
+                  style={{ fontSize: 12, color: 'var(--color-danger)', marginTop: 4, fontWeight: 500 }}
                 >
                   {fieldErrors.password}
                 </div>
@@ -498,86 +469,62 @@ export const LoginScreen: React.FC = () => {
               disabled={isLoading}
               className="touch-press"
               style={{
-                height: 48,
-                borderRadius: 10,
-                background: 'var(--color-brand-600, #C76B22)',
+                height: 56,
+                borderRadius: 'var(--radius-control)',
+                background: 'var(--color-brand-600)',
                 color: '#FFFFFF',
-                fontSize: 14,
-                fontWeight: 700,
+                fontSize: 16,
+                fontWeight: 600,
                 border: 'none',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 8,
-                boxShadow: '0 4px 12px rgba(199, 107, 34, 0.25)',
-                transition: 'background-color 150ms ease',
                 marginTop: 6,
               }}
             >
-              <ShieldCheck size={18} />
               <span>{isLoading ? 'Đang xác thực...' : 'Đăng nhập hệ thống'}</span>
             </button>
           </form>
 
-          {/* Security note per BR-02 */}
+          {/* Chú thích bảo mật BR-02 */}
           <div
             style={{
-              marginTop: 18,
-              paddingTop: 12,
-              borderTop: '1px solid #F3F4F6',
-              fontSize: 11,
-              color: '#9CA3AF',
-              lineHeight: '16px',
+              marginTop: 20,
+              paddingTop: 14,
+              borderTop: '1px solid var(--color-border)',
+              fontSize: 12,
+              color: 'var(--color-text-muted)',
+              lineHeight: '18px',
             }}
           >
-            Mật khẩu mã hóa bảo mật. Tài khoản mới bắt buộc đổi mật khẩu ở lần đăng nhập đầu tiên (BR-02).
+            Mật khẩu mã hóa an toàn. Tài khoản mới tạo bắt buộc đổi mật khẩu ở lần đăng nhập đầu tiên.
           </div>
         </div>
 
         {/* ===================== CỘT PHẢI: TRUY CẬP NHANH TÀI KHOẢN MẪU (DEMO) ===================== */}
         <div
           style={{
-            background: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.09)',
-            borderRadius: 16,
-            padding: '20px 18px',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-sheet)',
+            padding: '24px 20px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            backdropFilter: 'blur(10px)',
-            color: '#FFFFFF',
           }}
         >
-          {/* Header */}
           <div>
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 5,
-                background: 'rgba(251, 191, 36, 0.15)',
-                border: '1px solid rgba(251, 191, 36, 0.3)',
-                color: '#FCD34D',
-                padding: '3px 8px',
-                borderRadius: 9999,
-                fontSize: 11,
-                fontWeight: 700,
-                marginBottom: 8,
-              }}
-            >
-              <Info size={13} />
-              <span>Trải nghiệm thử nghiệm (DEMO)</span>
-            </div>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
-              Chọn nhanh tài khoản mẫu
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text)', margin: 0 }}>
+              Tài khoản mẫu kiểm thử
             </h3>
-            <p style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.65)', margin: '4px 0 12px 0', lineHeight: '16px' }}>
-              1 chạm để kiểm thử ngay theo đúng phân quyền vai trò:
+            <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: '4px 0 16px 0', lineHeight: '18px' }}>
+              Chọn nhanh để kiểm tra phân quyền và luồng nghiệp vụ:
             </p>
 
-            {/* List of 5 demo accounts */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+            {/* Danh sách 5 tài khoản mẫu */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {DEMO_ACCOUNTS.map((acc) => {
                 const isPlatform = acc.role_code === 'PLATFORM_ADMIN';
                 const isOwner = acc.role_code === 'OWNER';
@@ -585,31 +532,31 @@ export const LoginScreen: React.FC = () => {
                 const isCashierOpen = acc.id === 'user-cashier-nl';
 
                 const badgeBg = isPlatform
-                  ? 'rgba(168, 85, 247, 0.2)'
+                  ? 'var(--color-surface-sunken)'
                   : isOwner
-                  ? 'rgba(249, 115, 22, 0.2)'
+                  ? 'var(--color-brand-100)'
                   : isManager
-                  ? 'rgba(59, 130, 246, 0.2)'
+                  ? 'var(--color-info-bg)'
                   : isCashierOpen
-                  ? 'rgba(34, 197, 94, 0.2)'
-                  : 'rgba(156, 163, 175, 0.2)';
+                  ? 'var(--color-success-bg)'
+                  : 'var(--color-surface-sunken)';
 
                 const badgeColor = isPlatform
-                  ? '#C084FC'
+                  ? 'var(--color-text-muted)'
                   : isOwner
-                  ? '#FB923C'
+                  ? 'var(--color-brand-700)'
                   : isManager
-                  ? '#93C5FD'
+                  ? 'var(--color-info)'
                   : isCashierOpen
-                  ? '#86EFAC'
-                  : '#D1D5DB';
+                  ? 'var(--color-success)'
+                  : 'var(--color-text-muted)';
 
                 const roleLabel = isPlatform
-                  ? 'Admin Nền tảng'
+                  ? 'Quản trị nền tảng'
                   : isOwner
                   ? 'Chủ chuỗi'
                   : isManager
-                  ? 'Quản lý'
+                  ? 'Quản lý chi nhánh'
                   : isCashierOpen
                   ? 'Thu ngân (Đang mở ca)'
                   : 'Thu ngân (Chưa ca)';
@@ -624,13 +571,12 @@ export const LoginScreen: React.FC = () => {
                     className="touch-press"
                     style={{
                       width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: 10,
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      background: 'rgba(255, 255, 255, 0.05)',
+                      padding: '10px 12px',
+                      borderRadius: 'var(--radius-control)',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-surface)',
                       textAlign: 'left',
                       cursor: isLoading ? 'not-allowed' : 'pointer',
-                      transition: 'all 150ms ease',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
@@ -638,12 +584,12 @@ export const LoginScreen: React.FC = () => {
                     }}
                   >
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                         <span
                           style={{
                             fontSize: 13,
-                            fontWeight: 700,
-                            color: '#FFFFFF',
+                            fontWeight: 600,
+                            color: 'var(--color-text)',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -653,10 +599,10 @@ export const LoginScreen: React.FC = () => {
                         </span>
                         <span
                           style={{
-                            fontSize: 10,
-                            fontWeight: 700,
+                            fontSize: 11,
+                            fontWeight: 600,
                             padding: '1px 6px',
-                            borderRadius: 4,
+                            borderRadius: 'var(--radius-pill)',
                             background: badgeBg,
                             color: badgeColor,
                             whiteSpace: 'nowrap',
@@ -667,37 +613,34 @@ export const LoginScreen: React.FC = () => {
                       </div>
                       <div
                         style={{
-                          fontSize: 11,
-                          color: 'rgba(255, 255, 255, 0.55)',
+                          fontSize: 12,
+                          color: 'var(--color-text-muted)',
                           marginTop: 2,
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                         }}
                       >
-                        {acc.branch_name || (isOwner ? 'Toàn bộ chi nhánh' : 'Quản lý chuỗi')}
+                        {acc.branch_name || (isOwner ? 'Toàn bộ chi nhánh' : 'Quản trị hệ thống')}
                       </div>
                     </div>
-                    <ArrowRight size={14} style={{ color: 'rgba(255, 255, 255, 0.4)', flexShrink: 0 }} />
+                    <ArrowRight size={16} style={{ color: 'var(--color-text-muted)', flexShrink: 0 }} />
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Quick info note */}
+          {/* Ghi chú footer */}
           <div
             style={{
-              paddingTop: 10,
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              fontSize: 11,
-              color: 'rgba(255, 255, 255, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
+              paddingTop: 12,
+              borderTop: '1px solid var(--color-border)',
+              fontSize: 12,
+              color: 'var(--color-text-muted)',
             }}
           >
-            <span>Dữ liệu mẫu lưu trên LocalStorage của máy</span>
+            Dữ liệu mẫu lưu trên LocalStorage của máy
           </div>
         </div>
       </div>
@@ -716,9 +659,7 @@ export const LoginScreen: React.FC = () => {
         @media (max-width: 767px) {
           .login-stage-grid {
             grid-template-columns: 1fr !important;
-            max-width: 460px !important;
-            overflow-y: auto !important;
-            max-height: 96vh !important;
+            max-width: 440px !important;
           }
         }
       `}</style>

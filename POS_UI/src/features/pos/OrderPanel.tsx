@@ -205,8 +205,8 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
               aria-label="Đóng giỏ hàng"
               className="touch-press"
               style={{
-                width: 36,
-                height: 36,
+                width: 44,
+                height: 44,
                 borderRadius: 'var(--radius-control)',
                 border: '1px solid var(--color-border)',
                 background: 'var(--color-surface)',
@@ -280,7 +280,7 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
                     aria-label="Xóa dòng món"
                     className="touch-press"
                     style={{
-                      height: 40,
+                      height: 48,
                       width: 40,
                       display: 'flex',
                       alignItems: 'center',
@@ -418,7 +418,7 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
               value={promoCodeInput}
               onChange={(e) => setPromoCodeInput(e.target.value)}
               style={{
-                height: 40,
+                height: 48,
                 flex: 1,
                 padding: '0 12px',
                 border: '1px solid var(--color-border-control)',
@@ -430,7 +430,7 @@ export const OrderPanel: React.FC<OrderPanelProps> = ({
             <Button
               variant="secondary"
               size="md"
-              style={{ height: 40 }}
+              style={{ height: 48 }}
               onClick={handleApplyPromo}
               isLoading={promoLoading}
               disabled={!promoCodeInput.trim() || invoice.items.length === 0}

@@ -67,7 +67,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
     : [];
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 16 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 'clamp(12px, 2.5vw, 16px)' }}>
       {/* Tìm kiếm & Category Tabs */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16, flexShrink: 0 }}>
         {/* Search */}
@@ -102,6 +102,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               display: 'flex',
               gap: 8,
               overflowX: 'auto',
+              WebkitOverflowScrolling: 'touch',
               borderBottom: '1px solid var(--color-border)',
               paddingBottom: 2,
             }}
@@ -125,6 +126,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                     fontWeight: isActive ? 700 : 500,
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
+                    flexShrink: 0,
                   }}
                 >
                   {cat.name}
