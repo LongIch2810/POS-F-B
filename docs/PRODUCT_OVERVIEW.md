@@ -227,6 +227,6 @@ Công thức: `tiền kỳ vọng = tiền đầu ca + tiền mặt từ hóa đ
 | `DESIGN.md`                    | Thiết kế giao diện: token, bố cục, component, nội dung chữ   | Có sẵn     |
 | `docs/BUSINESS_RULES.md`       | Danh sách business rule (BR-xx) theo module                  | Có sẵn     |
 | `docs/api-spec.md`             | Quy ước chung của API (định dạng, lỗi, phân trang, xác thực) | Có sẵn     |
-| `docs/specs/`                  | Đặc tả chi tiết từng chức năng và endpoint                   | Chưa có    |
+| `specs/`                       | Đặc tả chi tiết từng chức năng và endpoint đã chốt           | Chưa có    |
 | `docs/architecture/`           | Tài liệu kiến trúc                                            | Đang soạn  |
 | `docs/architecture/auth.md`    | Quy tắc xác thực, mật khẩu và giới hạn tần suất               | Có sẵn     |

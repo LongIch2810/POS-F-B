@@ -1,6 +1,6 @@
 # api-spec
 
-Quy ước chung của REST API cho hệ thống POS và kho. File này **chỉ chứa phần chung**: định dạng, xác thực, phân quyền, lỗi, phân trang, idempotency, danh mục nhóm route. **Chi tiết từng endpoint** (request, response, lỗi, ví dụ) viết riêng trong `docs/specs/<module>.md`.
+Quy ước chung của REST API cho hệ thống POS và kho. File này **chỉ chứa phần chung**: định dạng, xác thực, phân quyền, lỗi, phân trang, idempotency, danh mục nhóm route. **Chi tiết từng endpoint đã chốt** (request, response, lỗi, ví dụ) viết riêng trong `specs/<module>.md` ở gốc repository.
 
 ## Cách dùng
 
@@ -404,7 +404,7 @@ Các điểm cần xử lý khi cài đặt:
 - **Đếm mù** (BR-58): `expectedCash` và `difference` của ca đang mở **không** xuất hiện ở bất kỳ response nào. Chỉ có trong response của hành động đóng ca và trong chi tiết ca đã `CLOSED`.
 - **Mật khẩu tạm** (BR-84): trả trong field `temporaryPassword` **đúng một lần** ở response tạo tài khoản, tạo cửa hàng (kèm chủ cửa hàng) và đặt lại mật khẩu. Không route nào đọc lại được. Không ghi vào log.
 - **Transaction**: ghi thanh toán (nếu có), đổi `status` hóa đơn sang `PAID` và trừ kho nằm trong **một transaction** (BR-35, BR-104). Hành động thêm hoặc sửa món khóa dòng hóa đơn trong transaction (BR-90).
-- **Ảnh món**: `POST /products/{id}/image` nhận `multipart/form-data` với một file ảnh tối đa 2 MB (2.000.000 byte); mỗi món có tối đa một ảnh đại diện. Người gọi phải có quyền sửa món và món phải thuộc cửa hàng của họ. Server kiểm tra file rồi mã hóa Base64 thuần (không kèm tiền tố `data:`) vào `products.image_base64` (`text`), lưu MIME ở `image_mime`; không nhận chuỗi Base64 từ client. Response trả `imageUrl` trỏ tới `GET /products/{id}/image` cùng origin, không trả đường dẫn lưu nội bộ. Route GET yêu cầu Bearer và kiểm tra cùng store, giải mã Base64 rồi trả bytes với MIME phù hợp thay vì JSON; web dùng `fetch` kèm Bearer để hiển thị. Định dạng file cụ thể ghi trong `docs/specs/catalog.md` khi viết endpoint.
+- **Ảnh món**: `POST /products/{id}/image` nhận `multipart/form-data` với một file ảnh tối đa 2 MB (2.000.000 byte); mỗi món có tối đa một ảnh đại diện. Người gọi phải có quyền sửa món và món phải thuộc cửa hàng của họ. Server kiểm tra file rồi mã hóa Base64 thuần (không kèm tiền tố `data:`) vào `products.image_base64` (`text`), lưu MIME ở `image_mime`; không nhận chuỗi Base64 từ client. Response trả `imageUrl` trỏ tới `GET /products/{id}/image` cùng origin, không trả đường dẫn lưu nội bộ. Route GET yêu cầu Bearer và kiểm tra cùng store, giải mã Base64 rồi trả bytes với MIME phù hợp thay vì JSON; web dùng `fetch` kèm Bearer để hiển thị. Định dạng file cụ thể ghi trong `specs/catalog.md` khi viết endpoint.
 - **Sổ kho** chỉ thêm dòng, **không có** route sửa hoặc xóa `stock_movements` (BR-44).
 - **Nội dung đã khóa**: hóa đơn `PAID` hoặc `CANCELLED` không sửa món, giá, tổng tiền. Ca `CLOSED` không sửa. Chuyển trạng thái chỉ qua hành động đã định nghĩa. Hóa đơn `PAID` chỉ chuyển được sang `CANCELLED` bằng `POST /invoices/{id}/cancel` theo BR-29 (cần quyền, lý do, ca còn mở). Các khoản `payments` đã nhận **giữ nguyên**, không sửa, không xóa (BR-17, BR-21, BR-29).
 - **Trừ kho** theo `invoices.branch_id` (BR-72), không theo chi nhánh của người gọi.
@@ -420,23 +420,23 @@ Các điểm cần xử lý khi cài đặt:
 
 ## 11. Danh mục nhóm route
 
-Chỉ liệt kê **nhóm route** và người dùng chính. Danh sách endpoint, request và response chi tiết nằm trong `docs/specs/<module>.md`.
+Chỉ liệt kê **nhóm route** và người dùng chính. Danh sách endpoint, request và response chi tiết nằm trong `specs/<module>.md`.
 
 
 | Nhóm               | Đường dẫn gốc                                                                | Người dùng chính                               | Spec chi tiết                                          |
 | ------------------ | ---------------------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------ |
-| Xác thực           | `/auth`                                                                      | Mọi người dùng                                 | `docs/specs/auth.md`                 |
-| Quản trị nền tảng  | `/platform/stores`                                                           | `PLATFORM_ADMIN`                               | `docs/specs/platform.md`         |
-| Chi nhánh          | `/branches`                                                                  | `OWNER`                                        | `docs/specs/organization.md` |
-| Bàn                | `/dining-tables`                                                             | `OWNER`, `MANAGER`                             | `docs/specs/organization.md` |
-| Tài khoản          | `/users`                                                                     | `OWNER` (và `PLATFORM_ADMIN` cho chủ cửa hàng) | `docs/specs/users.md`               |
-| Vai trò và quyền   | `/roles`, `/permissions`                                                     | Đọc: người có quyền                            | `docs/specs/users.md`               |
-| Danh mục sản phẩm  | `/categories`, `/products`, `/sizes`, `/toppings`, `/products/{id}/image`   | `OWNER`, `MANAGER`                             | `docs/specs/catalog.md`           |
-| Mã giảm giá        | `/promotion-codes`                                                           | `OWNER`, `MANAGER`                             | `docs/specs/promotions.md`     |
-| Hóa đơn            | `/invoices`, `/invoices/{id}/items`, `/invoices/{id}/payments`, `/invoices/{id}/complete-zero` | `CASHIER`, `MANAGER`, `OWNER` | `docs/specs/invoices.md` |
-| Ca làm và đối soát | `/work-shifts`, `/work-shifts/{id}/expenses`                                 | Mọi vai trò theo phạm vi                       | `docs/specs/shifts.md`             |
-| Kho và công thức   | `/ingredients`, `/ingredient-stocks`, `/stock-movements`, công thức theo món | `OWNER`, `MANAGER`                             | `docs/specs/inventory.md`       |
-| Báo cáo            | `/reports`                                                                   | Theo vai trò (BR-65)                           | `docs/specs/reports.md`           |
+| Xác thực           | `/auth`                                                                      | Mọi người dùng                                 | `specs/auth.md`                 |
+| Quản trị nền tảng  | `/platform/stores`                                                           | `PLATFORM_ADMIN`                               | `specs/platform.md`         |
+| Chi nhánh          | `/branches`                                                                  | `OWNER`                                        | `specs/organization.md` |
+| Bàn                | `/dining-tables`                                                             | `OWNER`, `MANAGER`                             | `specs/organization.md` |
+| Tài khoản          | `/users`                                                                     | `OWNER` (và `PLATFORM_ADMIN` cho chủ cửa hàng) | `specs/users.md`               |
+| Vai trò và quyền   | `/roles`, `/permissions`                                                     | Đọc: người có quyền                            | `specs/users.md`               |
+| Danh mục sản phẩm  | `/categories`, `/products`, `/sizes`, `/toppings`, `/products/{id}/image`   | `OWNER`, `MANAGER`                             | `specs/catalog.md`           |
+| Mã giảm giá        | `/promotion-codes`                                                           | `OWNER`, `MANAGER`                             | `specs/promotions.md`     |
+| Hóa đơn            | `/invoices`, `/invoices/{id}/items`, `/invoices/{id}/payments`, `/invoices/{id}/complete-zero` | `CASHIER`, `MANAGER`, `OWNER` | `specs/invoices.md` |
+| Ca làm và đối soát | `/work-shifts`, `/work-shifts/{id}/expenses`                                 | Mọi vai trò theo phạm vi                       | `specs/shifts.md`             |
+| Kho và công thức   | `/ingredients`, `/ingredient-stocks`, `/stock-movements`, công thức theo món | `OWNER`, `MANAGER`                             | `specs/inventory.md`       |
+| Báo cáo            | `/reports`                                                                   | Theo vai trò (BR-65)                           | `specs/reports.md`           |
 
 
 - Các file spec ở cột cuối là **tên dự kiến**, chưa có. Tên chính thức chốt khi bắt đầu viết spec.
@@ -446,7 +446,7 @@ Chỉ liệt kê **nhóm route** và người dùng chính. Danh sách endpoint,
 
 ## 12. Mẫu cho một spec endpoint
 
-Mỗi endpoint trong `docs/specs/<module>.md` phải có đủ các mục sau, theo thứ tự:
+Mỗi endpoint trong `specs/<module>.md` phải có đủ các mục sau, theo thứ tự:
 
 1. **Phương thức và đường dẫn**, ví dụ `POST /invoices/{id}/items`.
 2. **Mô tả** một hai câu.

@@ -15,6 +15,7 @@ Mọi đường dẫn dưới đây tính từ **gốc repository** (thư mục 
 | `docs/BUSINESS_RULES.md` | Tra quy tắc nghiệp vụ theo mã BR trước khi đổi hành vi. |
 | `docs/DESIGN_DB_POS_SYSTEM.md` | Schema, công thức, index, constraint và transaction liên quan dữ liệu. |
 | `docs/api-spec.md` | Quy ước chung HTTP, auth, lỗi, phân quyền, idempotency; đọc trước khi sửa API. |
+| `specs/` | Đặc tả chi tiết từng chức năng và endpoint **đã chốt**; kiểm tra trước khi triển khai phần liên quan. |
 | `docs/architecture/ARCHITECTURE.md` | Thành phần, ranh giới module, triển khai và luồng dữ liệu **mục tiêu**. |
 | `docs/architecture/auth.md` | Phiên, JWT, cookie, mật khẩu và giới hạn thử. |
 | `DESIGN.md` | Giao diện POS, component, tương tác, ngôn ngữ và thiết bị. |
@@ -24,7 +25,7 @@ Mọi đường dẫn dưới đây tính từ **gốc repository** (thư mục 
 | `POS_UI/`, `POS_API/`, `POS_INFRA/` | Mã UI, backend và hạ tầng; kiểm tra mã thực tế trước khi nói tính năng đã chạy. |
 | `plans/`, `tasks/`, `errors/` | Kế hoạch, tiến độ và lỗi đã gặp được lưu trên đĩa; quy trình ở mục dưới. |
 
-Trong `rules/`: đọc `clean-code.md`, `coding-style.md`, `naming.md` khi viết/sửa code; `database.md` khi làm DB/ORM; `security.md` khi xử lý dữ liệu, secret hoặc quyền; `testing.md` khi kiểm thử; `git.md` trước khi tạo nhánh, commit, push hoặc merge. Các rule này không phụ thuộc ngôn ngữ/công nghệ. `docs/specs/` được dự kiến cho spec endpoint nhưng hiện chưa có; `specs/` ở gốc đang trống. Không viện dẫn các thư mục đó như nguồn đã hoàn thiện.
+Trong `rules/`: đọc `clean-code.md`, `coding-style.md`, `naming.md` khi viết/sửa code; `database.md` khi làm DB/ORM; `security.md` khi xử lý dữ liệu, secret hoặc quyền; `testing.md` khi kiểm thử; `git.md` trước khi tạo nhánh, commit, push hoặc merge. Các rule này không phụ thuộc ngôn ngữ/công nghệ. Lưu spec chức năng/endpoint vào `specs/` ở gốc chỉ sau khi đã phỏng vấn, rà soát mâu thuẫn và mơ hồ, và chốt các quyết định còn mở. Hiện thư mục này trống; không viện dẫn như nguồn đã hoàn thiện.
 
 ## Tìm hiểu code
 
@@ -43,7 +44,8 @@ Trong `rules/`: đọc `clean-code.md`, `coding-style.md`, `naming.md` khi viế
 
 ## Cách làm việc
 
-- MVP và các phần để sau được phân định ở mục 5 của `docs/PRODUCT_OVERVIEW.md`; chỉ làm phần ngoài MVP khi người dùng yêu cầu. Nếu tài liệu mâu thuẫn hoặc thiếu business rule quyết định kết quả, hỏi người dùng trước khi tự chọn.
+- MVP và các phần để sau được phân định ở mục 5 của `docs/PRODUCT_OVERVIEW.md`; chỉ làm phần ngoài MVP khi người dùng yêu cầu.
+- Khi yêu cầu, đặc tả hoặc tài liệu có điểm mơ hồ, chưa rõ hoặc mâu thuẫn ảnh hưởng đến quyết định thực hiện, **luôn hỏi người dùng và chờ câu trả lời** trước khi quyết định hay làm phần phụ thuộc. Không tự giả định, chọn một cách hiểu hoặc tự đặt business rule.
 - Khi triển khai, theo công nghệ đã định: NestJS/TypeScript/PostgreSQL cho backend, React/TypeScript cho frontend. Redis/BullMQ chỉ khi thực sự cần cache hoặc job nền.
 - Với thay đổi code trong tương lai, làm trên nhánh riêng, đưa ra review trước khi merge và không tự push nếu chưa được yêu cầu, theo mục 11 của product overview.
 
