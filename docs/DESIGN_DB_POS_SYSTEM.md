@@ -286,6 +286,8 @@ Kiểm tra ở tầng ứng dụng (database không so được với `roles`):
 
 Token hợp lệ khi `revoked_at IS NULL AND expires_at > now()`. Mỗi `session_id` chỉ có tối đa một token chưa thu hồi. Giữ dòng đã xoay vòng để phát hiện dùng lại (`replaced_at IS NOT NULL`), thu hồi cả phiên đó và chặn access token có claim `sid` tương ứng. Chi tiết xem [auth.md](architecture/auth.md).
 
+**`auth_rate_events`** (PB-02): `id bigserial` PK, `scope varchar(30)`, `key_hash char(64)` và `occurred_at timestamptz`. Chỉ lưu HMAC của username chuẩn hóa hoặc IP, không lưu giá trị thô. Index `(scope, key_hash, occurred_at)` phục vụ cửa sổ trượt; index `occurred_at` phục vụ dọn sự kiện cũ.
+
 ---
 
 ### 4. Bán hàng (POS)

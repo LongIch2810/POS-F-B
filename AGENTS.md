@@ -3,7 +3,7 @@
 ## Trạng thái dự án
 
 - Đây là dự án POS và quản lý kho SaaS cho quán cà phê, trà sữa và quán ăn nhỏ: một `store` có nhiều `branch`, mỗi chi nhánh có bàn, ca thu ngân và tồn kho riêng.
-- Repository có UI demo trong `POS_UI/`; `POS_API/` và `POS_INFRA/` chưa có mã triển khai. Phân biệt quy tắc đã đặc tả với tính năng đã triển khai khi mô tả dự án.
+- Repository có UI demo trong `POS_UI/`; `POS_API/` đã có nền tảng PB-01 và API xác thực PB-02, `POS_INFRA/` có Docker Compose PostgreSQL local. Phân biệt quy tắc đã đặc tả, mã đã triển khai và UI demo khi mô tả dự án.
 
 ## Bản đồ repository và thứ tự đọc
 
@@ -18,6 +18,7 @@ Mọi đường dẫn dưới đây tính từ **gốc repository** (thư mục 
 | `specs/` | Đặc tả chi tiết từng chức năng và endpoint **đã chốt**; kiểm tra trước khi triển khai phần liên quan. |
 | `docs/architecture/ARCHITECTURE.md` | Thành phần, ranh giới module, triển khai và luồng dữ liệu **mục tiêu**. |
 | `docs/architecture/auth.md` | Phiên, JWT, cookie, mật khẩu và giới hạn thử. |
+| `docs/architecture/TECH_STACK.md` | Công nghệ/framework/thư viện **đang dùng** theo backend, frontend và hạ tầng; đọc trước khi chọn hoặc thêm dependency. |
 | `DESIGN.md` | Giao diện POS, component, tương tác, ngôn ngữ và thiết bị. |
 | `rules/` | Quy tắc làm việc chung; chọn file phù hợp theo bảng bên dưới. |
 | `.codex/agents/` | Cấu hình `explorer` để định vị code, `code-reviewer` để review và `qa` để kiểm thử/báo lỗi; các agent không sửa source theo chỉ dẫn. |
@@ -26,7 +27,7 @@ Mọi đường dẫn dưới đây tính từ **gốc repository** (thư mục 
 | `plans/`, `tasks/`, `errors/` | Kế hoạch, tiến độ và lỗi đã gặp được lưu trên đĩa; quy trình ở mục dưới. |
 | `sprints/` | Kế hoạch và kết quả từng sprint: mục tiêu, backlog được đề xuất hoặc đã chốt, tiêu chí nghiệm thu, review và retrospective. Đọc sprint hiện hành để biết cam kết và trạng thái thực tế; mục đề xuất chưa phải việc đã được duyệt hay hoàn thành. |
 
-Trong `rules/`: đọc `clean-code.md`, `coding-style.md`, `naming.md` khi viết/sửa code; `database.md` khi làm DB/ORM; `security.md` khi xử lý dữ liệu, secret hoặc quyền; `testing.md` khi kiểm thử; `git.md` trước khi tạo nhánh, commit, push hoặc merge. Các rule này không phụ thuộc ngôn ngữ/công nghệ. Lưu spec chức năng/endpoint vào `specs/` ở gốc chỉ sau khi đã phỏng vấn, rà soát mâu thuẫn và mơ hồ, và chốt các quyết định còn mở. Hiện thư mục này trống; không viện dẫn như nguồn đã hoàn thiện.
+Trong `rules/`: đọc `clean-code.md`, `coding-style.md`, `naming.md` khi viết/sửa code; `database.md` khi làm DB/ORM; `security.md` khi xử lý dữ liệu, secret hoặc quyền; `testing.md` khi kiểm thử; `git.md` trước khi tạo nhánh, commit, push hoặc merge. Các rule này không phụ thuộc ngôn ngữ/công nghệ. Lưu spec chức năng/endpoint vào `specs/` ở gốc chỉ sau khi đã phỏng vấn, rà soát mâu thuẫn và mơ hồ, và chốt các quyết định còn mở. Kiểm tra trạng thái từng spec trước khi viện dẫn.
 
 ## Tìm hiểu code
 
@@ -47,7 +48,7 @@ Trong `rules/`: đọc `clean-code.md`, `coding-style.md`, `naming.md` khi viế
 
 - MVP và các phần để sau được phân định ở mục 5 của `docs/PRODUCT_OVERVIEW.md`; chỉ làm phần ngoài MVP khi người dùng yêu cầu.
 - Khi yêu cầu, đặc tả hoặc tài liệu có điểm mơ hồ, chưa rõ hoặc mâu thuẫn ảnh hưởng đến quyết định thực hiện, **luôn hỏi người dùng và chờ câu trả lời** trước khi quyết định hay làm phần phụ thuộc. Không tự giả định, chọn một cách hiểu hoặc tự đặt business rule.
-- Khi triển khai, theo công nghệ đã định: NestJS/TypeScript/PostgreSQL cho backend, React/TypeScript cho frontend. Redis/BullMQ chỉ khi thực sự cần cache hoặc job nền.
+- Khi triển khai, theo công nghệ đã định: NestJS/TypeScript/PostgreSQL cho backend, React/TypeScript cho frontend. Redis/BullMQ chỉ khi thực sự cần cache hoặc job nền. Đối chiếu `docs/architecture/TECH_STACK.md` với manifest/mã hiện tại; khi thêm, bỏ hoặc thay framework, thư viện trực tiếp hay công nghệ hạ tầng, cập nhật file tech stack **cùng thay đổi** và ghi đúng trạng thái đã triển khai, không liệt kê thành phần mới chỉ mới dự kiến.
 - Với thay đổi code trong tương lai, làm trên nhánh riêng, đưa ra review trước khi merge và không tự push nếu chưa được yêu cầu, theo mục 11 của product overview.
 
 ## Bảo vệ source code và thay đổi chưa commit

@@ -19,7 +19,15 @@ export class ApiErrorFilter implements ExceptionFilter {
     const request = host.switchToHttp().getRequest<Request>();
     const response = host.switchToHttp().getResponse<Response>();
     const status = exception instanceof HttpException ? exception.getStatus() : 500;
-    const error = errors[status] ?? { code: 'INTERNAL_ERROR', message: 'Hệ thống gặp lỗi. Vui lòng thử lại sau.' };
+    const custom = exception instanceof HttpException ? exception.getResponse() : null;
+    const error = typeof custom === 'object' && custom !== null && 'code' in custom && 'message' in custom
+      ? { code: String(custom.code), message: String(custom.message) }
+      : errors[status] ?? { code: 'INTERNAL_ERROR', message: 'Hệ thống gặp lỗi. Vui lòng thử lại sau.' };
+    const details = typeof custom === 'object' && custom !== null && 'details' in custom && Array.isArray(custom.details)
+      ? custom.details : [];
+    if (typeof custom === 'object' && custom !== null && 'retryAfter' in custom && typeof custom.retryAfter === 'number') {
+      response.setHeader('Retry-After', Math.max(1, Math.ceil(custom.retryAfter)));
+    }
     let requestId = response.getHeader('X-Request-Id');
     if (!requestId) {
       const suppliedId = request.header('X-Request-Id');
@@ -28,7 +36,7 @@ export class ApiErrorFilter implements ExceptionFilter {
       Logger.log(`${request.method} ${request.path} ${status} requestId=${requestId}`, 'HTTP');
     }
     response.status(status).json({
-      error: { ...error, details: [], requestId },
+      error: { ...error, details, requestId },
     });
   }
 }

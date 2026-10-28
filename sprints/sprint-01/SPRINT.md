@@ -78,7 +78,7 @@ Các ô trên dành cho **quyết định nghiệm thu của Product Owner**; k�
 | PB | Kết quả demo/kiểm tra | Bằng chứng | Quyết định của Product Owner |
 | --- | --- | --- | --- |
 | PB-01 | Đã triển khai; migration, bootstrap, constraint và test tích hợp trên PostgreSQL thật đạt. Health `200`/`503` đã kiểm tra thủ công; lần QA cuối kiểm tra lại test nhưng không ngắt DB. | [QA local ban đầu](../../qa-evidence/20261028-125139-842ba1e/run.md), [QA local cuối](../../qa-evidence/20261028-131159-842ba1e/run.md); chưa có CI độc lập. | Chấp nhận PB-01 — Product Owner xác nhận ngày 2026-10-28 trong cuộc trao đổi này. |
-| PB-02 | Chưa thực hiện | Chưa có | Chưa nghiệm thu |
+| PB-02 | API đã triển khai theo [spec auth](../../specs/auth.md), có DTO/OpenAPI, Passport login và cookie-parser; mã được chia theo trách nhiệm trong `POS_API/src/auth/`. Test tích hợp trên PostgreSQL thật đạt. Chưa demo với UI thật hoặc nghiệm thu của Product Owner. | [QA local PB-02](../../qa-evidence/20261028-154810-cdcc096/run.md); chưa có CI độc lập. | Chờ Product Owner nghiệm thu; các ô tiêu chí vẫn để trống. |
 | PB-13 (auth) | Chưa thực hiện | Chưa có | Chưa nghiệm thu |
 
 Retrospective chưa diễn ra. Chỉ điền kết quả đã demo/kiểm tra thật; item chưa đạt Definition of Done trở về Product Backlog.
