@@ -1,0 +1,50 @@
+# Project-local Codex command rules. Read AGENTS.md for the full source protection policy.
+# These are argv prefix checks; commands embedded in PowerShell scripts require the AGENTS.md rule too.
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Hard reset can discard uncommitted work. Inspect git status and use a targeted, reviewed action instead.",
+    match = ["git reset --hard", "git reset --hard HEAD~1"],
+    not_match = ["git status", "git reset --soft HEAD~1"],
+)
+
+prefix_rule(
+    pattern = ["git", "clean", ["-fdx", "-fxd", "-dfx", "-dxf", "-xfd", "-xdf"]],
+    decision = "forbidden",
+    justification = "Force-cleaning untracked and ignored files can destroy source and local work. Inspect exact paths and use targeted deletion after approval.",
+    match = ["git clean -fdx", "git clean -xdf"],
+    not_match = ["git status", "git clean -n"],
+)
+
+prefix_rule(
+    pattern = ["git", "clean"],
+    decision = "prompt",
+    justification = "Git clean may delete untracked work; review the exact targets and obtain user approval before deleting.",
+    match = ["git clean -fd", "git clean -f -- unused.txt"],
+    not_match = ["git status", "git diff --check"],
+)
+
+prefix_rule(
+    pattern = ["rm", ["-rf", "-fr", "-r", "--recursive"]],
+    decision = "prompt",
+    justification = "Recursive deletion needs approval after verifying the exact resolved target paths are inside the intended workspace.",
+    match = ["rm -rf POS_UI/src", "rm -r POS_API"],
+    not_match = ["rm one-file.txt", "npm run build", "npm test"],
+)
+
+prefix_rule(
+    pattern = [["Remove-Item", "remove-item"], "-Recurse"],
+    decision = "prompt",
+    justification = "Recursive deletion needs approval after checking the exact resolved target paths and uncommitted work.",
+    match = ["Remove-Item -Recurse POS_UI/src", "remove-item -Recurse POS_API"],
+    not_match = ["Remove-Item -LiteralPath one-file.txt", "npm run build", "npm test"],
+)
+
+prefix_rule(
+    pattern = [["rmdir", "rd"], "/s"],
+    decision = "prompt",
+    justification = "Directory-tree deletion needs user approval and a verified target path.",
+    match = ["rmdir /s POS_UI", "rd /s POS_API"],
+    not_match = ["rmdir empty-directory", "npm run build"],
+)

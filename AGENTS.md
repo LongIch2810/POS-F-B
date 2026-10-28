@@ -45,6 +45,14 @@ Trong `rules/`: đọc `clean-code.md`, `coding-style.md`, `naming.md` khi viế
 - Khi triển khai, theo công nghệ đã định: NestJS/TypeScript/PostgreSQL cho backend, React/TypeScript cho frontend. Redis/BullMQ chỉ khi thực sự cần cache hoặc job nền.
 - Với thay đổi code trong tương lai, làm trên nhánh riêng, đưa ra review trước khi merge và không tự push nếu chưa được yêu cầu, theo mục 11 của product overview.
 
+## Bảo vệ source code và thay đổi chưa commit
+
+- Được tạo, sửa hoặc xóa **file riêng lẻ** nằm trong phạm vi task khi đã xác định đúng đường dẫn và ảnh hưởng. Không cần xin duyệt cho thao tác thường lệ, có thể đảo ngược; build, test và dọn file sinh ra bởi chính tác vụ vẫn làm bình thường.
+- Trước khi xóa hoặc ghi đè, kiểm tra `git status` và nội dung/đường dẫn đích. Giữ nguyên thay đổi chưa commit và file chưa được Git theo dõi của người khác; không dùng thao tác khôi phục/xóa khiến chúng mất đi. Nếu file đích đã có thay đổi không thuộc task, dừng thao tác đó và trao đổi với người dùng.
+- Không tự ý xóa hàng loạt source code, dùng wildcard rộng hoặc xóa đệ quy toàn bộ thư mục dự án. Với xóa đệ quy, xóa nhiều file source, xóa thư mục hoặc thao tác có thể làm mất dữ liệu chưa commit: liệt kê đường dẫn tuyệt đối, xác minh nằm trong phạm vi cần xử lý, nêu tác động và **chỉ thực hiện sau khi người dùng phê duyệt cụ thể**. Sự đồng ý cho task chung không thay cho phê duyệt xóa nguy hiểm.
+- **Không chạy** `git reset --hard`, `git clean -fdx` hoặc biến thể đổi thứ tự cờ/cú pháp để đạt cùng kết quả. Nếu cần bỏ thay đổi, chọn thao tác theo từng file sau khi kiểm tra và xin duyệt khi có nguy cơ mất dữ liệu; không tự stash, checkout/restore đè file đang sửa hoặc ép ghi lịch sử.
+- Command rules ở `.codex/rules/source-protection.rules` là lớp chặn thêm cho các lệnh phổ biến; vẫn phải tuân thủ các quy tắc trên với PowerShell, script, tool khác và mọi cách viết lệnh mà prefix rule không nhận diện được. Nếu môi trường không cho hỏi phê duyệt, không thực hiện xóa nguy hiểm và không lách qua công cụ hoặc cú pháp khác.
+
 ## Ghi plan, task và lỗi ra file
 
 **Không dùng trí nhớ phiên chat làm nơi duy nhất giữ plan hoặc tiến độ.** Trước khi bắt đầu hay tiếp tục việc nhiều bước, đọc `tasks/active/`, `plans/active/` và tra `errors/` theo chủ đề. Khi tiếp tục sau compact hoặc phiên mới, đọc file đang active, đối chiếu với Git/mã/test hiện tại rồi mới làm bước tiếp theo; ghi chép có thể cũ hơn trạng thái repository.
