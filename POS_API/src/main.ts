@@ -13,7 +13,7 @@ async function main(): Promise<void> {
     await bootstrapAdmin(dataSource);
     const app = await NestFactory.create(AppModule);
     setupDevelopmentDocs(app);
-    await app.listen(Number(process.env.PORT || 3000));
+    await app.listen(Number(process.env.PORT || 3000), '0.0.0.0');
   } catch {
     if (dataSource.isInitialized) await dataSource.destroy();
     throw new Error('API startup failed; check database migration and bootstrap configuration');

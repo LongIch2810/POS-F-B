@@ -30,8 +30,9 @@ UI demo chưa nối với API PB-02; luồng thật thuộc PB-13.
 
 | Công nghệ | Vai trò hiện tại |
 | --- | --- |
-| Docker Compose | Khởi chạy PostgreSQL local từ `compose.local.yml` |
+| Docker Compose | Khởi chạy cụm local full-stack gồm database, backend API và frontend UI từ `compose.local.yml` |
 | PostgreSQL 17 container | Database phát triển và kiểm thử local |
+| Node.js 22 Alpine Dockerfile | Image môi trường chạy cho `POS_API` (biên dịch TypeScript, chạy TypeORM migration và khởi động API NestJS) và `POS_UI` (Vite dev server) |
 
 Reverse proxy, TLS, image production, backup và Redis/BullMQ chưa có cấu hình triển khai trong repository. Chúng là kiến trúc dự kiến hoặc chỉ thêm khi có nhu cầu được chốt.
 
