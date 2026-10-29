@@ -21,7 +21,7 @@ export async function bootstrapAdmin(db: DataSource): Promise<void> {
     if (!rawUsername || !fullName || fullName.length > 150 || !password || password.length < 12 || bcrypt.truncates(password)) {
       throw new Error('Bootstrap admin configuration is missing or invalid');
     }
-    const username = rawUsername.trim().toLowerCase();
+    const [{ username }] = await manager.query('SELECT lower(btrim($1::text)) AS username', [rawUsername]);
     if (!username || username.length > 50) {
       throw new Error('Bootstrap admin configuration is missing or invalid');
     }

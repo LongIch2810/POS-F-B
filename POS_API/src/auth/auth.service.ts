@@ -95,7 +95,7 @@ export class AuthService {
   }
 
   async login(username: string, password: string, ip: string, userAgent?: string): Promise<{ user: UserSummary; access: string; refresh: string; csrf: string }> {
-    const normalized = username.trim().toLowerCase();
+    const [{ username: normalized }] = await this.db.query('SELECT lower(btrim($1::text)) AS username', [username]);
     const keys = [this.rateKey('login_ip', ip), this.rateKey('login_username', normalized)];
     const sessionId = randomUUID();
     const refresh = randomBytes(32).toString('base64url');
@@ -326,6 +326,9 @@ export class AuthService {
         .getOne();
 
       if (!row || row.expires_at <= new Date() || (row.revoked_at && !row.replaced_at)) return;
+      if (row.replaced_at && !await rtRepo.createQueryBuilder('rt')
+        .where('rt.session_id = :sessionId AND rt.revoked_at IS NULL AND rt.expires_at > now()', { sessionId: row.session_id })
+        .getExists()) return;
       this.checkCsrf(row.session_id, csrfHeader, csrfCookie);
 
       await rtRepo.createQueryBuilder()

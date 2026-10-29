@@ -50,7 +50,7 @@ test('PB-01 migration, bootstrap and database constraints', async () => {
     assert.equal(startup.status, 1);
     assert.match(startup.stderr, /API startup failed/);
 
-    process.env.BOOTSTRAP_ADMIN_USERNAME = '  ADMIN  ';
+    process.env.BOOTSTRAP_ADMIN_USERNAME = '  \tADMIN  ';
     process.env.BOOTSTRAP_ADMIN_FULL_NAME = '  Quản trị  ';
     process.env.BOOTSTRAP_ADMIN_PASSWORD = 'a'.repeat(73);
     await assert.rejects(bootstrapAdmin(db), /configuration is missing or invalid/);
@@ -62,7 +62,7 @@ test('PB-01 migration, bootstrap and database constraints', async () => {
     const [admin] = await db.query(`
       SELECT u.*, r.name AS role_name FROM users u JOIN roles r ON r.id = u.role_id
     `);
-    assert.equal(admin.username, 'admin');
+    assert.equal(admin.username, '\tadmin');
     assert.equal(admin.full_name, 'Quản trị');
     assert.equal(admin.role_name, 'PLATFORM_ADMIN');
     assert.equal(admin.store_id, null);
@@ -79,11 +79,11 @@ test('PB-01 migration, bootstrap and database constraints', async () => {
 
     await assert.rejects(db.query(`
       INSERT INTO users (id, role_id, full_name, username, password_hash)
-      VALUES (gen_random_uuid(), $1, 'Test', 'ADMIN', $2)
+      VALUES (gen_random_uuid(), $1, 'Test', E'\\tADMIN', $2)
     `, [admin.role_id, admin.password_hash]), /check constraint/);
     await assert.rejects(db.query(`
       INSERT INTO users (id, role_id, full_name, username, password_hash)
-      VALUES (gen_random_uuid(), $1, 'Test', 'admin', $2)
+      VALUES (gen_random_uuid(), $1, 'Test', E'\\tadmin', $2)
     `, [admin.role_id, admin.password_hash]), /unique constraint/);
 
     const sessionId = randomUUID();

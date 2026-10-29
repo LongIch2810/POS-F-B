@@ -85,6 +85,22 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
       assert.ok(cookies.every((cookie) => cookie.includes('Secure') && cookie.includes('SameSite=Strict')));
       assert.equal((await db.query('SELECT count(*)::int AS count FROM refresh_tokens'))[0].count, 1);
       assert.match((await db.query('SELECT token_hash FROM refresh_tokens'))[0].token_hash, /^[a-f0-9]{64}$/);
+      await db.query(`INSERT INTO users (id, role_id, full_name, username, password_hash)
+        SELECT gen_random_uuid(), id, 'Legacy', E'\\tlegacy', $1 FROM roles WHERE name = 'PLATFORM_ADMIN'`, [passwordHash]);
+      const legacyLogin = await fetch(`http://127.0.0.1:${port}/api/v1/auth/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Origin: process.env.PUBLIC_ORIGIN! },
+        body: JSON.stringify({ username: '\tlegacy', password: 'temporary-password-12' }),
+      });
+      assert.equal(legacyLogin.status, 200);
+      assert.equal((await legacyLogin.json()).data.user.username, '\tlegacy');
+      await db.query(`INSERT INTO users (id, role_id, full_name, username, password_hash)
+        SELECT gen_random_uuid(), id, 'Tab only', E'\\t', $1 FROM roles WHERE name = 'PLATFORM_ADMIN'`, [passwordHash]);
+      const tabLogin = await fetch(`http://127.0.0.1:${port}/api/v1/auth/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Origin: process.env.PUBLIC_ORIGIN! },
+        body: JSON.stringify({ username: '\t', password: 'temporary-password-12' }),
+      });
+      assert.equal(tabLogin.status, 200);
+      assert.equal((await tabLogin.json()).data.user.username, '\t');
       const cookieHeader = cookies.map((cookie) => cookie.split(';')[0]).join('; ');
       const firstAccess = cookies.find((cookie) => cookie.startsWith('__Host-pos_access='))!.split(';')[0].split('=')[1];
       await assert.rejects(app.get(AuthService).authorizeAccess(firstAccess, 'platform.store.create'),
@@ -131,6 +147,11 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
         body: JSON.stringify({ unused: true }),
       });
       assert.equal(unexpectedRefreshBody.status, 422);
+      const plainRefreshBody = await fetch(`http://127.0.0.1:${port}/api/v1/auth/refresh`, {
+        method: 'POST', headers: { Cookie: cookieHeader, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': csrf, 'Content-Type': 'text/plain' },
+        body: 'unexpected',
+      });
+      assert.equal(plainRefreshBody.status, 422);
       const refreshed = await fetch(`http://127.0.0.1:${port}/api/v1/auth/refresh`, {
         method: 'POST', headers: { Cookie: cookieHeader, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': csrf },
       });
@@ -138,11 +159,21 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
       assert.equal(refreshed.headers.getSetCookie().length, 2);
       const oldRows = await db.query('SELECT revoked_at, replaced_at FROM refresh_tokens ORDER BY created_at LIMIT 1');
       assert.ok(oldRows[0].revoked_at && oldRows[0].replaced_at);
+      const liveSessionLogout = await fetch(`http://127.0.0.1:${port}/api/v1/auth/logout`, {
+        method: 'POST', headers: { Cookie: cookieHeader, Origin: process.env.PUBLIC_ORIGIN! },
+      });
+      assert.equal(liveSessionLogout.status, 403);
+      assert.equal((await liveSessionLogout.json()).error.code, 'CSRF_INVALID');
       const replay = await fetch(`http://127.0.0.1:${port}/api/v1/auth/refresh`, {
         method: 'POST', headers: { Cookie: cookieHeader, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': csrf },
       });
       assert.equal(replay.status, 401);
       assert.equal(replay.headers.getSetCookie().length, 3);
+      const deadSessionLogout = await fetch(`http://127.0.0.1:${port}/api/v1/auth/logout`, {
+        method: 'POST', headers: { Cookie: cookieHeader, Origin: process.env.PUBLIC_ORIGIN! },
+      });
+      assert.equal(deadSessionLogout.status, 204);
+      assert.equal(deadSessionLogout.headers.getSetCookie().length, 3);
       const revokedMe = await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: { Cookie: cookieHeader } });
       assert.equal(revokedMe.status, 401);
       const logout = await fetch(`http://127.0.0.1:${port}/api/v1/auth/logout`, {

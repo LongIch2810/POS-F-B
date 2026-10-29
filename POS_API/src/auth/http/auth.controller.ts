@@ -102,7 +102,8 @@ export class AuthController {
   }
 
   private noInput(request: Request): void {
-    if (Object.keys(request.query).length || request.body !== undefined) {
+    if (Object.keys(request.query).length || request.body !== undefined
+      || Number(request.header('Content-Length')) > 0 || request.header('Transfer-Encoding')) {
       throw authError(422, 'VALIDATION_ERROR', 'Dữ liệu gửi lên không hợp lệ.');
     }
   }
