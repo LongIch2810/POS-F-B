@@ -5,6 +5,7 @@
 ## Nhánh và phạm vi
 
 - Tính năng mới hoặc sửa lỗi trong mã ứng dụng làm trên nhánh riêng, đặt tên ngắn gọn theo mục đích. Kiểm tra nhánh hiện tại và trạng thái working tree trước khi bắt đầu.
+- Trước khi bắt đầu viết hoặc sửa code trên một nhánh, luôn `fetch` từ `origin`, kiểm tra nhánh hiện tại, upstream, trạng thái working tree và chênh lệch với remote. Nếu nhánh có upstream, cập nhật bằng `git pull --ff-only` trước khi làm việc; khi tạo nhánh mới, bắt đầu từ nhánh cơ sở đã cập nhật. Nếu chưa có upstream, không thể fast-forward, có thay đổi chưa commit có nguy cơ bị ảnh hưởng hoặc không kết nối được remote, dừng cập nhật và làm rõ tình trạng trước khi tiếp tục; không tự stash, ghi đè hoặc viết lại lịch sử.
 - Đặt tên nhánh theo `<loại>/<mô-tả-ngắn>`: dùng chữ thường, số và dấu `-` trong phần mô tả. Chọn `feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `ci/` hoặc `chore/` theo mục đích chính; ví dụ `feat/sprint-1-auth`, `fix/pb02-review-findings`, `refactor/backend-frontend-structure`. Không tái sử dụng một nhánh cho nhiều việc không liên quan.
 - Giữ thay đổi đúng phạm vi yêu cầu. Không trộn sửa lỗi, đổi định dạng và refactor không liên quan vào cùng một thay đổi nếu có thể tách rõ.
 - Tôn trọng file đã sửa sẵn trong working tree. Không ghi đè, reset hoặc đưa thay đổi của người khác vào commit của mình khi chưa hiểu nguồn gốc.

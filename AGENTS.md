@@ -5,6 +5,13 @@
 - Đây là dự án POS và quản lý kho SaaS cho quán cà phê, trà sữa và quán ăn nhỏ: một `store` có nhiều `branch`, mỗi chi nhánh có bàn, ca thu ngân và tồn kho riêng.
 - Repository có UI demo trong `POS_UI/`; `POS_API/` đã có nền tảng PB-01 và API xác thực PB-02, `POS_INFRA/` có Docker Compose PostgreSQL local. Phân biệt quy tắc đã đặc tả, mã đã triển khai và UI demo khi mô tả dự án.
 
+## Conversation Onboarding
+
+- Khi bắt đầu conversation mới, khám phá tổng quan dự án trước khi thực hiện nhiệm vụ: tìm hiểu cấu trúc repository, tech stack, kiến trúc và các quy ước hiện có theo bản đồ bên dưới.
+- Chỉ đọc sâu module, tài liệu và source code liên quan đến nhiệm vụ; không mặc định đọc toàn bộ codebase hoặc tài liệu không liên quan.
+- Không khám phá lại khi conversation hiện tại đã có đủ context đáng tin cậy. Nếu không xác định chắc chắn conversation có mới hay không, không khẳng định đã xác định được.
+- Nếu chưa có nhiệm vụ cụ thể, chỉ khám phá tổng quan và chờ yêu cầu.
+
 ## Bản đồ repository và thứ tự đọc
 
 Mọi đường dẫn dưới đây tính từ **gốc repository** (thư mục chứa `AGENTS.md`), không tính từ thư mục của file đang sửa.
@@ -24,7 +31,7 @@ Mọi đường dẫn dưới đây tính từ **gốc repository** (thư mục 
 | `.codex/agents/` | Cấu hình `explorer` để định vị code, `code-reviewer` để review và `qa` để kiểm thử/báo lỗi; các agent không sửa source theo chỉ dẫn. |
 | `qa-evidence/` | Dấu vết các lần chạy QA và kiểm tra thủ công; chỉ tạo khi có lần chạy thật. |
 | `POS_UI/`, `POS_API/`, `POS_INFRA/` | Mã UI, backend và hạ tầng; kiểm tra mã thực tế trước khi nói tính năng đã chạy. |
-| `MEMORY.md` | Bài học kinh nghiệm chung từ quá trình làm việc, đặc biệt các lỗi đã xác minh; đọc khi bắt đầu/tiếp tục việc nhiều bước hoặc khi cần chọn cách làm để tránh lặp lại sai lầm. |
+| `MEMORY.md` | Những điều cần nhớ qua các phiên và bài học kinh nghiệm chung, đặc biệt những điều đã được nhắc hoặc xác minh là thường bị quên, lặp lại; đọc khi bắt đầu hoặc tiếp tục phiên làm việc. |
 | `plans/`, `tasks/`, `errors/` | Kế hoạch, tiến độ và lỗi đã gặp được lưu trên đĩa; quy trình ở mục dưới. |
 | `sprints/` | Kế hoạch và kết quả từng sprint: mục tiêu, backlog được đề xuất hoặc đã chốt, tiêu chí nghiệm thu, review và retrospective. Đọc sprint hiện hành để biết cam kết và trạng thái thực tế; mục đề xuất chưa phải việc đã được duyệt hay hoàn thành. |
 
@@ -66,6 +73,7 @@ Trong `rules/`: đọc `clean-code.md`, `coding-style.md`, `naming.md` khi viế
 
 - `plans/active/`: khi người dùng yêu cầu triển khai plan đã lập trong Plan mode, đọc lại plan trong hội thoại, đối chiếu với repository rồi ghi plan vào đây trước khi triển khai. Mỗi plan ghi mục tiêu, phạm vi, các bước, tiêu chí hoàn thành, quyết định và rủi ro; nếu phạm vi đổi, ghi thay đổi và lý do vào plan. Khi mọi task và kiểm tra xong, chuyển cùng file sang `plans/completed/` kèm kết quả. Mỗi plan chỉ nằm ở **một** trạng thái.
 - `tasks/active/`: tạo file task trước khi triển khai một plan hoặc bắt đầu việc nhiều bước. Task ghi plan liên quan (nếu có), mục tiêu, nhánh, việc đã hoàn tất kèm bằng chứng, trạng thái hiện tại, **bước tiếp theo cụ thể**, file đã đổi, lệnh kiểm tra và blocker/câu hỏi. Cập nhật sau mỗi mốc quan trọng và **trước khi dừng, đổi phiên hoặc ngữ cảnh bị rút gọn**. Xong và đã kiểm tra thì chuyển sang `tasks/completed/` cùng tên file; không để task active đã hoàn tất.
+- `MEMORY.md`: ghi ngắn gọn những điều có ích cho các phiên sau, đặc biệt khi người dùng chỉ ra điều agent thường quên hoặc một sai lầm đã được xác minh là lặp lại. Nêu điều cần nhớ và cách áp dụng; liên kết đến tài liệu hoặc file lỗi liên quan khi có. Kiểm tra và cập nhật mục đã có thay vì ghi trùng; không ghi secret, dữ liệu cá nhân thật hoặc thông tin chưa xác minh. Không dùng file này thay cho task đang làm hay bản ghi chi tiết trong `errors/`.
 - `errors/`: lưu một file cho mỗi lỗi đáng kể gặp khi làm hoặc review. Ghi triệu chứng, điều kiện tái hiện, nguyên nhân đã xác minh, cách sửa, cách kiểm chứng, task/commit liên quan; lỗi chưa giải quyết đánh dấu rõ. Khi có dấu hiệu liên quan, tìm theo chủ đề rồi đọc file lỗi phù hợp trước khi chẩn đoán, sửa hoặc review; không mặc định đọc toàn bộ thư mục mỗi task. Đối chiếu ghi nhận với mã/test hiện tại và mức kiểm chứng trước khi áp dụng cách sửa. Không ghi secret, token hoặc dữ liệu cá nhân thật.
 
 Tên file dùng `YYYY-MM-DD-ten-ngan.md`; task thuộc plan ghi đường dẫn plan trong nội dung. Mỗi file ghi trạng thái ở đầu và giữ nguyên tên khi chuyển thư mục; không tạo bản sao ở nhiều trạng thái. Không tạo plan cho việc một bước đơn giản, nhưng mọi việc kéo dài qua phiên phải có task active để tiếp tục được. Nội dung user yêu cầu và mã/test hiện tại luôn được đối chiếu trước khi áp dụng ghi chép cũ.
