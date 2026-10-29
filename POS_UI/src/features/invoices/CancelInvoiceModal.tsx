@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Invoice } from '../../types/entities';
 import { Dialog } from '../../components/ui/Dialog';
 import { Button } from '../../components/ui/Button';
-import { invoiceService } from '../../services/invoiceService';
+import { invoiceService } from './invoiceService';
 import { useToast } from '../../context/ToastContext';
 import { AlertTriangle } from 'lucide-react';
 

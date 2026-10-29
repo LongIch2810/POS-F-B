@@ -1,7 +1,7 @@
 // Product & Recipe Service Layer (API Ready)
 
-import { mockStorage } from '../mock/mockStorage';
-import { MockEngine } from '../mock/mockEngine';
+import { mockStorage } from '../../mock/mockStorage';
+import { MockEngine } from '../../mock/mockEngine';
 import {
   Category,
   Product,
@@ -13,7 +13,7 @@ import {
   ProductSizeIngredient,
   ToppingIngredient,
   PromotionCode,
-} from '../types/entities';
+} from '../../types/entities';
 
 export interface ProductDetailItem {
   product: Product;

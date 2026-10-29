@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { DatabaseModule } from '../database.module';
+import { DatabaseModule } from '../database/database.module';
 import { AccessGuard } from './security/access.guard';
 import { AuthController } from './http/auth.controller';
 import { AuthService } from './auth.service';

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { posService } from '../../services/posService';
+import { posService } from './posService';
 import { shiftService } from '../../services/shiftService';
 import { MockEngine } from '../../mock/mockEngine';
 import { mockStorage } from '../../mock/mockStorage';

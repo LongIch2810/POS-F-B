@@ -12,6 +12,6 @@ PB-02 cung cấp `/api/v1/auth/login`, `/me`, `/csrf`, `/refresh`, `/logout`, `/
 
 Đặt `NODE_ENV=development` để mở Swagger UI tại `/api/docs` và OpenAPI JSON tại `/api/docs-json`. Hai route này không được đăng ký ở môi trường khác. Login dùng Passport local, request Cookie được đọc qua `cookie-parser`; request DTO được xác thực bằng NestJS `ValidationPipe`.
 
-Mã PB-02 nằm trong `src/auth/`: cấp gốc có `AuthModule`, service và cấu hình; `http/` có controller, DTO và cookie helper; `security/` có guard và Passport strategy; `tests/` có test. `src/database.module.ts` cấp cùng một DataSource cho AuthModule và health; `src/main.ts`, `src/app.module.ts`, filter lỗi và Swagger setup ở cấp ứng dụng. Migration vẫn nằm trong `src/migrations/`.
+Mã PB-02 nằm trong `src/auth/`: cấp gốc có `AuthModule`, service và cấu hình; `http/` có controller, DTO và cookie helper; `security/` có guard và Passport strategy; `tests/` có test. `src/database/` chứa DataSource, `DatabaseModule`, entity và migration; module cấp cùng một DataSource cho AuthModule và health. `src/main.ts`, `src/app.module.ts`, filter lỗi và Swagger setup ở cấp ứng dụng.
 
 API không tự chạy migration. Đừng dùng `schema:sync`; thay đổi schema phải có migration. Docker Compose này chỉ phục vụ phát triển local, chưa phải cấu hình production.

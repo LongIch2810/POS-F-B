@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { invoiceService } from '../../services/invoiceService';
+import { invoiceService } from './invoiceService';
 import { MockEngine } from '../../mock/mockEngine';
 import { mockStorage } from '../../mock/mockStorage';
 import { Invoice, InvoiceStatus } from '../../types/entities';

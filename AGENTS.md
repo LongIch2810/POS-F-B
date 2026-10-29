@@ -24,6 +24,7 @@ Mọi đường dẫn dưới đây tính từ **gốc repository** (thư mục 
 | `.codex/agents/` | Cấu hình `explorer` để định vị code, `code-reviewer` để review và `qa` để kiểm thử/báo lỗi; các agent không sửa source theo chỉ dẫn. |
 | `qa-evidence/` | Dấu vết các lần chạy QA và kiểm tra thủ công; chỉ tạo khi có lần chạy thật. |
 | `POS_UI/`, `POS_API/`, `POS_INFRA/` | Mã UI, backend và hạ tầng; kiểm tra mã thực tế trước khi nói tính năng đã chạy. |
+| `MEMORY.md` | Bài học kinh nghiệm chung từ quá trình làm việc, đặc biệt các lỗi đã xác minh; đọc khi bắt đầu/tiếp tục việc nhiều bước hoặc khi cần chọn cách làm để tránh lặp lại sai lầm. |
 | `plans/`, `tasks/`, `errors/` | Kế hoạch, tiến độ và lỗi đã gặp được lưu trên đĩa; quy trình ở mục dưới. |
 | `sprints/` | Kế hoạch và kết quả từng sprint: mục tiêu, backlog được đề xuất hoặc đã chốt, tiêu chí nghiệm thu, review và retrospective. Đọc sprint hiện hành để biết cam kết và trạng thái thực tế; mục đề xuất chưa phải việc đã được duyệt hay hoàn thành. |
 
@@ -61,11 +62,11 @@ Trong `rules/`: đọc `clean-code.md`, `coding-style.md`, `naming.md` khi viế
 
 ## Ghi plan, task và lỗi ra file
 
-**Không dùng trí nhớ phiên chat làm nơi duy nhất giữ plan hoặc tiến độ.** Trước khi bắt đầu hay tiếp tục việc nhiều bước, đọc `tasks/active/`, `plans/active/` và tra `errors/` theo chủ đề. Khi tiếp tục sau compact hoặc phiên mới, đọc file đang active, đối chiếu với Git/mã/test hiện tại rồi mới làm bước tiếp theo; ghi chép có thể cũ hơn trạng thái repository.
+**Không dùng trí nhớ phiên chat làm nơi duy nhất giữ plan hoặc tiến độ.** Trước khi bắt đầu hay tiếp tục việc nhiều bước, đọc `MEMORY.md`, `tasks/active/` và `plans/active/`; chỉ tra `errors/` khi ngữ cảnh task có dấu hiệu liên quan như cùng triệu chứng, thông báo lỗi, module, dependency hoặc môi trường đã từng gặp lỗi. Khi tiếp tục sau compact hoặc phiên mới, đọc file đang active, đối chiếu với Git/mã/test hiện tại rồi mới làm bước tiếp theo; ghi chép có thể cũ hơn trạng thái repository.
 
-- `plans/draft/`: plan đang soạn, có thể thay đổi. Mỗi plan ghi mục tiêu, phạm vi, các bước, tiêu chí hoàn thành, quyết định và rủi ro. Khi người dùng yêu cầu triển khai plan nháp, đọc lại plan và chốt phạm vi trước khi chuyển **cùng file** sang `plans/active/`; ghi thay đổi phạm vi/lý do vào plan thay vì âm thầm sửa. Khi mọi task và kiểm tra của plan xong, chuyển sang `plans/completed/` kèm kết quả. Mỗi plan chỉ nằm ở **một** trạng thái.
+- `plans/active/`: khi người dùng yêu cầu triển khai plan đã lập trong Plan mode, đọc lại plan trong hội thoại, đối chiếu với repository rồi ghi plan vào đây trước khi triển khai. Mỗi plan ghi mục tiêu, phạm vi, các bước, tiêu chí hoàn thành, quyết định và rủi ro; nếu phạm vi đổi, ghi thay đổi và lý do vào plan. Khi mọi task và kiểm tra xong, chuyển cùng file sang `plans/completed/` kèm kết quả. Mỗi plan chỉ nằm ở **một** trạng thái.
 - `tasks/active/`: tạo file task trước khi triển khai một plan hoặc bắt đầu việc nhiều bước. Task ghi plan liên quan (nếu có), mục tiêu, nhánh, việc đã hoàn tất kèm bằng chứng, trạng thái hiện tại, **bước tiếp theo cụ thể**, file đã đổi, lệnh kiểm tra và blocker/câu hỏi. Cập nhật sau mỗi mốc quan trọng và **trước khi dừng, đổi phiên hoặc ngữ cảnh bị rút gọn**. Xong và đã kiểm tra thì chuyển sang `tasks/completed/` cùng tên file; không để task active đã hoàn tất.
-- `errors/`: lưu một file cho mỗi lỗi đáng kể gặp khi làm hoặc review. Ghi triệu chứng, điều kiện tái hiện, nguyên nhân đã xác minh, cách sửa, cách kiểm chứng, task/commit liên quan; lỗi chưa giải quyết đánh dấu rõ. Tra thư mục này trước khi xử lý lỗi tương tự. Không ghi secret, token hoặc dữ liệu cá nhân thật.
+- `errors/`: lưu một file cho mỗi lỗi đáng kể gặp khi làm hoặc review. Ghi triệu chứng, điều kiện tái hiện, nguyên nhân đã xác minh, cách sửa, cách kiểm chứng, task/commit liên quan; lỗi chưa giải quyết đánh dấu rõ. Khi có dấu hiệu liên quan, tìm theo chủ đề rồi đọc file lỗi phù hợp trước khi chẩn đoán, sửa hoặc review; không mặc định đọc toàn bộ thư mục mỗi task. Đối chiếu ghi nhận với mã/test hiện tại và mức kiểm chứng trước khi áp dụng cách sửa. Không ghi secret, token hoặc dữ liệu cá nhân thật.
 
 Tên file dùng `YYYY-MM-DD-ten-ngan.md`; task thuộc plan ghi đường dẫn plan trong nội dung. Mỗi file ghi trạng thái ở đầu và giữ nguyên tên khi chuyển thư mục; không tạo bản sao ở nhiều trạng thái. Không tạo plan cho việc một bước đơn giản, nhưng mọi việc kéo dài qua phiên phải có task active để tiếp tục được. Nội dung user yêu cầu và mã/test hiện tại luôn được đối chiếu trước khi áp dụng ghi chép cũ.
 

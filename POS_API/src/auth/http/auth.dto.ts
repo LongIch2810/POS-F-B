@@ -1,13 +1,13 @@
 import { HttpException, ValidationPipe } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsString, Matches, MaxLength, MinLength, ValidateIf } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, MinLength, ValidateIf } from 'class-validator';
 
 export class LoginRequestDto {
   @ApiProperty({ example: 'admin', maxLength: 50 })
   @IsString()
-  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
-  @Matches(/\S/)
+  @Transform(({ value }) => typeof value === 'string' ? value.replace(/^ +| +$/g, '') : value)
+  @MinLength(1)
   @MaxLength(50)
   username!: string;
 

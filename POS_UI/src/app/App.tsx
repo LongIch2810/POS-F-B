@@ -1,23 +1,23 @@
 // POS-F&B Root Application Component
 
 import React, { useState, useEffect } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { ToastProvider } from './context/ToastContext';
-import { DemoSwitcher } from './components/common/DemoSwitcher';
-import { OfflineBar } from './components/common/OfflineBar';
-import { AppShell, NavTab } from './components/common/AppShell';
-import { ForcePasswordModal } from './features/auth/ForcePasswordModal';
-import { LoginScreen } from './features/auth/LoginScreen';
+import { AuthProvider, useAuth } from '../context/AuthContext';
+import { ToastProvider } from '../context/ToastContext';
+import { DemoSwitcher } from '../components/common/DemoSwitcher';
+import { OfflineBar } from '../components/common/OfflineBar';
+import { AppShell, NavTab } from '../components/common/AppShell';
+import { ForcePasswordModal } from '../features/auth/ForcePasswordModal';
+import { LoginScreen } from '../features/auth/LoginScreen';
 
 // Features
-import { PosScreen } from './features/pos/PosScreen';
-import { InvoicesScreen } from './features/invoices/InvoicesScreen';
-import { ShiftsScreen } from './features/shifts/ShiftsScreen';
-import { ProductsScreen } from './features/products/ProductsScreen';
-import { InventoryScreen } from './features/inventory/InventoryScreen';
-import { DailyReportScreen } from './features/reports/DailyReportScreen';
-import { SettingsScreen } from './features/settings/SettingsScreen';
-import { PlatformAdminScreen } from './features/platform/PlatformAdminScreen';
+import { PosScreen } from '../features/pos/PosScreen';
+import { InvoicesScreen } from '../features/invoices/InvoicesScreen';
+import { ShiftsScreen } from '../features/shifts/ShiftsScreen';
+import { ProductsScreen } from '../features/products/ProductsScreen';
+import { InventoryScreen } from '../features/inventory/InventoryScreen';
+import { DailyReportScreen } from '../features/reports/DailyReportScreen';
+import { SettingsScreen } from '../features/settings/SettingsScreen';
+import { PlatformAdminScreen } from '../features/platform/PlatformAdminScreen';
 
 const AccessDenied: React.FC<{ message?: string }> = ({ message }) => (
   <div style={{ flex: 1, padding: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
