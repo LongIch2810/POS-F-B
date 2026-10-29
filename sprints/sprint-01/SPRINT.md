@@ -53,6 +53,18 @@ Các ô trên dành cho **quyết định nghiệm thu của Product Owner**; k�
 - [ ] Tải lại trang khi phiên còn hiệu lực đọc danh tính bằng access cookie; khi access cookie hết hạn, refresh đặt cookie mới. Mỗi lần refresh xoay token; dùng lại token đã xoay thu hồi đúng phiên đó. Mọi request ghi sau đăng nhập thiếu/sai Origin hoặc CSRF bị từ chối theo tài liệu auth.
 - [ ] Đăng xuất thu hồi phiên hiện tại ngay; access/refresh token của phiên đó không dùng lại được, phiên thiết bị khác vẫn hoạt động. Không có route đăng ký công khai.
 
+**Các tình huống PB-02 đã kiểm thử đạt:** Các ô dưới đây ghi nhận kết quả kỹ thuật theo yêu cầu của Product Owner; các ô tổng hợp phía trên vẫn để trống khi chưa đủ bằng chứng cho toàn bộ nội dung. Bằng chứng là [lần chạy test](../../qa-evidence/2026-10-29-105135-1083cd9-pb02-tests/run.md) và [QA kiểm chứng lại](../../qa-evidence/2026-10-29-105348-1083cd9-qa-recheck/cases.md), đều chạy local.
+
+- [x] Đăng nhập hợp lệ trả `200`, đặt ba cookie, không trả access token trong JSON và chỉ lưu hash refresh token.
+- [x] User bị khóa hoặc store tạm khóa bị từ chối theo trạng thái hiện hành; quyền thay đổi trong DB được kiểm tra lại khi access token còn hạn.
+- [x] Refresh xoay token; replay bị từ chối và thu hồi phiên; hai refresh đồng thời cho một kết quả thành công và một kết quả bị từ chối.
+- [x] Logout thiết bị A thu hồi access và refresh của A, trong khi access và refresh của thiết bị B vẫn sử dụng được.
+- [x] Đổi mật khẩu bắt buộc thành công, bỏ cờ và thu hồi phiên; sai mật khẩu hiện tại bị từ chối và giữ phiên. Đổi mật khẩu tự nguyện thành công và thu hồi phiên đang dùng cùng phiên khác.
+- [x] Khi phát sinh lỗi ghi, transaction xoay refresh hoặc đổi mật khẩu được rollback và phiên cũ vẫn sử dụng được.
+- [x] Các trường hợp vượt ngưỡng login và refresh đã kiểm tra trả `429`; login có `Retry-After`. Các trường hợp CSRF thiếu hoặc sai đã kiểm tra bị từ chối.
+
+Chưa kiểm chứng browser HTTPS thật và luồng UI khôi phục phiên. Các tình huống trên được gộp trong một test runner; không phải kết quả CI độc lập.
+
 ### PB-13 — giao diện cho lát cắt auth
 
 - [ ] Màn đăng nhập/đổi mật khẩu gọi API thật; sau đăng nhập lần đầu, người dùng chỉ có thể đổi mật khẩu hoặc đăng xuất. Đổi xong quay về đăng nhập.

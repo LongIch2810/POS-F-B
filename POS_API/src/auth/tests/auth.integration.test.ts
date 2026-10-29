@@ -11,7 +11,7 @@ import { AuthService } from '../auth.service';
 import { dataSource } from '../../database/data-source';
 import { Foundation20261028000000 } from '../../database/migrations/20261028000000-Foundation';
 
-test('PB-02 login creates a hashed refresh session and cookie-only tokens', { timeout: 60_000 }, async () => {
+test('PB-02 login creates a hashed refresh session and cookie-only tokens', { timeout: 90_000 }, async () => {
   const name = `pos_pb02_test_${randomBytes(6).toString('hex')}`;
   const url = new URL(process.env.DATABASE_URL!);
   const testUrl = new URL(url);
@@ -345,6 +345,91 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
         method: 'POST', headers: { Origin: process.env.PUBLIC_ORIGIN! },
       });
       assert.equal(limitedRefresh.status, 429);
+
+      // BR-03/04: two independent sessions; logout must only revoke the caller.
+      await db.query('DELETE FROM auth_rate_events');
+      const loginDevice = async () => {
+        const result = await fetch(`http://127.0.0.1:${port}/api/v1/auth/login`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', Origin: process.env.PUBLIC_ORIGIN! },
+          body: JSON.stringify({ username: 'admin', password: 'new-password-12345' }),
+        });
+        assert.equal(result.status, 200);
+        const values = result.headers.getSetCookie();
+        return {
+          cookie: values.map((value) => value.split(';')[0]).join('; '),
+          csrf: values.find((value) => value.startsWith('__Host-pos_csrf='))!.split(';')[0].split('=')[1],
+        };
+      };
+      const deviceA = await loginDevice();
+      const deviceB = await loginDevice();
+      const headersA = { Cookie: deviceA.cookie, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': deviceA.csrf };
+      const headersB = { Cookie: deviceB.cookie, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': deviceB.csrf };
+      const logoutA = await fetch(`http://127.0.0.1:${port}/api/v1/auth/logout`, { method: 'POST', headers: headersA });
+      assert.equal(logoutA.status, 204);
+      assert.equal(logoutA.headers.getSetCookie().length, 3);
+      assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: headersA })).status, 401);
+      assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/refresh`, { method: 'POST', headers: headersA })).status, 401);
+      assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: headersB })).status, 200);
+      const refreshedB = await fetch(`http://127.0.0.1:${port}/api/v1/auth/refresh`, { method: 'POST', headers: headersB });
+      assert.equal(refreshedB.status, 200);
+      const refreshedBHeader = [
+        ...refreshedB.headers.getSetCookie().map((value) => value.split(';')[0]),
+        `__Host-pos_csrf=${deviceB.csrf}`,
+      ].join('; ');
+
+      // BR-03: a failed token insert must roll back rotation of the old token.
+      await db.query(`CREATE FUNCTION test_fail_token_insert() RETURNS trigger LANGUAGE plpgsql AS $$
+        BEGIN RAISE EXCEPTION 'injected token insert failure'; END $$`);
+      await db.query(`CREATE TRIGGER test_fail_token_insert BEFORE INSERT ON refresh_tokens
+        FOR EACH ROW EXECUTE FUNCTION test_fail_token_insert()`);
+      try {
+        const failedRefresh = await fetch(`http://127.0.0.1:${port}/api/v1/auth/refresh`, {
+          method: 'POST', headers: { ...headersB, Cookie: refreshedBHeader },
+        });
+        assert.equal(failedRefresh.status, 500);
+        assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: { Cookie: refreshedBHeader } })).status, 200);
+      } finally {
+        await db.query('DROP TRIGGER test_fail_token_insert ON refresh_tokens');
+        await db.query('DROP FUNCTION test_fail_token_insert()');
+      }
+      const retriedRefresh = await fetch(`http://127.0.0.1:${port}/api/v1/auth/refresh`, {
+        method: 'POST', headers: { ...headersB, Cookie: refreshedBHeader },
+      });
+      assert.equal(retriedRefresh.status, 200);
+
+      const deviceC = await loginDevice();
+      const headersC = { Cookie: deviceC.cookie, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': deviceC.csrf, 'Content-Type': 'application/json' };
+      // BR-01/03: a failed revocation must roll back the password update too.
+      await db.query(`CREATE FUNCTION test_fail_token_update() RETURNS trigger LANGUAGE plpgsql AS $$
+        BEGIN RAISE EXCEPTION 'injected token update failure'; END $$`);
+      await db.query(`CREATE TRIGGER test_fail_token_update BEFORE UPDATE ON refresh_tokens
+        FOR EACH ROW EXECUTE FUNCTION test_fail_token_update()`);
+      try {
+        const failedChange = await fetch(`http://127.0.0.1:${port}/api/v1/auth/change-password`, {
+          method: 'POST', headers: headersC,
+          body: JSON.stringify({ currentPassword: 'new-password-12345', newPassword: 'voluntary-password-123' }),
+        });
+        assert.equal(failedChange.status, 500);
+        const stored = (await db.query("SELECT password_hash FROM users WHERE username = 'admin'"))[0];
+        assert.equal(await bcrypt.compare('new-password-12345', stored.password_hash), true);
+        assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: headersC })).status, 200);
+      } finally {
+        await db.query('DROP TRIGGER test_fail_token_update ON refresh_tokens');
+        await db.query('DROP FUNCTION test_fail_token_update()');
+      }
+      const voluntaryChange = await fetch(`http://127.0.0.1:${port}/api/v1/auth/change-password`, {
+        method: 'POST', headers: headersC,
+        body: JSON.stringify({ currentPassword: 'new-password-12345', newPassword: 'voluntary-password-123' }),
+      });
+      assert.equal(voluntaryChange.status, 204);
+      assert.equal(voluntaryChange.headers.getSetCookie().length, 3);
+      assert.equal(await bcrypt.compare('voluntary-password-123', (await db.query("SELECT password_hash FROM users WHERE username = 'admin'"))[0].password_hash), true);
+      assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: headersC })).status, 401);
+      assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: headersB })).status, 401);
+      const retriedBHeader = [...retriedRefresh.headers.getSetCookie().map((value) => value.split(';')[0]), `__Host-pos_csrf=${deviceB.csrf}`].join('; ');
+      assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/refresh`, {
+        method: 'POST', headers: { ...headersB, Cookie: retriedBHeader },
+      })).status, 401);
     } finally {
       await app.close();
     }
