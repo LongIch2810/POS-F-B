@@ -629,7 +629,7 @@ Lỗi không xin lỗi dài dòng và không nói mơ hồ: nêu việc đã x�
 | Thời lượng           | Giờ và phút bằng chữ                                                                      | `3 giờ 12 phút`, `25 phút` |
 | Múi giờ              | Hiển thị theo `Asia/Ho_Chi_Minh`, lưu UTC                                                 |                            |
 | Số lượng nguyên liệu | Theo đơn vị gốc, tối đa 3 số lẻ, bỏ số 0 thừa                                             | `56 g`, `1,5 l`            |
-| Mã hóa đơn           | Chữ đậm, không ngắt dòng                                                                  | `HD-A1B2C3D4`             |
+| Mã hóa đơn           | Chữ đậm, không ngắt dòng                                                                  | `HDA1B2C3D4`              |
 
 Cột số canh phải và dùng chữ số tabular để các hàng thẳng cột.
 
