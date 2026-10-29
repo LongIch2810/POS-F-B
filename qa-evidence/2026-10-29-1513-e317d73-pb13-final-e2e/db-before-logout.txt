@@ -1,0 +1,1 @@
+﻿qa_cashier|f|1|2

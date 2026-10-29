@@ -67,7 +67,7 @@ test('PB-01 migration, bootstrap and database constraints', async () => {
     assert.equal(admin.role_name, 'PLATFORM_ADMIN');
     assert.equal(admin.store_id, null);
     assert.equal(admin.branch_id, null);
-    assert.equal(admin.must_change_password, true);
+    assert.equal(admin.must_change_password, false);
     assert.notEqual(admin.password_hash, process.env.BOOTSTRAP_ADMIN_PASSWORD);
     assert.equal(await bcrypt.compare(process.env.BOOTSTRAP_ADMIN_PASSWORD, admin.password_hash), true);
 

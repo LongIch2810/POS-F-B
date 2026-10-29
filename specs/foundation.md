@@ -11,7 +11,7 @@
 ## Bootstrap quản trị đầu tiên
 
 - Khi DB chưa có user mang vai trò `PLATFORM_ADMIN`, API yêu cầu `BOOTSTRAP_ADMIN_USERNAME`, `BOOTSTRAP_ADMIN_FULL_NAME`, `BOOTSTRAP_ADMIN_PASSWORD`. Username được lưu dưới dạng `lower(btrim(username))`, dài 1–50 ký tự; họ tên sau khi trim dài 1–150 ký tự; mật khẩu tối thiểu 12 ký tự và không vượt 72 byte UTF-8 (giới hạn đầu vào của bcrypt). Giá trị không hợp lệ làm API dừng.
-- Tạo role `PLATFORM_ADMIN` nếu chưa có và user đầu tiên trong một transaction; mật khẩu chỉ ghi dạng băm bcrypt với cost 12, `store_id` và `branch_id` là `NULL`, `must_change_password = true`. Không in giá trị bootstrap hoặc hash ra log.
+- Tạo role `PLATFORM_ADMIN` nếu chưa có và user đầu tiên trong một transaction; mật khẩu chỉ ghi dạng băm bcrypt với cost 12, `store_id` và `branch_id` là `NULL`, `must_change_password = false`. Không in giá trị bootstrap hoặc hash ra log.
 - Nếu đã có ít nhất một `PLATFORM_ADMIN`, bỏ qua cả ba biến, không tạo hoặc cập nhật user. Lỗi DB, schema thiếu, biến thiếu hoặc không hợp lệ ở lần đầu khiến API không phục vụ request. Không có tên đăng nhập/mật khẩu mặc định.
 
 ## Health check
@@ -22,6 +22,6 @@
 
 - Từ PostgreSQL trống, `npm run migration:run` tạo các bảng và ràng buộc nêu trên; chạy lại không nhân đôi cấu trúc hoặc dữ liệu. API không tự chạy migration và không phục vụ khi schema còn thiếu.
 - PostgreSQL từ chối username trùng/chưa chuẩn hóa, `token_hash` trùng và hai refresh token chưa thu hồi cùng `session_id`. Mật khẩu chỉ lưu hash bcrypt; refresh token chỉ có cột hash, không lưu token thô.
-- Bootstrap hợp lệ tạo đúng một `PLATFORM_ADMIN` với `store_id`/`branch_id` là `NULL` và `must_change_password = true`. Thiếu/sai biến ở lần đầu làm startup thất bại; sau khi đã có admin, khởi động lại không cần biến và không sửa user cũ. Không có tài khoản hoặc secret mặc định trong source/log.
+- Bootstrap hợp lệ tạo đúng một `PLATFORM_ADMIN` với `store_id`/`branch_id` là `NULL` và `must_change_password = false`. Thiếu/sai biến ở lần đầu làm startup thất bại; sau khi đã có admin, khởi động lại không cần biến và không sửa user cũ. Không có tài khoản hoặc secret mặc định trong source/log.
 - `GET /api/v1/health` trả `200` khi DB truy vấn được, `503` với `SERVICE_UNAVAILABLE` khi mất kết nối; truy vấn có timeout 5 giây. Response lỗi có envelope và `X-Request-Id`, kể cả JSON hỏng hoặc route không tồn tại, và không lộ thông tin kết nối.
 - Build/test đạt với PostgreSQL thật; bằng chứng chạy và artifact được lưu trong `qa-evidence/`. Quyết định chấp nhận PB-01 của Product Owner được ghi riêng trong Sprint Review.

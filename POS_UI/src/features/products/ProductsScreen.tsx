@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { productService, ProductDetailItem } from './productService';
 import { mockStorage } from '../../mock/mockStorage';
+import { MockEngine } from '../../mock/mockEngine';
 import { Category, Topping, PromotionCode } from '../../types/entities';
 import { formatVND } from '../../utils/formatters';
 import { Button } from '../../components/ui/Button';
@@ -29,7 +30,7 @@ export const ProductsScreen: React.FC = () => {
   const { session } = useAuth();
   const { showToast } = useToast();
   const canManageProducts = session.permissions.includes('product.manage');
-  const storeId = session.user.store_id || 'store-1';
+  const storeId = MockEngine.getCurrentUser().store_id || 'store-1';
 
   const [activeMainTab, setActiveMainTab] = useState<'products' | 'toppings' | 'categories' | 'promotions'>('products');
 

@@ -6,7 +6,7 @@ import { Dialog } from '../../components/ui/Dialog';
 import { Button } from '../../components/ui/Button';
 import { formatVND, formatDateTimeVN } from '../../utils/formatters';
 import { shiftService } from '../../services/shiftService';
-import { useAuth } from '../../context/AuthContext';
+import { MockEngine } from '../../mock/mockEngine';
 import { useToast } from '../../context/ToastContext';
 import { AlertTriangle, ShieldAlert } from 'lucide-react';
 
@@ -25,7 +25,6 @@ export const ForceCloseShiftModal: React.FC<ForceCloseShiftModalProps> = ({
   onSuccess,
   onOpenInvoice,
 }) => {
-  const { session } = useAuth();
   const { showToast } = useToast();
   const [countedCashStr, setCountedCashStr] = useState<string>('');
   const [reason, setReason] = useState<string>('');
@@ -50,7 +49,7 @@ export const ForceCloseShiftModal: React.FC<ForceCloseShiftModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      await shiftService.forceCloseShift(shift.id, session.user.id, countedCash, reason.trim());
+      await shiftService.forceCloseShift(shift.id, MockEngine.getCurrentUser().id, countedCash, reason.trim());
       showToast({ type: 'success', message: 'Đã đóng ca cưỡng chế thành công' });
       onSuccess();
       onClose();

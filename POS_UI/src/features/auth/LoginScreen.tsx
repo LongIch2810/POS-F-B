@@ -1,7 +1,6 @@
 // POS-F&B Authentication Login Screen per DESIGN.md §1, §4, §5.7 & Impeccable craft-floor
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { DEMO_ACCOUNTS } from '../../services/authService';
 import {
   Lock,
   User as UserIcon,
@@ -11,11 +10,10 @@ import {
   Store,
   Boxes,
   Clock,
-  ArrowRight,
 } from 'lucide-react';
 
 export const LoginScreen: React.FC = () => {
-  const { login, switchUser } = useAuth();
+  const { login, error: authError } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -50,19 +48,6 @@ export const LoginScreen: React.FC = () => {
     }
   };
 
-  const handleSelectDemo = async (userId: string) => {
-    setGeneralError('');
-    setFieldErrors({});
-    setIsLoading(true);
-    try {
-      await switchUser(userId);
-    } catch (err: any) {
-      setGeneralError(err?.message || 'Lỗi đăng nhập tài khoản mẫu');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div
       style={{
@@ -83,7 +68,7 @@ export const LoginScreen: React.FC = () => {
           width: '100%',
           maxWidth: 1180,
           display: 'grid',
-          gridTemplateColumns: 'minmax(280px, 1fr) minmax(360px, 1.15fr) minmax(300px, 1fr)',
+          gridTemplateColumns: 'minmax(280px, 1fr) minmax(360px, 1.15fr)',
           gap: 20,
           alignItems: 'stretch',
         }}
@@ -297,7 +282,7 @@ export const LoginScreen: React.FC = () => {
           </div>
 
           {/* Thông báo lỗi chung */}
-          {generalError && (
+          {(generalError || authError) && (
             <div
               role="alert"
               style={{
@@ -314,7 +299,7 @@ export const LoginScreen: React.FC = () => {
               }}
             >
               <AlertCircle size={18} style={{ flexShrink: 0, marginTop: 1 }} />
-              <span>{generalError}</span>
+              <span>{generalError || authError}</span>
             </div>
           )}
 
@@ -503,153 +488,13 @@ export const LoginScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* ===================== CỘT PHẢI: TRUY CẬP NHANH TÀI KHOẢN MẪU (DEMO) ===================== */}
-        <div
-          style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-sheet)',
-            padding: '24px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text)', margin: 0 }}>
-              Tài khoản mẫu kiểm thử
-            </h3>
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: '4px 0 16px 0', lineHeight: '18px' }}>
-              Chọn nhanh để kiểm tra phân quyền và luồng nghiệp vụ:
-            </p>
-
-            {/* Danh sách 5 tài khoản mẫu */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {DEMO_ACCOUNTS.map((acc) => {
-                const isPlatform = acc.role_code === 'PLATFORM_ADMIN';
-                const isOwner = acc.role_code === 'OWNER';
-                const isManager = acc.role_code === 'MANAGER';
-                const isCashierOpen = acc.id === 'user-cashier-nl';
-
-                const badgeBg = isPlatform
-                  ? 'var(--color-surface-sunken)'
-                  : isOwner
-                  ? 'var(--color-brand-100)'
-                  : isManager
-                  ? 'var(--color-info-bg)'
-                  : isCashierOpen
-                  ? 'var(--color-success-bg)'
-                  : 'var(--color-surface-sunken)';
-
-                const badgeColor = isPlatform
-                  ? 'var(--color-text-muted)'
-                  : isOwner
-                  ? 'var(--color-brand-700)'
-                  : isManager
-                  ? 'var(--color-info)'
-                  : isCashierOpen
-                  ? 'var(--color-success)'
-                  : 'var(--color-text-muted)';
-
-                const roleLabel = isPlatform
-                  ? 'Quản trị nền tảng'
-                  : isOwner
-                  ? 'Chủ chuỗi'
-                  : isManager
-                  ? 'Quản lý chi nhánh'
-                  : isCashierOpen
-                  ? 'Thu ngân (Đang mở ca)'
-                  : 'Thu ngân (Chưa ca)';
-
-                return (
-                  <button
-                    key={acc.id}
-                    type="button"
-                    disabled={isLoading}
-                    onClick={() => handleSelectDemo(acc.id)}
-                    aria-label={`Đăng nhập nhanh với vai trò ${acc.role_title} (${acc.full_name})`}
-                    className="touch-press"
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: 'var(--radius-control)',
-                      border: '1px solid var(--color-border)',
-                      background: 'var(--color-surface)',
-                      textAlign: 'left',
-                      cursor: isLoading ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 8,
-                    }}
-                  >
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                        <span
-                          style={{
-                            fontSize: 13,
-                            fontWeight: 600,
-                            color: 'var(--color-text)',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {acc.full_name.split('(')[0].trim()}
-                        </span>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            fontWeight: 600,
-                            padding: '1px 6px',
-                            borderRadius: 'var(--radius-pill)',
-                            background: badgeBg,
-                            color: badgeColor,
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {roleLabel}
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: 'var(--color-text-muted)',
-                          marginTop: 2,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        {acc.branch_name || (isOwner ? 'Toàn bộ chi nhánh' : 'Quản trị hệ thống')}
-                      </div>
-                    </div>
-                    <ArrowRight size={16} style={{ color: 'var(--color-text-muted)', flexShrink: 0 }} />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Ghi chú footer */}
-          <div
-            style={{
-              paddingTop: 12,
-              borderTop: '1px solid var(--color-border)',
-              fontSize: 12,
-              color: 'var(--color-text-muted)',
-            }}
-          >
-            Dữ liệu mẫu lưu trên LocalStorage của máy
-          </div>
-        </div>
       </div>
 
       {/* Embedded CSS for responsive layout */}
       <style>{`
         @media (max-width: 1023px) {
           .login-stage-grid {
-            grid-template-columns: 1fr 1fr !important;
+            grid-template-columns: 1fr !important;
             max-width: 860px !important;
           }
           .login-brand-panel {
