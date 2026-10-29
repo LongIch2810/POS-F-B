@@ -58,29 +58,6 @@ export class SessionResponseDto {
   @ApiProperty({ type: SessionDataDto }) data!: SessionDataDto;
 }
 
-export class EmptyDataDto {}
-
-export class EmptyResponseDto {
-  @ApiProperty({ type: EmptyDataDto }) data!: EmptyDataDto;
-}
-
-export class ErrorDetailDto {
-  @ApiProperty({ enum: ['path', 'query', 'header', 'body'] }) location!: string;
-  @ApiProperty() field!: string;
-  @ApiProperty() message!: string;
-}
-
-export class ErrorDto {
-  @ApiProperty() code!: string;
-  @ApiProperty() message!: string;
-  @ApiProperty({ type: [ErrorDetailDto] }) details!: ErrorDetailDto[];
-  @ApiProperty() requestId!: string;
-}
-
-export class ErrorResponseDto {
-  @ApiProperty({ type: ErrorDto }) error!: ErrorDto;
-}
-
 export const authValidationPipe = new ValidationPipe({
   whitelist: true,
   forbidNonWhitelisted: true,

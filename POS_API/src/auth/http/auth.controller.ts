@@ -3,8 +3,9 @@ import { ApiBody, ApiNoContentResponse, ApiOkResponse, ApiResponse } from '@nest
 import { Request, Response } from 'express';
 import { serialize } from 'cookie';
 import { AuthService, authError } from '../auth.service';
+import { dataResponse, EmptyResponseDto, ErrorResponseDto } from '../../http/api-response';
 import { AccessGuard, AuthenticatedRequest } from '../security/access.guard';
-import { authValidationPipe, ChangePasswordRequestDto, EmptyResponseDto, ErrorResponseDto, LoginRequestDto, SessionResponseDto, UserResponseDto } from './auth.dto';
+import { authValidationPipe, ChangePasswordRequestDto, LoginRequestDto, SessionResponseDto, UserResponseDto } from './auth.dto';
 import { AuthBodyGuard, LocalAuthGuard } from '../security/local-auth.guard';
 import { authCookie } from './auth-cookie';
 
@@ -20,7 +21,7 @@ export class AuthController {
   @ApiResponse({ status: 422, type: ErrorResponseDto })
   async me(@Req() request: AuthenticatedRequest): Promise<{ data: { user: NonNullable<AuthenticatedRequest['authUser']> } }> {
     this.noInput(request);
-    return { data: { user: request.authUser! } };
+    return dataResponse({ user: request.authUser! });
   }
 
   @Get('csrf')
@@ -32,7 +33,7 @@ export class AuthController {
     this.noInput(request);
     const csrf = await this.auth.getCsrf(authCookie(request, '__Host-pos_refresh'));
     response.setHeader('Set-Cookie', serialize('__Host-pos_csrf', csrf, { secure: true, sameSite: 'strict', path: '/', maxAge: 604800 }));
-    response.status(200).json({ data: {} });
+    response.status(200).json(dataResponse({}));
   }
 
   @Post('logout')
@@ -92,7 +93,7 @@ export class AuthController {
       serialize('__Host-pos_access', session.access, { httpOnly: true, secure: true, sameSite: 'strict', path: '/', maxAge: 1800 }),
       serialize('__Host-pos_refresh', session.refresh, { httpOnly: true, secure: true, sameSite: 'strict', path: '/', maxAge: 604800 }),
     ]);
-    response.status(200).json({ data: { expiresIn: 1800, user: session.user } });
+    response.status(200).json(dataResponse({ expiresIn: 1800, user: session.user }));
   }
 
   private checkOrigin(request: Request): void {
@@ -124,6 +125,6 @@ export class AuthController {
       serialize('__Host-pos_refresh', session.refresh, { httpOnly: true, secure: true, sameSite: 'strict', path: '/', maxAge: 604800 }),
       serialize('__Host-pos_csrf', session.csrf, { secure: true, sameSite: 'strict', path: '/', maxAge: 604800 }),
     ]);
-    response.status(200).json({ data: { expiresIn: 1800, user: session.user } });
+    response.status(200).json(dataResponse({ expiresIn: 1800, user: session.user }));
   }
 }

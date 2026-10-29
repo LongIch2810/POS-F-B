@@ -1,25 +1,18 @@
-import { Controller, Get, Inject, Res } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Inject, ServiceUnavailableException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { dataResponse } from './http/api-response';
 
 @Controller('api/v1')
 export class HealthController {
   constructor(@Inject(DataSource) private readonly db: DataSource) {}
 
   @Get('health')
-  async health(@Res() response: Response): Promise<void> {
+  async health(): Promise<{ data: { status: 'ok' } }> {
     try {
       await this.db.query('SELECT 1');
-      response.status(200).json({ data: { status: 'ok' } });
     } catch {
-      response.status(503).json({
-        error: {
-          code: 'SERVICE_UNAVAILABLE',
-          message: 'Dịch vụ tạm thời chưa sẵn sàng. Vui lòng thử lại sau.',
-          details: [],
-          requestId: response.getHeader('X-Request-Id'),
-        },
-      });
+      throw new ServiceUnavailableException();
     }
+    return dataResponse({ status: 'ok' as const });
   }
 }
