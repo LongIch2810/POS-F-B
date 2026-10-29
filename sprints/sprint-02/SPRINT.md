@@ -4,7 +4,7 @@
 
 Sprint dài một tuần; nhóm gồm Product Owner và Codex theo [cách vận hành Sprint 1](../sprint-01/SPRINT.md). [Product Backlog](../../docs/PRODUCT_BACKLOG.md) đặt PB-03 sau PB-02 và PB-13 đi cùng các lát cắt API đã hoàn thành. Trong [Review Sprint 1](../sprint-01/SPRINT.md#review-và-retrospective), Product Owner đã chấp nhận PB-01, PB-02 và PB-13 trong phạm vi xác thực; các màn vận hành còn dùng dữ liệu mô phỏng.
 
-Sprint 1 chưa ghi kết quả retrospective. Buổi planning Sprint 2 cần xem lại kết quả đó, chốt sức chứa và chọn Sprint Goal. Các mục dưới đây là **đề xuất**, chưa phải cam kết hay bằng chứng chức năng đã hoàn thành.
+Sprint 1 đã được [chốt bằng Review và retrospective từ hồ sơ](../sprint-01/SPRINT.md#kết-luận-sprint-1--2026-10-29). Buổi planning Sprint 2 cần xem lại cải tiến đã chọn, chốt sức chứa và chọn Sprint Goal. Các mục dưới đây là **đề xuất**, chưa phải cam kết hay bằng chứng chức năng đã hoàn thành.
 
 ## Sprint Goal đề xuất
 
@@ -14,7 +14,7 @@ Sprint 1 chưa ghi kết quả retrospective. Buổi planning Sprint 2 cần xem
 
 | Thứ tự | Item | Kết quả cần đạt | Điều kiện trước khi triển khai |
 | --- | --- | --- | --- |
-| 1 | Refinement PB-03 | Phỏng vấn, rà quy tắc [BR-79–BR-86](../../docs/BUSINESS_RULES.md), làm rõ request/response, quyền, lỗi và tình huống biên; chốt `specs/platform.md` và phần cấp `OWNER` liên quan. | Product Owner quyết định các điểm còn mở; chỉ lưu spec đã chốt. |
+| 1 | Refinement PB-03 | Phỏng vấn, rà quy tắc [BR-79–BR-86](../../docs/BUSINESS_RULES.md), làm rõ request/response, quyền, lỗi và tình huống biên; lập bảng tiêu chí → tình huống → artifact; chốt `specs/platform.md` và phần cấp `OWNER` liên quan. | Product Owner quyết định các điểm còn mở; chỉ lưu spec đã chốt. |
 | 2 | PB-03 API/DB | Quản trị viên nền tảng quản lý store và cấp `OWNER` theo spec; khóa/mở store áp dụng đúng quy tắc phiên và cô lập dữ liệu. | PB-02 đã nghiệm thu; spec ở mục 1 đã chốt. |
 | 3 | PB-13 lát cắt PB-03 | Màn quản trị nền tảng gọi API thật cho các thao tác PB-03, hiển thị kết quả/lỗi và không dùng mock làm nguồn dữ liệu của lát cắt này. | API PB-03 đã có và được kiểm tra. |
 | 4 | Review | Demo luồng trên bản mã cuối, đối chiếu từng tiêu chí với artifact API, DB và browser; Product Owner chấp nhận hoặc trả lại từng item. | Các kiểm tra và bằng chứng theo `AGENTS.md` đã hoàn tất. |
@@ -47,7 +47,7 @@ Trước khi chạy QA, lập bảng tiêu chí → tình huống → artifact t
 - Xác nhận Sprint Goal, sức chứa và có đưa cả PB-03 lẫn lát cắt UI PB-13 vào Sprint Backlog hay không.
 - Chốt luồng tạo store/cấp `OWNER`, dữ liệu bắt buộc, cách xử lý thất bại và các endpoint trong `specs/platform.md`; phần tài khoản liên quan phải thống nhất với spec auth.
 - Chốt hành vi UI khi store bị tạm khóa giữa phiên, khi mở lại và khi mật khẩu tạm chỉ hiển thị một lần.
-- Ghi retrospective Sprint 1 và áp dụng cải tiến đã chọn nếu có.
+- Áp dụng cải tiến từ retrospective Sprint 1: lập bảng bằng chứng khi refinement PB-03, kiểm tra trên mã/UI cuối và cho QA đối chiếu trước khi trình nghiệm thu.
 
 ## Review và retrospective
 

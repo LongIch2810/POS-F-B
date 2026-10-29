@@ -1,4 +1,4 @@
-# Sprint 1 — trạng thái: đang lập kế hoạch, chưa chốt Sprint Backlog
+# Sprint 1 — đã kết thúc; Sprint Goal đạt trong phạm vi local
 
 ## Mục tiêu và phạm vi
 
@@ -95,4 +95,10 @@ Luồng UI và HTTPS local đã được kiểm tra trong [E2E PB-13](../../qa-e
 | PB-02 | API auth và phiên đã kiểm tra trên PostgreSQL QA riêng; cả 5 tiêu chí được QA đối chiếu lại và CI backend/frontend thành công tại SHA mã `51c0673`. | [Bổ sung nghiệm thu](../../qa-evidence/2026-10-29-1327-66c92cb-pb02-acceptance/run.md), [QA cuối](../../qa-evidence/2026-10-29-1523-e317d73-qa-final-audit/run.md), [CI run 40835697546](https://github.com/LongIch2810/POS-F-B/actions/runs/40835697546). | Chấp nhận PB-02 trong phạm vi auth theo yêu cầu Product Owner ngày 2026-10-29. |
 | PB-13 (auth) | UI demo cuối đã nối API auth thật; modal bắt buộc, đổi mật khẩu, khôi phục phiên, logout, phiên bị thu hồi, HTTPS cookie/CSRF, refresh hai tab và tablet ngang đã có artifact browser/API/DB. POS/kho vẫn là demo. | [Browser/API/DB cuối](../../qa-evidence/2026-10-29-1513-e317d73-pb13-final-e2e/run.md), [HTTPS/refresh hai tab](../../qa-evidence/2026-10-29-1430-66c92cb-browser-artifacts/run.md), [QA đối chiếu 3/3](../../qa-evidence/2026-10-29-1523-e317d73-qa-final-audit/run.md). | Chấp nhận PB-13 trong phạm vi local: Product Owner yêu cầu chỉ tick sau khi đủ chứng cứ; QA xác nhận 3/3 ngày 2026-10-29. Chưa nghiệm thu production hoặc CA thực. |
 
-Retrospective chưa diễn ra. Chỉ điền kết quả đã demo/kiểm tra thật; item chưa đạt Definition of Done trở về Product Backlog.
+## Kết luận Sprint 1 — 2026-10-29
+
+**Sprint Goal đạt trong phạm vi local.** Product Owner đã chấp nhận PB-01, PB-02 và lát cắt xác thực của PB-13 như bảng Review; không có item thuộc phạm vi này phải trả lại Product Backlog. API auth và UI auth đã được kiểm tra với PostgreSQL thật, UI cuối và artifact browser/API/DB; POS, kho và các màn vận hành khác vẫn là demo. [QA cuối PB-02/PB-13](../../qa-evidence/2026-10-29-1523-e317d73-qa-final-audit/run.md) đối chiếu đủ 5/5 và 3/3 tiêu chí; [CI backend/frontend](https://github.com/LongIch2810/POS-Food-And-Beverage/actions/runs/40835697546) thành công tại SHA `51c0673`. Sau CI, thay đổi dùng chung response API đã được [kiểm tra local](../../qa-evidence/2026-10-29-1641-edbe318-api-response/run.md) với 5 test đạt. Không suy rộng kết quả này thành kiểm chứng browser CI hay production.
+
+**Retrospective từ hồ sơ task/plan/error và QA:** không có biên bản một buổi họp riêng. Việc chốt spec trước code và kiểm tra PostgreSQL thật giúp phát hiện lỗi phiên/quyền trước nghiệm thu. Vướng mắc lớn là chứng cứ browser ban đầu thiếu trạng thái bắt buộc đổi mật khẩu, logout và phiên hết hiệu lực trên **UI demo cuối**; QA đã phải bỏ tick PB-13 rồi chạy, đối chiếu lại. **Cải tiến cho Sprint 2:** lập bảng tiêu chí → tình huống → artifact ngay khi refinement PB-03 và chỉ trình Product Owner nghiệm thu sau khi QA đối chiếu trên mã/UI cuối. Cách làm này được ghi vào [Sprint 2](../sprint-02/SPRINT.md).
+
+**Việc theo dõi riêng:** [material QA tạm và chứng chỉ self-signed](../../errors/2026-10-29-qa-temp-cleanup-blocked.md) vẫn còn trên máy vì automatic approval review chặn thao tác dọn. Đây là tồn đọng môi trường, không phải bằng chứng PB-01/PB-02/PB-13 chưa đạt; không xóa bằng lệnh rộng hoặc ghi rằng đã dọn. Lượt browser dùng chứng chỉ self-signed và bỏ qua xác thực CA, nên chưa xác minh production.
