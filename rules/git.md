@@ -5,6 +5,7 @@
 ## Nhánh và phạm vi
 
 - Tính năng mới hoặc sửa lỗi trong mã ứng dụng làm trên nhánh riêng, đặt tên ngắn gọn theo mục đích. Kiểm tra nhánh hiện tại và trạng thái working tree trước khi bắt đầu.
+- Đặt tên nhánh theo `<loại>/<mô-tả-ngắn>`: dùng chữ thường, số và dấu `-` trong phần mô tả. Chọn `feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `ci/` hoặc `chore/` theo mục đích chính; ví dụ `feat/sprint-1-auth`, `fix/pb02-review-findings`, `refactor/backend-frontend-structure`. Không tái sử dụng một nhánh cho nhiều việc không liên quan.
 - Giữ thay đổi đúng phạm vi yêu cầu. Không trộn sửa lỗi, đổi định dạng và refactor không liên quan vào cùng một thay đổi nếu có thể tách rõ.
 - Tôn trọng file đã sửa sẵn trong working tree. Không ghi đè, reset hoặc đưa thay đổi của người khác vào commit của mình khi chưa hiểu nguồn gốc.
 
@@ -12,6 +13,7 @@
 
 - Trước khi commit, xem cả danh sách file và diff thực tế; chỉ stage những file thuộc thay đổi của mình. Không dùng lệnh stage toàn bộ khi working tree có thay đổi không liên quan.
 - Mỗi commit thể hiện một thay đổi có mục đích rõ và giữ repository ở trạng thái hợp lệ. Thông điệp commit nói **đã đổi gì và vì sao** bằng lời ngắn gọn.
+- Dùng dạng `<type>(<scope>): <mô tả>` (có thể bỏ `(scope)` khi thay đổi trải nhiều phần). `type` là `feat`, `fix`, `refactor`, `docs`, `test`, `ci` hoặc `chore`; `scope` nêu phần được sửa như `api`, `ui`, `infra`. Viết mô tả ngắn bằng tiếng Anh, bắt đầu bằng động từ, không thêm dấu chấm cuối câu; ví dụ `fix(api): reject invalid login body` hoặc `ci: run migrations before tests`. Nếu lý do hoặc tác động chưa rõ từ tiêu đề, ghi thêm trong phần thân commit.
 - Không commit secret, thông tin cá nhân thật, file tạm, kết quả build hoặc dependency được tạo tự động nếu dự án không chủ động theo dõi chúng. Nếu secret đã vào lịch sử, thu hồi hoặc xoay vòng nó; chỉ xóa ở commit sau không đủ.
 - Chạy kiểm tra phù hợp trước khi coi commit sẵn sàng review; ghi rõ kiểm tra nào chưa chạy và lý do.
 
