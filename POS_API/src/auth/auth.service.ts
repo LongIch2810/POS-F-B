@@ -3,7 +3,7 @@ import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { DataSource, EntityManager } from 'typeorm';
-import { AuthRateEvent, RefreshToken, RolePermission, User } from '../entities';
+import { AuthRateEvent, RefreshToken, RolePermission, User } from '../database/entities';
 
 export interface UserSummary {
   id: string;

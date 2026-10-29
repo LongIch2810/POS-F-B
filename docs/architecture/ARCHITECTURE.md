@@ -62,9 +62,47 @@ Một tiến trình NestJS, một PostgreSQL, các module theo miền nghiệp v
 
 Module được gọi qua service có trách nhiệm rõ ràng; không sửa trực tiếp bảng của module khác từ controller. Thao tác cần nhiều module, đặc biệt **thanh toán/hoàn tất đơn 0đ + trừ kho**, được điều phối trong **một TypeORM transaction** với cùng transaction manager. Không phát job bất đồng bộ cho bước quyết định hóa đơn đã thanh toán hoặc tồn kho đã trừ.
 
+Cấu trúc mã **mục tiêu** theo module nghiệp vụ, tham chiếu [mẫu NestJS chính thức](https://github.com/nestjs/nest/tree/master/sample/01-cats-app/src/cats) (repo NestJS nhiều stars nhất trong nhóm đã khảo sát):
+
+```text
+POS_API/src/
+  main.ts, app.module.ts
+  auth/                         # module đã có: service, http/, security/, tests/
+  database/                     # kết nối, cấu hình TypeORM, migration và entity nền tảng hiện có
+    data-source.ts
+    database.module.ts
+    migrations/
+    entities/
+  <module-nghiệp-vụ>/           # thêm khi triển khai module tương ứng ở bảng trên
+    <module>.module.ts
+    <module>.controller.ts
+    <module>.service.ts
+    dto/                         # chỉ khi module có DTO
+```
+
+Giữ controller, service, DTO, entity và test riêng của một nghiệp vụ gần module sở hữu; phần dùng chung toàn ứng dụng ở cấp ứng dụng hoặc `database/` nếu liên quan DB. `database/entities/` tập hợp các entity nền tảng hiện chưa có module nghiệp vụ riêng; khi triển khai module sở hữu, chuyển entity liên quan về module đó. Không tạo thư mục rỗng theo mẫu. `auth/` và `database/` đã được sắp xếp như cây trên; `<module-nghiệp-vụ>/` là cấu trúc dự kiến khi có mã tương ứng.
+
 ### 5.2 Frontend
 
-React chia theo feature và vai trò; lớp service/API client là ranh giới duy nhất gọi HTTP. Khi nối API, thay nguồn mock ở `src/services`, không để màn hình truy cập `mockEngine` như nguồn thật. Access và refresh token ở hai cookie HttpOnly; browser tự gửi cookie, API kiểm tra Origin/CSRF cho request thay đổi trạng thái và xử lý nhiều request/tab theo [auth.md](auth.md). UI có thể ẩn thao tác theo quyền để dễ dùng, nhưng API luôn kiểm tra lại.
+React chia theo feature và vai trò; lớp service/API client là ranh giới duy nhất gọi HTTP. Khi nối API, thay nguồn mock trong các service, không để màn hình truy cập `mockEngine` như nguồn thật. Access và refresh token ở hai cookie HttpOnly; browser tự gửi cookie, API kiểm tra Origin/CSRF cho request thay đổi trạng thái và xử lý nhiều request/tab theo [auth.md](auth.md). UI có thể ẩn thao tác theo quyền để dễ dùng, nhưng API luôn kiểm tra lại.
+
+Cấu trúc mã **mục tiêu** theo feature, tham chiếu [Bulletproof React cho React + Vite](https://github.com/alan2207/bulletproof-react/tree/master/apps/react-vite/src) và [hướng dẫn cấu trúc của repo](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md) (nhiều stars nhất trong các mẫu React + Vite đã khảo sát):
+
+```text
+POS_UI/src/
+  main.tsx
+  app/                          # App, điều hướng và provider cấp ứng dụng
+  features/                     # auth, pos, invoices, shifts, products, inventory, reports...
+    <feature>/
+      components/               # chỉ khi cần tách component riêng
+      service.ts                 # nếu service chỉ phục vụ feature này
+  components/ui/                # component dùng chung
+  context/, services/           # state và service dùng nhiều feature
+  types/, utils/                # kiểu và hàm dùng chung
+  mock/                         # engine/dữ liệu demo; không phải API thật
+```
+
+Đặt code chỉ thuộc một feature trong feature đó; giữ phần được nhiều feature dùng ở thư mục chung. Feature không phụ thuộc trực tiếp vào feature khác; phần điều phối nằm ở `app/`. Chỉ tạo các thư mục con đang cần, không sao chép toàn bộ cây mẫu hoặc chia nhỏ `mockEngine` chỉ để đổi hình dạng thư mục. Các thư mục `app/` và service riêng từng feature đã được sắp xếp; `<feature>/components/` chỉ là chỗ đặt khi cần tách component, và UI demo vẫn chưa nối API.
 
 Màn POS ưu tiên tablet ngang và cảm ứng; giao diện tiếng Việt, VND nguyên đồng, giờ hiển thị `Asia/Ho_Chi_Minh` từ timestamp lưu UTC. Không dùng trạng thái offline demo để cho phép tạo đơn/thanh toán khi mất mạng. Cách trình bày cụ thể theo [DESIGN.md](../../DESIGN.md).
 

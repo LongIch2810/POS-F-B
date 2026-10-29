@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { NextFunction, Request, Response } from 'express';
 import { ApiErrorFilter } from './api-error.filter';
 import { AuthModule } from './auth/auth.module';
-import { DatabaseModule } from './database.module';
+import { DatabaseModule } from './database/database.module';
 import { HealthController } from './health.controller';
 
 @Module({

@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcryptjs';
 import { DataSource } from 'typeorm';
-import { Role, User } from './entities';
+import { Role, User } from './database/entities';
 
 export async function bootstrapAdmin(db: DataSource): Promise<void> {
   await db.transaction(async (manager) => {

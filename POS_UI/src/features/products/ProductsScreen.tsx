@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { productService, ProductDetailItem } from '../../services/productService';
+import { productService, ProductDetailItem } from './productService';
 import { mockStorage } from '../../mock/mockStorage';
 import { Category, Topping, PromotionCode } from '../../types/entities';
 import { formatVND } from '../../utils/formatters';

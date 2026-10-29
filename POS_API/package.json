@@ -5,8 +5,8 @@
   "scripts": {
     "build": "node ./node_modules/typescript/bin/tsc -p tsconfig.json",
     "start": "node dist/main.js",
-    "migration:run": "npm run build && node ./node_modules/typeorm/cli.js migration:run -d dist/data-source.js",
-    "test": "npm run build && node --test dist/*.test.js dist/auth/tests/*.test.js"
+    "migration:run": "npm run build && node ./node_modules/typeorm/cli.js migration:run -d dist/database/data-source.js",
+    "test": "npm run build && node --test \"dist/**/*.test.js\""
   },
   "dependencies": {
     "@nestjs/common": "^11.2.8",

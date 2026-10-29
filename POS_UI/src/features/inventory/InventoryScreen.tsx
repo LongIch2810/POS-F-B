@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { inventoryService, IngredientStockItem } from '../../services/inventoryService';
+import { inventoryService, IngredientStockItem } from './inventoryService';
 import { MockEngine } from '../../mock/mockEngine';
 import { mockStorage } from '../../mock/mockStorage';
 import { Ingredient } from '../../types/entities';

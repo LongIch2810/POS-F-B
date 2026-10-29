@@ -7,7 +7,7 @@ import { NestFactory } from '@nestjs/core';
 import { DataSource } from 'typeorm';
 import { AppModule } from './app.module';
 import { bootstrapAdmin } from './bootstrap-admin';
-import { dataSource } from './data-source';
+import { dataSource } from './database/data-source';
 
 test('PB-01 migration, bootstrap and database constraints', async () => {
   const databaseName = `pos_pb01_test_${randomBytes(6).toString('hex')}`;

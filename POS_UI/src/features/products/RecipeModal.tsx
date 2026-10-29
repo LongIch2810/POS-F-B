@@ -1,7 +1,7 @@
 // POS-F&B Recipe Modal per BR-48, BR-49 (Supports Product Sizes & Toppings)
 
 import React, { useState, useEffect } from 'react';
-import { productService } from '../../services/productService';
+import { productService } from './productService';
 import { Dialog } from '../../components/ui/Dialog';
 import { Button } from '../../components/ui/Button';
 import { useToast } from '../../context/ToastContext';

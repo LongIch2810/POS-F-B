@@ -8,8 +8,8 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../../app.module';
 import { assertSchemaCurrent } from '../auth-config';
 import { AuthService } from '../auth.service';
-import { dataSource } from '../../data-source';
-import { Foundation20261028000000 } from '../../migrations/20261028000000-Foundation';
+import { dataSource } from '../../database/data-source';
+import { Foundation20261028000000 } from '../../database/migrations/20261028000000-Foundation';
 
 test('PB-02 login creates a hashed refresh session and cookie-only tokens', { timeout: 60_000 }, async () => {
   const name = `pos_pb02_test_${randomBytes(6).toString('hex')}`;

@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { bootstrapAdmin } from './bootstrap-admin';
-import { dataSource } from './data-source';
+import { dataSource } from './database/data-source';
 import { assertSchemaCurrent, validateAuthConfig } from './auth/auth-config';
 import { setupDevelopmentDocs } from './swagger-docs';
 

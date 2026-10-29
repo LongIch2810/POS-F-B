@@ -1,7 +1,7 @@
 // POS Service Layer (API Ready)
 
-import { MockEngine } from '../mock/mockEngine';
-import { mockStorage } from '../mock/mockStorage';
+import { MockEngine } from '../../mock/mockEngine';
+import { mockStorage } from '../../mock/mockStorage';
 import {
   Invoice,
   Category,
@@ -11,7 +11,7 @@ import {
   CategoryTopping,
   DiningTable,
   PaymentMethod,
-} from '../types/entities';
+} from '../../types/entities';
 
 export const posService = {
   getMenuData(storeId: string): {

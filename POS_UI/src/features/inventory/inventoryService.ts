@@ -1,8 +1,8 @@
 // Inventory Service Layer (API Ready)
 
-import { MockEngine } from '../mock/mockEngine';
-import { mockStorage } from '../mock/mockStorage';
-import { Ingredient, BranchIngredientStock, StockMovement } from '../types/entities';
+import { MockEngine } from '../../mock/mockEngine';
+import { mockStorage } from '../../mock/mockStorage';
+import { Ingredient, BranchIngredientStock, StockMovement } from '../../types/entities';
 
 export interface IngredientStockItem {
   ingredient: Ingredient;
