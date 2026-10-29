@@ -1,6 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { Request, Response } from 'express';
+import { errorResponse } from './http/api-response';
 
 const errors: Record<number, { code: string; message: string }> = {
   400: { code: 'BAD_REQUEST', message: 'Yêu cầu không đọc được.' },
@@ -35,8 +36,6 @@ export class ApiErrorFilter implements ExceptionFilter {
       response.setHeader('X-Request-Id', requestId);
       Logger.log(`${request.method} ${request.path} ${status} requestId=${requestId}`, 'HTTP');
     }
-    response.status(status).json({
-      error: { ...error, details, requestId },
-    });
+    response.status(status).json(errorResponse(error, details, String(requestId)));
   }
 }

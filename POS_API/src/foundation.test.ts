@@ -111,6 +111,19 @@ test('PB-01 migration, bootstrap and database constraints', async () => {
       assert.equal(health.status, 200);
       assert.deepEqual(await health.json(), { data: { status: 'ok' } });
       assert.match(health.headers.get('X-Request-Id') ?? '', /^[0-9a-f-]{36}$/);
+      const query = dataSource.query;
+      dataSource.query = async () => { throw new Error('database unavailable'); };
+      try {
+        const unavailable = await fetch(`${baseUrl}/api/v1/health`, { headers: { 'X-Request-Id': 'pb01-health-down' } });
+        assert.equal(unavailable.status, 503);
+        assert.equal(unavailable.headers.get('X-Request-Id'), 'pb01-health-down');
+        assert.deepEqual(await unavailable.json(), {
+          error: { code: 'SERVICE_UNAVAILABLE', message: 'Dịch vụ tạm thời chưa sẵn sàng. Vui lòng thử lại sau.',
+            details: [], requestId: 'pb01-health-down' },
+        });
+      } finally {
+        dataSource.query = query;
+      }
       const missing = await fetch(`${baseUrl}/api/v1/does-not-exist`, { headers: { 'X-Request-Id': 'pb01-test' } });
       assert.equal(missing.status, 404);
       assert.equal(missing.headers.get('X-Request-Id'), 'pb01-test');
