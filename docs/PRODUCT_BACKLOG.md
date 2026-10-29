@@ -2,7 +2,7 @@
 
 **Trạng thái:** bản nháp để Product Owner review. Thứ tự dưới đây là ưu tiên đề xuất cho MVP; chưa phải cam kết sprint hay đặc tả endpoint.
 
-Nguồn phạm vi: [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) mục 5; quy tắc chi tiết ở [BUSINESS_RULES.md](BUSINESS_RULES.md). UI trong `POS_UI/` hiện là demo mock; nền API và PostgreSQL local của PB-01 đã được Product Owner nghiệm thu. Mỗi item cần refinement và spec đã chốt trong `specs/` trước khi code phần tương ứng.
+Nguồn phạm vi: [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) mục 5; quy tắc chi tiết ở [BUSINESS_RULES.md](BUSINESS_RULES.md). PB-01, PB-02 và lát cắt xác thực của PB-13 đã được Product Owner nghiệm thu; UI đăng nhập dùng API thật, các màn vận hành vẫn là demo mock. Mỗi item cần refinement và spec đã chốt trong `specs/` trước khi code phần tương ứng.
 
 ## Product Backlog MVP
 
@@ -26,4 +26,4 @@ Nguồn phạm vi: [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) mục 5; quy tắc
 
 Mỗi PB được tách thành item nhỏ khi refinement. Các mục Giai đoạn 2 và Tùy chọn trong product overview nằm ngoài backlog MVP này.
 
-Kế hoạch Sprint 1: [SPRINT.md](../sprints/sprint-01/SPRINT.md).
+Kế hoạch sprint: [Sprint 1](../sprints/sprint-01/SPRINT.md), [Sprint 2 (đề xuất)](../sprints/sprint-02/SPRINT.md).
