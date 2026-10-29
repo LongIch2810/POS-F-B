@@ -1,13 +1,15 @@
-// POS-F&B Auth Context
-
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { AuthSession } from '../types/auth';
-import { authService } from '../services/authService';
-import { mockStorage } from '../mock/mockStorage';
+import { authService, DEMO_ACCOUNTS } from '../services/authService';
+import * as api from '../auth/client';
+import { toUiSession } from '../auth/session';
+import { notifySessionChange } from '../auth/session-events';
 
 interface AuthContextType {
   session: AuthSession;
   isAuthenticated: boolean;
+  loading: boolean;
+  error: string;
   login: (username: string, password?: string) => Promise<void>;
   logout: () => void;
   switchUser: (userId: string) => Promise<void>;
@@ -16,84 +18,70 @@ interface AuthContextType {
   toggleOffline: () => void;
   resetAllData: () => void;
 }
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<AuthSession>(authService.getCurrentSession());
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem('pos_auth_status') !== 'logged_out';
-  });
-  const [isOffline, setIsOffline] = useState<boolean>(authService.isOffline());
-
+  const [session, setSession] = useState<AuthSession>(null!);
+  const [isAuthenticated, setAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [isOffline, setOffline] = useState(false);
+  const generation = useRef(0);
+  const applyUser = (user: api.AuthUser) => {
+    const demo = DEMO_ACCOUNTS.find(account => account.role_code === user.role);
+    if (demo) void authService.switchDemoUser(demo.id);
+    setSession(toUiSession(user)); setAuthenticated(true);
+  };
   useEffect(() => {
-    // Lắng nghe thay đổi từ mockStorage
-    const unsubscribe = mockStorage.subscribe(() => {
-      setSession(authService.getCurrentSession());
-      setIsOffline(authService.isOffline());
-    });
-    return () => unsubscribe();
+    let active = true;
+    const refresh = () => {
+      const version = ++generation.current;
+      void api.restoreSession().then(user => {
+        if (!active || version !== generation.current) return;
+        if (user) applyUser(user); else setAuthenticated(false);
+        setError('');
+      }).catch(e => {
+        if (!active || version !== generation.current) return;
+        if (e instanceof api.AuthError && (e.code === 'ACCOUNT_DISABLED' || e.code === 'STORE_SUSPENDED')) {
+          setSession(null!);
+          setAuthenticated(false);
+          notifySessionChange('revoked');
+        }
+        setError(e instanceof Error ? e.message : 'Không thể khôi phục phiên.');
+      }).finally(() => { if (active && version === generation.current) setLoading(false); });
+    };
+    const channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('pos-session');
+    if (channel) channel.onmessage = (event) => {
+      if (event.data === 'logout' || event.data === 'revoked') {
+        generation.current++; setSession(null!); setAuthenticated(false); setLoading(false);
+        if (event.data === 'logout') setError('');
+      }
+      else if (event.data === 'login') refresh();
+    };
+    window.addEventListener('focus', refresh);
+    refresh();
+    return () => { active = false; window.removeEventListener('focus', refresh); channel?.close(); };
   }, []);
-
-  const login = async (username: string, password?: string) => {
-    const newSession = await authService.login(username, password);
-    setSession(newSession);
-    localStorage.removeItem('pos_auth_status');
-    setIsAuthenticated(true);
+  const login = async (username: string, password = '') => {
+    const user = await api.login(username, password);
+    generation.current++; applyUser(user); setError(''); notifySessionChange('login');
   };
-
   const logout = () => {
-    localStorage.setItem('pos_auth_status', 'logged_out');
-    setIsAuthenticated(false);
+    void api.logout().then(() => { generation.current++; setAuthenticated(false); setError(''); notifySessionChange('logout'); })
+      .catch(e => setError(e instanceof Error ? e.message : 'Không thể đăng xuất.'));
   };
-
-  const switchUser = async (userId: string) => {
-    const newSession = await authService.switchDemoUser(userId);
-    setSession(newSession);
-    localStorage.removeItem('pos_auth_status');
-    setIsAuthenticated(true);
-  };
-
   const forceChangePassword = async (newPass: string) => {
-    await authService.forceChangePassword(newPass);
-    setSession(authService.getCurrentSession());
+    const user = await api.restoreSession();
+    if (!user) { setAuthenticated(false); throw new Error('Phiên đã hết hiệu lực. Vui lòng đăng nhập lại.'); }
+    await api.changePassword(newPass); generation.current++; setAuthenticated(false); notifySessionChange('logout');
   };
-
-  const toggleOffline = () => {
-    const val = authService.toggleOfflineMode();
-    setIsOffline(val);
-  };
-
-  const resetAllData = () => {
-    authService.resetAllData();
-    setSession(authService.getCurrentSession());
-    setIsAuthenticated(true);
-    setIsOffline(false);
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{
-        session,
-        isAuthenticated,
-        login,
-        logout,
-        switchUser,
-        forceChangePassword,
-        isOffline,
-        toggleOffline,
-        resetAllData,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const switchUser = async (_userId: string) => { throw new Error('Không thể đổi tài khoản demo trong phiên thật.'); };
+  const toggleOffline = () => setOffline(authService.toggleOfflineMode());
+  const resetAllData = () => { authService.resetAllData(); };
+  return <AuthContext.Provider value={{ session, isAuthenticated, loading, error, login, logout, switchUser,
+    forceChangePassword, isOffline, toggleOffline, resetAllData }}>{children}</AuthContext.Provider>;
 };
-
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth phải được dùng bên trong AuthProvider');
-  }
+  if (!context) throw new Error('useAuth phải được dùng bên trong AuthProvider');
   return context;
 };

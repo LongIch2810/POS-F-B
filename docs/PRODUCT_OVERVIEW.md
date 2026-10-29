@@ -193,7 +193,7 @@ Công thức: `tiền kỳ vọng = tiền đầu ca + tiền mặt từ hóa đ
 
 **Tài khoản**
 
-- Không có đăng ký công khai. Tài khoản mới buộc đổi mật khẩu ở lần đăng nhập đầu.
+- Không có đăng ký công khai. Tài khoản mới buộc đổi mật khẩu ở lần đăng nhập đầu, trừ `PLATFORM_ADMIN` được tạo bằng bootstrap.
 - Mật khẩu chỉ lưu dạng băm. Refresh token chỉ lưu hash.
 - Mỗi cửa hàng luôn có ít nhất một `OWNER` đang hoạt động.
 - Cửa hàng `SUSPENDED`: chặn đăng nhập và mọi API của người dùng thuộc cửa hàng, thu hồi refresh token, giữ nguyên dữ liệu.

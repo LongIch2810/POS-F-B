@@ -36,7 +36,7 @@ export async function bootstrapAdmin(db: DataSource): Promise<void> {
       full_name: fullName,
       username,
       password_hash: passwordHash,
-      must_change_password: true,
+      must_change_password: false,
       store_id: null,
       branch_id: null,
       is_active: true,

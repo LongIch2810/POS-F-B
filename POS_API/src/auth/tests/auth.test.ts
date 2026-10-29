@@ -41,6 +41,10 @@ test('PB-02 login rejects a missing Origin before reading credentials', { timeou
       headers: { Cookie: '__Host-pos_access=j:%7B%7D' },
     });
     assert.equal(malformedCookie.status, 401);
+    for (const path of ['/api/v1/auth/register', '/api/v1/register']) {
+      const registration = await fetch(`http://127.0.0.1:${address.port}${path}`, { method: 'POST' });
+      assert.equal(registration.status, 404);
+    }
   } finally {
     await app.close();
   }

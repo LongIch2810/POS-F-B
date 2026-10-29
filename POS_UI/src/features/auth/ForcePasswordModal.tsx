@@ -8,7 +8,7 @@ import { Button } from '../../components/ui/Button';
 import { Lock, LogOut } from 'lucide-react';
 
 export const ForcePasswordModal: React.FC = () => {
-  const { session, forceChangePassword, logout } = useAuth();
+  const { session, forceChangePassword, logout, error: authError } = useAuth();
   const { showToast } = useToast();
 
   const [password, setPassword] = useState('');
@@ -58,8 +58,8 @@ export const ForcePasswordModal: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (password.length < 6) {
-      setError('Mật khẩu mới phải có ít nhất 6 ký tự');
+    if (password.length < 12 || new TextEncoder().encode(password).length > 72) {
+      setError('Mật khẩu mới phải có ít nhất 12 ký tự');
       return;
     }
 
@@ -73,7 +73,7 @@ export const ForcePasswordModal: React.FC = () => {
       await forceChangePassword(password);
       showToast({
         type: 'success',
-        message: 'Đổi mật khẩu lần đầu thành công! Bạn có thể sử dụng hệ thống.',
+        message: 'Đổi mật khẩu thành công. Vui lòng đăng nhập lại.',
       });
     } catch (err: any) {
       setError(err?.message || 'Có lỗi xảy ra khi đổi mật khẩu');
@@ -143,7 +143,7 @@ export const ForcePasswordModal: React.FC = () => {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Field
-            label="Mật khẩu mới (tối thiểu 6 ký tự)"
+            label="Mật khẩu mới (tối thiểu 12 ký tự)"
             type="password"
             autoComplete="new-password"
             placeholder="Nhập mật khẩu mới..."
@@ -163,7 +163,7 @@ export const ForcePasswordModal: React.FC = () => {
             required
           />
 
-          {error && (
+          {(error || authError) && (
             <div
               role="alert"
               style={{
@@ -175,7 +175,7 @@ export const ForcePasswordModal: React.FC = () => {
                 fontWeight: 500,
               }}
             >
-              {error}
+              {error || authError}
             </div>
           )}
 

@@ -31,8 +31,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({
 }) => {
   const { session, isOffline } = useAuth();
   const { showToast } = useToast();
-  const user = session.user;
-  const storeId = user.store_id || 'store-1';
+  const storeId = MockEngine.getCurrentUser().store_id || 'store-1';
   const effectiveBranchId = MockEngine.getEffectiveBranchId();
 
   const [activeTab, setActiveTab] = useState<'menu' | 'tables'>(

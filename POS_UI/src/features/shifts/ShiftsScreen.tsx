@@ -49,7 +49,7 @@ export const ShiftsScreen: React.FC<ShiftsScreenProps> = ({ onNavigateToInvoice 
   const handleCheckInStaff = async () => {
     setIsStaffChecking(true);
     try {
-      await shiftService.checkInStaffShift(session.user.id, effectiveBranchId);
+      await shiftService.checkInStaffShift(MockEngine.getCurrentUser().id, effectiveBranchId);
       showToast({ type: 'success', message: 'Đã check-in bắt đầu ca làm việc nhân viên' });
     } catch (err: any) {
       showToast({ type: 'error', message: err?.message || 'Không thể check-in' });

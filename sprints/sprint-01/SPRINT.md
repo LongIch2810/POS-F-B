@@ -41,19 +41,21 @@ Thứ tự thực hiện, **mỗi phần được làm rõ và chốt spec riên
 - [x] Từ PostgreSQL local trống, migration chạy bằng lệnh riêng và chạy lại không nhân đôi; API không tự chạy migration và không phục vụ khi schema thiếu.
 - [x] Schema auth và constraint được kiểm tra trên PostgreSQL thật: username chuẩn hóa/duy nhất, `token_hash` duy nhất, mỗi phiên tối đa một refresh token chưa thu hồi; mật khẩu và refresh token chỉ lưu hash.
 - [x] Bootstrap từ biến môi trường tạo đúng một `PLATFORM_ADMIN` với `store_id`/`branch_id` là `NULL`, bắt buộc đổi mật khẩu; thiếu/sai biến lần đầu làm startup thất bại, khởi động lại không cần biến và không sửa user cũ. Không có tài khoản hay secret mặc định trong source/log.
+
+  Cập nhật theo quyết định Product Owner: tài khoản bootstrap được tạo với `must_change_password = false`; kết quả nghiệm thu cũ ở trên ghi lại tiêu chí tại thời điểm kiểm thử.
 - [x] `GET /api/v1/health` trả `200` khi DB sẵn sàng, `503` với `SERVICE_UNAVAILABLE` khi DB mất kết nối; truy vấn timeout 5 giây. Lỗi HTTP có envelope và `X-Request-Id`, không lộ thông tin kết nối. Build/test trên DB thật và artifact QA đạt theo [spec PB-01](../../specs/foundation.md).
 
 Các ô trên dành cho **quyết định nghiệm thu của Product Owner**; kết quả kiểm tra kỹ thuật và giới hạn bằng chứng nằm trong bảng Review bên dưới.
 
 ### PB-02 — xác thực và phiên
 
-- [ ] Người dùng được cấp tài khoản đăng nhập đúng mật khẩu; server đặt access token 30 phút và refresh token 7 ngày trong hai cookie HttpOnly riêng, không trả token trong JSON. Refresh token chỉ lưu hash trong DB. Sai tài khoản/mật khẩu, tài khoản bị khóa hoặc store tạm khóa không để lộ tài khoản tồn tại qua thông báo đăng nhập; áp giới hạn thử theo tài liệu auth.
-- [ ] `GET /auth/me` trả danh tính, vai trò, quyền và phạm vi store/branch hiện hành từ DB. Token sai, hết hạn hoặc phiên đã thu hồi bị từ chối; `PLATFORM_ADMIN` không có quyền đọc dữ liệu vận hành store.
-- [ ] Tài khoản mới bị chặn chức năng nghiệp vụ cho đến khi đổi mật khẩu. Đổi mật khẩu thành công bỏ cờ bắt buộc, thu hồi mọi phiên và yêu cầu đăng nhập lại; mật khẩu mới tối thiểu 12 ký tự.
-- [ ] Tải lại trang khi phiên còn hiệu lực đọc danh tính bằng access cookie; khi access cookie hết hạn, refresh đặt cookie mới. Mỗi lần refresh xoay token; dùng lại token đã xoay thu hồi đúng phiên đó. Mọi request ghi sau đăng nhập thiếu/sai Origin hoặc CSRF bị từ chối theo tài liệu auth.
-- [ ] Đăng xuất thu hồi phiên hiện tại ngay; access/refresh token của phiên đó không dùng lại được, phiên thiết bị khác vẫn hoạt động. Không có route đăng ký công khai.
+- [x] Người dùng được cấp tài khoản đăng nhập đúng mật khẩu; server đặt access token 30 phút và refresh token 7 ngày trong hai cookie HttpOnly riêng, không trả token trong JSON. Refresh token chỉ lưu hash trong DB. Sai tài khoản/mật khẩu, tài khoản bị khóa hoặc store tạm khóa không để lộ tài khoản tồn tại qua thông báo đăng nhập; áp giới hạn thử theo tài liệu auth.
+- [x] `GET /auth/me` trả danh tính, vai trò, quyền và phạm vi store/branch hiện hành từ DB. Token sai, hết hạn hoặc phiên đã thu hồi bị từ chối; `PLATFORM_ADMIN` không có quyền đọc dữ liệu vận hành store.
+- [x] Tài khoản mới bị chặn chức năng nghiệp vụ cho đến khi đổi mật khẩu, trừ `PLATFORM_ADMIN` bootstrap theo quyết định Product Owner. Đổi mật khẩu thành công bỏ cờ bắt buộc, thu hồi mọi phiên và yêu cầu đăng nhập lại; mật khẩu mới tối thiểu 12 ký tự.
+- [x] Tải lại trang khi phiên còn hiệu lực đọc danh tính bằng access cookie; khi access cookie hết hạn, refresh đặt cookie mới. Mỗi lần refresh xoay token; dùng lại token đã xoay thu hồi đúng phiên đó. Mọi request ghi sau đăng nhập thiếu/sai Origin hoặc CSRF bị từ chối theo tài liệu auth.
+- [x] Đăng xuất thu hồi phiên hiện tại ngay; access/refresh token của phiên đó không dùng lại được, phiên thiết bị khác vẫn hoạt động. Không có route đăng ký công khai.
 
-**Các tình huống PB-02 đã kiểm thử đạt:** Các ô dưới đây ghi nhận kết quả kỹ thuật theo yêu cầu của Product Owner; các ô tổng hợp phía trên vẫn để trống khi chưa đủ bằng chứng cho toàn bộ nội dung. Bằng chứng là [lần chạy test](../../qa-evidence/2026-10-29-105135-1083cd9-pb02-tests/run.md) và [QA kiểm chứng lại](../../qa-evidence/2026-10-29-105348-1083cd9-qa-recheck/cases.md), đều chạy local.
+**Các tình huống PB-02 đã kiểm thử đạt:** Các ô dưới đây ghi nhận kết quả kỹ thuật. Bằng chứng là [lần chạy test](../../qa-evidence/2026-10-29-105135-1083cd9-pb02-tests/run.md), [QA kiểm chứng lại](../../qa-evidence/2026-10-29-105348-1083cd9-qa-recheck/cases.md) và [bổ sung nghiệm thu](../../qa-evidence/2026-10-29-1327-66c92cb-pb02-acceptance/run.md), đều chạy local.
 
 - [x] Đăng nhập hợp lệ trả `200`, đặt ba cookie, không trả access token trong JSON và chỉ lưu hash refresh token.
 - [x] User bị khóa hoặc store tạm khóa bị từ chối theo trạng thái hiện hành; quyền thay đổi trong DB được kiểm tra lại khi access token còn hạn.
@@ -63,13 +65,13 @@ Các ô trên dành cho **quyết định nghiệm thu của Product Owner**; k�
 - [x] Khi phát sinh lỗi ghi, transaction xoay refresh hoặc đổi mật khẩu được rollback và phiên cũ vẫn sử dụng được.
 - [x] Các trường hợp vượt ngưỡng login và refresh đã kiểm tra trả `429`; login có `Retry-After`. Các trường hợp CSRF thiếu hoặc sai đã kiểm tra bị từ chối.
 
-Chưa kiểm chứng browser HTTPS thật và luồng UI khôi phục phiên. Các tình huống trên được gộp trong một test runner; không phải kết quả CI độc lập.
+Luồng UI và HTTPS local đã được kiểm tra trong [E2E PB-13](../../qa-evidence/2026-10-29-1356-66c92cb-e2e/run.md), dùng chứng chỉ self-signed. Các tình huống API trên được gộp trong một test runner; không phải kết quả CI độc lập.
 
 ### PB-13 — giao diện cho lát cắt auth
 
-- [ ] Màn đăng nhập/đổi mật khẩu gọi API thật; sau đăng nhập lần đầu, người dùng chỉ có thể đổi mật khẩu hoặc đăng xuất. Đổi xong quay về đăng nhập.
-- [ ] Tải lại trang khôi phục phiên hợp lệ; đăng xuất hoặc phiên hết hiệu lực quay về màn đăng nhập. Access token chỉ trong cookie HttpOnly, không xuất hiện trong JSON, JavaScript, localStorage/sessionStorage/URL hay header Bearer.
-- [ ] Không cho tài khoản thật dùng nút đổi tài khoản demo hoặc màn vận hành còn dựa vào mock như chức năng đã triển khai. UI hiển thị lỗi bằng tiếng Việt và thao tác được trên tablet ngang.
+- [x] Màn đăng nhập/đổi mật khẩu gọi API thật; sau đăng nhập lần đầu, người dùng chỉ có thể đổi mật khẩu hoặc đăng xuất. Đổi xong quay về đăng nhập.
+- [x] Tải lại trang khôi phục phiên hợp lệ; đăng xuất hoặc phiên hết hiệu lực quay về màn đăng nhập. Access token chỉ trong cookie HttpOnly, không xuất hiện trong JSON, JavaScript, localStorage/sessionStorage/URL hay header Bearer.
+- [x] Không cho tài khoản thật dùng nút đổi tài khoản demo hoặc màn vận hành còn dựa vào mock như chức năng đã triển khai. UI hiển thị lỗi bằng tiếng Việt và thao tác được trên tablet ngang.
 
 **Bằng chứng nghiệm thu:** chạy build/test và kiểm tra luồng với API + PostgreSQL thật; ghi lệnh, kết quả và artifact vào `qa-evidence/` theo `AGENTS.md`, rồi điền kết quả Product Owner chấp nhận/trả lại vào mục Review bên dưới. UI mock hoặc ảnh màn hình đơn lẻ không chứng minh dữ liệu DB đã đổi.
 
@@ -90,7 +92,7 @@ Chưa kiểm chứng browser HTTPS thật và luồng UI khôi phục phiên. C�
 | PB | Kết quả demo/kiểm tra | Bằng chứng | Quyết định của Product Owner |
 | --- | --- | --- | --- |
 | PB-01 | Đã triển khai; migration, bootstrap, constraint và test tích hợp trên PostgreSQL thật đạt. Health `200`/`503` đã kiểm tra thủ công; lần QA cuối kiểm tra lại test nhưng không ngắt DB. | [QA local ban đầu](../../qa-evidence/20261028-125139-842ba1e/run.md), [QA local cuối](../../qa-evidence/20261028-131159-842ba1e/run.md); chưa có CI độc lập. | Chấp nhận PB-01 — Product Owner xác nhận ngày 2026-10-28 trong cuộc trao đổi này. |
-| PB-02 | API đã triển khai theo [spec auth](../../specs/auth.md), có DTO/OpenAPI, Passport login và cookie-parser; mã được chia theo trách nhiệm trong `POS_API/src/auth/`. Test tích hợp trên PostgreSQL thật đạt. Chưa demo với UI thật hoặc nghiệm thu của Product Owner. | [QA local PB-02](../../qa-evidence/20261028-154810-cdcc096/run.md); chưa có CI độc lập. | Chờ Product Owner nghiệm thu; các ô tiêu chí vẫn để trống. |
-| PB-13 (auth) | Chưa thực hiện | Chưa có | Chưa nghiệm thu |
+| PB-02 | API auth và phiên đã kiểm tra trên PostgreSQL QA riêng; các ranh giới nghiệm thu được bổ sung và test đạt. UI và HTTPS local đã được kiểm tra cùng PB-13. | [QA local PB-02](../../qa-evidence/20261028-154810-cdcc096/run.md), [bổ sung nghiệm thu](../../qa-evidence/2026-10-29-1327-66c92cb-pb02-acceptance/run.md), [E2E](../../qa-evidence/2026-10-29-1356-66c92cb-e2e/run.md); chưa có CI độc lập. | Chấp nhận PB-02 trong phạm vi local theo yêu cầu Product Owner ngày 2026-10-29, sau khi bổ sung bằng chứng. |
+| PB-13 (auth) | UI demo đã nối API auth thật; login, đổi mật khẩu, khôi phục phiên, logout, khóa user/store, bốn vai trò, HTTPS cookie/CSRF và refresh đồng thời hai tab đã kiểm tra local với PostgreSQL QA riêng. POS/kho vẫn là demo. Chứng chỉ HTTPS là self-signed và browser bỏ qua xác thực CA; chưa có CI độc lập. | [QA chạy lại](../../qa-evidence/2026-10-29-qa-recheck-1300-66c92cb/run.md), [E2E browser/API/DB](../../qa-evidence/2026-10-29-1356-66c92cb-e2e/run.md). | Chấp nhận PB-13 trong phạm vi local — Product Owner xác nhận ngày 2026-10-29 trong cuộc trao đổi này. Chưa xác nhận môi trường production. |
 
 Retrospective chưa diễn ra. Chỉ điền kết quả đã demo/kiểm tra thật; item chưa đạt Definition of Done trở về Product Backlog.

@@ -96,6 +96,10 @@ jobs:
         working-directory: POS_UI
         run: npm run build
 
+      - name: Test authentication client
+        working-directory: POS_UI
+        run: npm test
+
       - name: Audit dependencies
         working-directory: POS_UI
         run: npm audit --audit-level=high

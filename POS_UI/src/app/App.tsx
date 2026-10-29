@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { ToastProvider } from '../context/ToastContext';
-import { DemoSwitcher } from '../components/common/DemoSwitcher';
-import { OfflineBar } from '../components/common/OfflineBar';
 import { AppShell, NavTab } from '../components/common/AppShell';
 import { ForcePasswordModal } from '../features/auth/ForcePasswordModal';
 import { LoginScreen } from '../features/auth/LoginScreen';
@@ -33,12 +31,21 @@ const AccessDenied: React.FC<{ message?: string }> = ({ message }) => (
 );
 
 const MainRouter: React.FC = () => {
-  const { session, isAuthenticated } = useAuth();
+  const { session, isAuthenticated, loading, error } = useAuth();
+
+  if (loading) return <div role="status">Đang kiểm tra phiên đăng nhập...</div>;
 
   if (!isAuthenticated) {
     return <LoginScreen />;
   }
 
+  if (session.user.must_change_password) return <ForcePasswordModal />;
+
+  return <AuthenticatedRouter error={error} />;
+};
+
+const AuthenticatedRouter: React.FC<{ error: string }> = ({ error }) => {
+  const { session } = useAuth();
   const isPlatformAdmin = session.user.role_code === 'PLATFORM_ADMIN';
 
   // Quản trị nền tảng chỉ vào tab platform
@@ -169,9 +176,8 @@ const MainRouter: React.FC = () => {
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <DemoSwitcher />
-      <OfflineBar />
-      <ForcePasswordModal />
+      <div role="status" style={{ background: "#fcebc8", color: "#43291a", padding: "8px 16px", textAlign: "center" }}>Các chức năng nghiệp vụ hiện dùng dữ liệu mẫu, chưa kết nối API.</div>
+      {error && <div role="alert">{error}</div>}
 
       <AppShell currentTab={currentTab} onSelectTab={setCurrentTab}>
         {renderContent()}

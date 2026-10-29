@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { adminService } from '../../services/adminService';
 import { mockStorage } from '../../mock/mockStorage';
+import { MockEngine } from '../../mock/mockEngine';
 import { Branch, DiningTable } from '../../types/entities';
 import { User, RoleCode } from '../../types/auth';
 import { formatVND } from '../../utils/formatters';
@@ -30,8 +31,8 @@ import { useToast } from '../../context/ToastContext';
 export const SettingsScreen: React.FC = () => {
   const { session } = useAuth();
   const { showToast } = useToast();
-  const currentUser = session.user;
-  const storeId = currentUser.store_id || 'store-1';
+  const demoUser = MockEngine.getCurrentUser();
+  const storeId = demoUser.store_id || 'store-1';
 
   const canManageBranches = session.permissions.includes('branch.manage');
   const canManageTables = session.permissions.includes('table.manage');
@@ -408,7 +409,7 @@ export const SettingsScreen: React.FC = () => {
       header: 'Thao tác',
       align: 'right',
       render: (u) => {
-        const isSelf = u.id === currentUser.id;
+        const isSelf = u.id === demoUser.id;
         const isOwnerAccount = u.role_code === 'OWNER';
 
         return (

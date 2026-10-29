@@ -83,8 +83,19 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
       const cookies = response.headers.getSetCookie();
       assert.equal(cookies.length, 3);
       assert.ok(cookies.every((cookie) => cookie.includes('Secure') && cookie.includes('SameSite=Strict')));
+      const accessCookie = cookies.find((cookie) => cookie.startsWith('__Host-pos_access='))!;
+      const refreshCookie = cookies.find((cookie) => cookie.startsWith('__Host-pos_refresh='))!;
+      assert.match(accessCookie, /\bHttpOnly\b/i);
+      assert.match(accessCookie, /\bMax-Age=1800\b/i);
+      assert.match(refreshCookie, /\bHttpOnly\b/i);
+      assert.match(refreshCookie, /\bMax-Age=604800\b/i);
+      assert.equal(body.data.expiresIn, 1800);
+      const accessClaims = jwt.verify(accessCookie.split(';')[0].split('=')[1], process.env.JWT_SECRET!) as jwt.JwtPayload;
+      assert.equal(accessClaims.exp! - accessClaims.iat!, 1800);
       assert.equal((await db.query('SELECT count(*)::int AS count FROM refresh_tokens'))[0].count, 1);
       assert.match((await db.query('SELECT token_hash FROM refresh_tokens'))[0].token_hash, /^[a-f0-9]{64}$/);
+      const expiry = (await db.query('SELECT expires_at FROM refresh_tokens LIMIT 1'))[0].expires_at as Date;
+      assert.ok(Math.abs(expiry.getTime() - Date.now() - 604800000) < 30000);
       await db.query(`INSERT INTO users (id, role_id, full_name, username, password_hash)
         SELECT gen_random_uuid(), id, 'Legacy', E'\\tlegacy', $1 FROM roles WHERE name = 'PLATFORM_ADMIN'`, [passwordHash]);
       const legacyLogin = await fetch(`http://127.0.0.1:${port}/api/v1/auth/login`, {
@@ -130,6 +141,25 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
       assert.equal((await suspended.json()).error.code, 'STORE_SUSPENDED');
       await assert.rejects(app.get(AuthService).login('owner', 'owner-password-123', 'owner-ip'),
         (error: any) => error.getResponse().code === 'UNAUTHENTICATED');
+      await db.query("UPDATE users SET is_active = false WHERE username = 'admin'");
+      const loginErrors = [];
+      for (const [username, password] of [
+        ['missing-comparison', 'wrong-password-123'],
+        ['raceuser', 'wrong-password-123'],
+        ['admin', 'temporary-password-12'],
+        ['owner', 'owner-password-123'],
+      ]) {
+        const denied: Response = await fetch(`http://127.0.0.1:${port}/api/v1/auth/login`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', Origin: process.env.PUBLIC_ORIGIN! },
+          body: JSON.stringify({ username, password }),
+        });
+        assert.equal(denied.status, 401);
+        const error = (await denied.json()).error;
+        loginErrors.push({ code: error.code, message: error.message });
+      }
+      for (const error of loginErrors.slice(1)) assert.deepEqual(error, loginErrors[0]);
+      await db.query("UPDATE users SET is_active = true WHERE username = 'admin'");
+      await db.query('DELETE FROM auth_rate_events');
       await db.query("UPDATE stores SET status = 'ACTIVE' WHERE id = $1", [storeId]);
       const malformedAccess = jwt.sign({ sid: '-'.repeat(36), role: 'PLATFORM_ADMIN', storeId: null, branchId: null }, process.env.JWT_SECRET!, {
         algorithm: 'HS256', expiresIn: 1800, subject: body.data.user.id,
@@ -244,11 +274,24 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
       const secondCookies = secondLogin.headers.getSetCookie();
       const secondCookieHeader = secondCookies.map((cookie) => cookie.split(';')[0]).join('; ');
       const secondCsrf = secondCookies.find((cookie) => cookie.startsWith('__Host-pos_csrf='))!.split(';')[0].split('=')[1];
+      const otherFirstLogin = await fetch(`http://127.0.0.1:${port}/api/v1/auth/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Origin: process.env.PUBLIC_ORIGIN! },
+        body: JSON.stringify({ username: 'admin', password: 'temporary-password-12' }),
+      });
+      assert.equal(otherFirstLogin.status, 200);
+      const otherFirstCookies = otherFirstLogin.headers.getSetCookie();
+      const otherFirstHeader = otherFirstCookies.map((cookie) => cookie.split(';')[0]).join('; ');
+      const otherFirstCsrf = otherFirstCookies.find((cookie) => cookie.startsWith('__Host-pos_csrf='))!.split(';')[0].split('=')[1];
       const badCsrf = await fetch(`http://127.0.0.1:${port}/api/v1/auth/change-password`, {
         method: 'POST', headers: { Cookie: secondCookieHeader, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': 'wrong', 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword: 'new-password-12345' }),
       });
       assert.equal(badCsrf.status, 403);
+      const shortPassword = await fetch(`http://127.0.0.1:${port}/api/v1/auth/change-password`, {
+        method: 'POST', headers: { Cookie: secondCookieHeader, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': secondCsrf, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword: '12345678901' }),
+      });
+      assert.equal(shortPassword.status, 422);
       const changed = await fetch(`http://127.0.0.1:${port}/api/v1/auth/change-password`, {
         method: 'POST', headers: { Cookie: secondCookieHeader, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': secondCsrf, 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword: 'new-password-12345' }),
@@ -259,6 +302,31 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
       assert.equal(await bcrypt.compare('new-password-12345', userAfter.password_hash), true);
       const revokedAfterChange = await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: { Cookie: secondCookieHeader } });
       assert.equal(revokedAfterChange.status, 401);
+      assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: { Cookie: otherFirstHeader } })).status, 401);
+      assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/refresh`, {
+        method: 'POST', headers: { Cookie: otherFirstHeader, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': otherFirstCsrf },
+      })).status, 401);
+      assert.equal((await db.query('SELECT count(*)::int AS count FROM refresh_tokens WHERE user_id = $1 AND revoked_at IS NULL', [body.data.user.id]))[0].count, 0);
+      await db.query(`INSERT INTO users (id, role_id, full_name, username, password_hash, must_change_password)
+        SELECT gen_random_uuid(), id, 'Boundary', 'boundary-test', $1, true FROM roles WHERE name = 'PLATFORM_ADMIN'`, [passwordHash]);
+      const boundaryLogin = await fetch(`http://127.0.0.1:${port}/api/v1/auth/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Origin: process.env.PUBLIC_ORIGIN! },
+        body: JSON.stringify({ username: 'boundary-test', password: 'temporary-password-12' }),
+      });
+      assert.equal(boundaryLogin.status, 200);
+      const boundaryCookies = boundaryLogin.headers.getSetCookie();
+      const boundaryHeader = boundaryCookies.map((cookie) => cookie.split(';')[0]).join('; ');
+      const boundaryCsrf = boundaryCookies.find((cookie) => cookie.startsWith('__Host-pos_csrf='))!.split(';')[0].split('=')[1];
+      const boundaryChange = await fetch(`http://127.0.0.1:${port}/api/v1/auth/change-password`, {
+        method: 'POST', headers: { Cookie: boundaryHeader, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': boundaryCsrf, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword: '123456789012' }),
+      });
+      assert.equal(boundaryChange.status, 204);
+      const boundaryRelogin = await fetch(`http://127.0.0.1:${port}/api/v1/auth/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Origin: process.env.PUBLIC_ORIGIN! },
+        body: JSON.stringify({ username: 'boundary-test', password: '123456789012' }),
+      });
+      assert.equal(boundaryRelogin.status, 200);
       const thirdLogin = await fetch(`http://127.0.0.1:${port}/api/v1/auth/login`, {
         method: 'POST', headers: { 'Content-Type': 'application/json', Origin: process.env.PUBLIC_ORIGIN! },
         body: JSON.stringify({ username: 'admin', password: 'new-password-12345' }),
@@ -308,6 +376,13 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
       await db.query(`INSERT INTO role_permissions (role_id, permission_id)
         SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'PLATFORM_ADMIN' AND p.code = 'platform.store.create'`);
       assert.equal((await auth.authorizeAccess(access, 'platform.store.create')).username, 'admin');
+      const updatedMe = await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: { Cookie: thirdCookieHeader } });
+      assert.equal(updatedMe.status, 200);
+      assert.ok((await updatedMe.json()).data.user.permissions.includes('platform.store.create'));
+      await db.query("INSERT INTO permissions (id, code) VALUES (gen_random_uuid(), 'pos.sell')");
+      await db.query(`INSERT INTO role_permissions (role_id, permission_id)
+        SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'PLATFORM_ADMIN' AND p.code = 'pos.sell'`);
+      await assert.rejects(auth.authorizeAccess(access, 'pos.sell'), (error: any) => error.getResponse().code === 'PERMISSION_DENIED');
       const wrongCurrent = await fetch(`http://127.0.0.1:${port}/api/v1/auth/change-password`, {
         method: 'POST', headers: { Cookie: thirdCookieHeader, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': thirdCsrf, 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword: 'another-password-123', currentPassword: 'wrong-password' }),
@@ -335,7 +410,8 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
       assert.ok(Number(limited.headers.get('Retry-After')) > 0);
       await assert.rejects(auth.login('admin', 'wrong-password', 'other-ip'), (error: any) => error.getStatus() === 401);
       await assert.rejects(auth.login('admin', 'new-password-12345', 'third-ip'), (error: any) => error.getStatus() === 429);
-      for (let attempt = 0; attempt < 24; attempt++) {
+      await db.query("DELETE FROM auth_rate_events WHERE scope = 'refresh_ip'");
+      for (let attempt = 0; attempt < 30; attempt++) {
         const invalidRefresh: Response = await fetch(`http://127.0.0.1:${port}/api/v1/auth/refresh`, {
           method: 'POST', headers: { Origin: process.env.PUBLIC_ORIGIN! },
         });
@@ -364,6 +440,21 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
       const deviceB = await loginDevice();
       const headersA = { Cookie: deviceA.cookie, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': deviceA.csrf };
       const headersB = { Cookie: deviceB.cookie, Origin: process.env.PUBLIC_ORIGIN!, 'X-CSRF-Token': deviceB.csrf };
+      for (const route of ['refresh', 'logout', 'change-password']) {
+        for (const variant of ['missing-origin', 'wrong-origin', 'missing-csrf', 'wrong-csrf']) {
+          const headers: Record<string, string> = { Cookie: deviceA.cookie };
+          if (route === 'change-password') headers['Content-Type'] = 'application/json';
+          if (variant !== 'missing-origin') headers.Origin = variant === 'wrong-origin' ? 'http://untrusted.invalid' : process.env.PUBLIC_ORIGIN!;
+          if (variant !== 'missing-csrf') headers['X-CSRF-Token'] = variant === 'wrong-csrf' ? 'wrong' : deviceA.csrf;
+          const denied: Response = await fetch(`http://127.0.0.1:${port}/api/v1/auth/${route}`, {
+            method: 'POST', headers,
+            ...(route === 'change-password' ? { body: JSON.stringify({ currentPassword: 'new-password-12345', newPassword: 'another-password-123' }) } : {}),
+          });
+          assert.equal(denied.status, 403, `${route}: ${variant}`);
+          assert.equal((await denied.json()).error.code, 'CSRF_INVALID', `${route}: ${variant}`);
+        }
+      }
+      assert.equal((await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: headersA })).status, 200);
       const logoutA = await fetch(`http://127.0.0.1:${port}/api/v1/auth/logout`, { method: 'POST', headers: headersA });
       assert.equal(logoutA.status, 204);
       assert.equal(logoutA.headers.getSetCookie().length, 3);

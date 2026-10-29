@@ -56,7 +56,7 @@ Danh sách business rule của hệ thống POS và kho cho quán cà phê (nhi�
 | BR-06 | Chỉ người có quyền mới được tạo tài khoản, khóa tài khoản, đổi vai trò. Không ai được tự khóa hay tự hạ quyền chính mình.                                                                         | MVP |
 | BR-07 | Nhân viên nghỉ việc thì khóa tài khoản, **không xóa** (còn ca và hóa đơn tham chiếu).                                                                                                             | MVP |
 | BR-83 | Người cấp tài khoản chỉ được cấp vai trò **thấp hơn** mình, trong phạm vi cửa hàng và chi nhánh của mình. `PLATFORM_ADMIN` cấp `OWNER`. `OWNER` cấp `MANAGER` và `CASHIER`.                       | MVP |
-| BR-84 | Tài khoản mới (và tài khoản vừa đặt lại mật khẩu) có `must_change_password = true`. Mật khẩu tạm hiển thị đúng một lần cho người cấp. Người dùng phải đổi mật khẩu trước khi dùng chức năng khác. | MVP |
+| BR-84 | Tài khoản mới (và tài khoản vừa đặt lại mật khẩu) có `must_change_password = true`, ngoại trừ tài khoản `PLATFORM_ADMIN` bootstrap được tạo với `false`. Mật khẩu tạm hiển thị đúng một lần cho người cấp. Người dùng có cờ `true` phải đổi mật khẩu trước khi dùng chức năng khác. | MVP |
 | BR-85 | Mỗi cửa hàng luôn có ít nhất một `OWNER` đang hoạt động. Không khóa, xóa hay hạ quyền `OWNER` cuối cùng.                                                                                          | MVP |
 | BR-97 | `username` chuẩn hóa khi lưu và tìm, duy nhất không phân biệt hoa thường trên toàn hệ thống.                                                                                                         | MVP |
 

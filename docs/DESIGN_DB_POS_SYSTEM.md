@@ -628,7 +628,7 @@ Ghi `payments` (nếu có), đổi `invoices.status`, trừ kho nằm trong **m�
 
 **Tài khoản và cửa hàng**
 
-- Không có đăng ký công khai. Tài khoản mới có `must_change_password = true`, mật khẩu tạm chỉ hiển thị một lần, người dùng phải đổi mật khẩu trước khi dùng chức năng khác.
+- Không có đăng ký công khai. Tài khoản mới có `must_change_password = true`, ngoại trừ `PLATFORM_ADMIN` bootstrap có `false`; mật khẩu tạm chỉ hiển thị một lần, người dùng có cờ `true` phải đổi mật khẩu trước khi dùng chức năng khác.
 - Cửa hàng `SUSPENDED`: từ chối đăng nhập và mọi API của người dùng thuộc cửa hàng đó, thu hồi refresh token. Dữ liệu giữ nguyên.
 - Người cấp tài khoản chỉ được cấp vai trò thấp hơn mình, trong phạm vi cửa hàng và chi nhánh của mình. Không khóa, xóa hay hạ quyền `OWNER` cuối cùng của cửa hàng.
 
