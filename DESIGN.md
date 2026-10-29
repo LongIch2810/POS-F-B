@@ -431,7 +431,7 @@ Cửa hàng mới thì trang đầu của chủ cửa hàng hiện danh sách vi
 | Ô nhập                             | Ghi chú giao diện                                                                                                                  |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | Tên chi nhánh, địa chỉ, điện thoại |                                                                                                                                    |
-| Mã chi nhánh                       | 2 đến 10 ký tự. Chú thích: "Dùng làm tiền tố mã hóa đơn, ví dụ NL-20261027-0001" (BR-75)                                           |
+| Mã chi nhánh                       | 2 đến 10 ký tự; dùng để quản lý chi nhánh, không làm tiền tố mã hóa đơn.                                                            |
 | Quỹ tiền ban đầu của két           | Ô nhập tiền. Chú thích: "Là tiền đầu ca của ca thu ngân đầu tiên. Từ ca sau, hệ thống tự lấy từ tiền đã đếm của ca trước." (BR-55) |
 | Trạng thái                         | Ngưng hoạt động thì không mở ca, không tạo đơn mới. Dữ liệu cũ giữ nguyên (BR-76)                                                  |
 
@@ -629,7 +629,7 @@ Lỗi không xin lỗi dài dòng và không nói mơ hồ: nêu việc đã x�
 | Thời lượng           | Giờ và phút bằng chữ                                                                      | `3 giờ 12 phút`, `25 phút` |
 | Múi giờ              | Hiển thị theo `Asia/Ho_Chi_Minh`, lưu UTC                                                 |                            |
 | Số lượng nguyên liệu | Theo đơn vị gốc, tối đa 3 số lẻ, bỏ số 0 thừa                                             | `56 g`, `1,5 l`            |
-| Mã hóa đơn           | Chữ đậm, không ngắt dòng                                                                  | `NL-20261027-0001`         |
+| Mã hóa đơn           | Chữ đậm, không ngắt dòng                                                                  | `HD-A1B2C3D4`             |
 
 Cột số canh phải và dùng chữ số tabular để các hàng thẳng cột.
 
