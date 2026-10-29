@@ -23,7 +23,7 @@ Product Backlog được lưu riêng tại [docs/PRODUCT_BACKLOG.md](../../docs/
 
 **Sprint Goal:** có nền API và một luồng đăng nhập thật để kiểm chứng danh tính/phiên từ PostgreSQL; chưa công bố là sản phẩm bán hàng.
 
-PB-01 đã được triển khai và Product Owner nghiệm thu; PB-02 và PB-13 vẫn là đề xuất, chưa được cam kết trong Sprint Planning. Các ô nghiệm thu chỉ được đánh dấu sau khi có bằng chứng chạy thật và Product Owner xác nhận.
+Tại Sprint Planning ban đầu, PB-01 đã được nghiệm thu còn PB-02/PB-13 vẫn là đề xuất; trạng thái nghiệm thu hiện tại nằm ở bảng Review. Các ô chỉ được đánh dấu sau khi có bằng chứng chạy thật và Product Owner xác nhận.
 
 Thứ tự thực hiện, **mỗi phần được làm rõ và chốt spec riêng trước khi code phần đó**:
 
@@ -65,7 +65,7 @@ Các ô trên dành cho **quyết định nghiệm thu của Product Owner**; k�
 - [x] Khi phát sinh lỗi ghi, transaction xoay refresh hoặc đổi mật khẩu được rollback và phiên cũ vẫn sử dụng được.
 - [x] Các trường hợp vượt ngưỡng login và refresh đã kiểm tra trả `429`; login có `Retry-After`. Các trường hợp CSRF thiếu hoặc sai đã kiểm tra bị từ chối.
 
-Luồng UI và HTTPS local đã được kiểm tra trong [E2E PB-13](../../qa-evidence/2026-10-29-1356-66c92cb-e2e/run.md), dùng chứng chỉ self-signed. Các tình huống API trên được gộp trong một test runner; không phải kết quả CI độc lập.
+Luồng UI và HTTPS local đã được kiểm tra trong [E2E PB-13](../../qa-evidence/2026-10-29-1356-66c92cb-e2e/run.md), dùng chứng chỉ self-signed. Các tình huống API trên được gộp trong một test runner; [CI tại SHA mã `51c0673`](https://github.com/LongIch2810/POS-F-B/actions/runs/40835697546) chạy runner đó thành công, nhưng không chạy browser E2E.
 
 ### PB-13 — giao diện cho lát cắt auth
 
@@ -92,7 +92,7 @@ Luồng UI và HTTPS local đã được kiểm tra trong [E2E PB-13](../../qa-e
 | PB | Kết quả demo/kiểm tra | Bằng chứng | Quyết định của Product Owner |
 | --- | --- | --- | --- |
 | PB-01 | Đã triển khai; migration, bootstrap, constraint và test tích hợp trên PostgreSQL thật đạt. Health `200`/`503` đã kiểm tra thủ công; lần QA cuối kiểm tra lại test nhưng không ngắt DB. | [QA local ban đầu](../../qa-evidence/20261028-125139-842ba1e/run.md), [QA local cuối](../../qa-evidence/20261028-131159-842ba1e/run.md); chưa có CI độc lập. | Chấp nhận PB-01 — Product Owner xác nhận ngày 2026-10-28 trong cuộc trao đổi này. |
-| PB-02 | API auth và phiên đã kiểm tra trên PostgreSQL QA riêng; các ranh giới nghiệm thu được bổ sung và test đạt. UI và HTTPS local đã được kiểm tra cùng PB-13. | [QA local PB-02](../../qa-evidence/20261028-154810-cdcc096/run.md), [bổ sung nghiệm thu](../../qa-evidence/2026-10-29-1327-66c92cb-pb02-acceptance/run.md), [E2E](../../qa-evidence/2026-10-29-1356-66c92cb-e2e/run.md); chưa có CI độc lập. | Chấp nhận PB-02 trong phạm vi local theo yêu cầu Product Owner ngày 2026-10-29, sau khi bổ sung bằng chứng. |
-| PB-13 (auth) | UI demo đã nối API auth thật; login, đổi mật khẩu, khôi phục phiên, logout, khóa user/store, bốn vai trò, HTTPS cookie/CSRF và refresh đồng thời hai tab đã kiểm tra local với PostgreSQL QA riêng. POS/kho vẫn là demo. Chứng chỉ HTTPS là self-signed và browser bỏ qua xác thực CA; chưa có CI độc lập. | [QA chạy lại](../../qa-evidence/2026-10-29-qa-recheck-1300-66c92cb/run.md), [E2E browser/API/DB](../../qa-evidence/2026-10-29-1356-66c92cb-e2e/run.md). | Chấp nhận PB-13 trong phạm vi local — Product Owner xác nhận ngày 2026-10-29 trong cuộc trao đổi này. Chưa xác nhận môi trường production. |
+| PB-02 | API auth và phiên đã kiểm tra trên PostgreSQL QA riêng; cả 5 tiêu chí được QA đối chiếu lại và CI backend/frontend thành công tại SHA mã `51c0673`. | [Bổ sung nghiệm thu](../../qa-evidence/2026-10-29-1327-66c92cb-pb02-acceptance/run.md), [QA cuối](../../qa-evidence/2026-10-29-1523-e317d73-qa-final-audit/run.md), [CI run 40835697546](https://github.com/LongIch2810/POS-F-B/actions/runs/40835697546). | Chấp nhận PB-02 trong phạm vi auth theo yêu cầu Product Owner ngày 2026-10-29. |
+| PB-13 (auth) | UI demo cuối đã nối API auth thật; modal bắt buộc, đổi mật khẩu, khôi phục phiên, logout, phiên bị thu hồi, HTTPS cookie/CSRF, refresh hai tab và tablet ngang đã có artifact browser/API/DB. POS/kho vẫn là demo. | [Browser/API/DB cuối](../../qa-evidence/2026-10-29-1513-e317d73-pb13-final-e2e/run.md), [HTTPS/refresh hai tab](../../qa-evidence/2026-10-29-1430-66c92cb-browser-artifacts/run.md), [QA đối chiếu 3/3](../../qa-evidence/2026-10-29-1523-e317d73-qa-final-audit/run.md). | Chấp nhận PB-13 trong phạm vi local: Product Owner yêu cầu chỉ tick sau khi đủ chứng cứ; QA xác nhận 3/3 ngày 2026-10-29. Chưa nghiệm thu production hoặc CA thực. |
 
 Retrospective chưa diễn ra. Chỉ điền kết quả đã demo/kiểm tra thật; item chưa đạt Definition of Done trở về Product Backlog.
