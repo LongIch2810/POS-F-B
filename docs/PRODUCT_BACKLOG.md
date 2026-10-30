@@ -1,6 +1,6 @@
 # PRODUCT_BACKLOG
 
-**Trạng thái:** Product Backlog còn được refinement. Thứ tự dưới đây là ưu tiên đề xuất cho MVP; cam kết Sprint 2 đã được chốt riêng trong [kế hoạch Sprint 2](../sprints/sprint-02/SPRINT.md). Bảng này không thay thế đặc tả endpoint.
+**Trạng thái:** Product Backlog còn được refinement. Thứ tự dưới đây là ưu tiên đề xuất cho MVP; [Sprint 2 đã kết thúc ngày 30/10/2026](../sprints/sprint-02/SPRINT.md#kết-luận-sprint-2--2026-10-30). Chưa chốt Sprint Backlog tiếp theo. Bảng này không thay thế đặc tả endpoint.
 
 Nguồn phạm vi: [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) mục 5; quy tắc chi tiết ở [BUSINESS_RULES.md](BUSINESS_RULES.md). PB-01, PB-02 và lát cắt xác thực của PB-13 đã được Product Owner nghiệm thu. Ngày30/10/2026, PB-03 và PB-13 lát cắt quản trị nền tảng được nghiệm thu local theo phạm vi và bằng chứng trong [Sprint 2](../sprints/sprint-02/SPRINT.md). UI đăng nhập/quản trị nền tảng dùng API thật, các màn vận hành vẫn là demo mock. Mỗi item cần refinement và spec đã chốt trong `specs/` trước khi code phần tương ứng.
 
@@ -26,4 +26,15 @@ Nguồn phạm vi: [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) mục 5; quy tắc
 
 Mỗi PB được tách thành item nhỏ khi refinement. Các mục Giai đoạn 2 và Tùy chọn trong product overview nằm ngoài backlog MVP này.
 
-Kế hoạch sprint: [Sprint 1](../sprints/sprint-01/SPRINT.md), [Sprint 2 (đã chốt phạm vi)](../sprints/sprint-02/SPRINT.md).
+## Việc theo dõi sau Sprint 2
+
+PB-03 và PB-13 quản trị nền tảng đã nghiệm thu trong phạm vi đã chốt; không có item thuộc phạm vi đó bị trả lại vì không đạt. Các việc dưới tiếp tục theo dependency hoặc phạm vi đã hoãn, chưa phải cam kết Sprint 3:
+
+| Việc | Theo dõi tại | Điều kiện tiếp tục |
+| --- | --- | --- |
+| Chi nhánh, bàn, tài khoản MANAGER/CASHIER và UI thật | PB-04 + PB-13 tương ứng | Refinement và chốt spec tổ chức trước code; PB-04 là ưu tiên đề xuất tiếp theo. |
+| Chặn PLATFORM_ADMIN qua HTTP trên từng API vận hành thật | PB-06 đến PB-12 + PB-13 tương ứng | Kiểm tra khi endpoint ca/bán hàng/kho/thanh toán/báo cáo được triển khai; test context hiện tại không thay thế kiểm tra endpoint này. |
+| UI nhật ký quản trị | Giai đoạn 2 | Chỉ triển khai khi có yêu cầu riêng; backend log BR-86 đã có trong PB-03. |
+| Màn vận hành còn mock; vận hành production và sao lưu | Các lát cắt PB-13 còn lại; PB-14 | Không suy từ nghiệm thu local của auth/platform thành hoàn tất toàn bộ UI hoặc production. |
+
+Hồ sơ sprint: [Sprint 1 (đã kết thúc)](../sprints/sprint-01/SPRINT.md), [Sprint 2 (đã kết thúc)](../sprints/sprint-02/SPRINT.md).

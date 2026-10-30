@@ -1,0 +1,264 @@
+﻿Frontend UI (POS_UI)	Set up job	﻿2026-10-30T03:50:26.7695551Z Current runner version: '2.338.0'
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7717004Z ##[group]Runner Image Provisioner
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7717773Z Hosted Compute Agent
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7718272Z Version: 20261021.618
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7718808Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7719469Z Build Date: 2026-10-21T00:45:21Z
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7720051Z Worker ID: {f6e5615c-42b5-4734-9395-74df6067cadd}
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7720719Z Region: westus
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7721235Z Cloud: Azure
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7721703Z ##[endgroup]
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7722846Z ##[group]Operating System
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7723373Z Ubuntu
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7723897Z 24.04.5
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7724359Z LTS
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7724832Z ##[endgroup]
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7725342Z ##[group]Runner Image
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7725902Z Image: ubuntu-24.04
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7726397Z Version: 20261025.353.1
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7727463Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7728901Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7729738Z ##[endgroup]
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7731017Z ##[group]GITHUB_TOKEN Permissions
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7732785Z Contents: read
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7733365Z Metadata: read
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7733853Z Packages: read
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7734324Z ##[endgroup]
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7736019Z Secret source: Actions
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7737043Z Cache mode: write
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7737686Z Prepare workflow directory
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.7990297Z Prepare all required actions
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:26.8028113Z Getting action download info
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:27.1631888Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:27.2659760Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+Frontend UI (POS_UI)	Set up job	2026-10-30T03:50:27.4616450Z Complete job name: Frontend UI (POS_UI)
+Frontend UI (POS_UI)	Checkout repository	﻿2026-10-30T03:50:27.5510541Z ##[group]Run actions/checkout@v4
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5511230Z with:
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5511629Z   repository: LongIch2810/POS-Food-And-Beverage
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5514916Z   token: ***
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5515271Z   ssh-strict: true
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5515618Z   ssh-user: git
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5515972Z   persist-credentials: true
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5516356Z   clean: true
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5516850Z   sparse-checkout-cone-mode: true
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5517265Z   fetch-depth: 1
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5517609Z   fetch-tags: false
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5517989Z   show-progress: true
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5518341Z   lfs: false
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5518781Z   submodules: false
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5519142Z   set-safe-directory: true
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5519540Z   allow-unsafe-pr-checkout: false
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.5520153Z ##[endgroup]
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8080995Z Syncing repository: LongIch2810/POS-Food-And-Beverage
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8083054Z ##[group]Getting Git version info
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8083884Z Working directory is '/home/runner/work/POS-Food-And-Beverage/POS-Food-And-Beverage'
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8085033Z [command]/usr/bin/git version
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8137207Z git version 2.56.0
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8155795Z ##[endgroup]
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8168912Z Temporarily overriding HOME='/home/runner/work/_temp/b320e690-90a1-4135-a859-a9f4f9b927e9' before making global git config changes
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8173304Z Adding repository directory to the temporary git global config as a safe directory
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8174757Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/POS-Food-And-Beverage/POS-Food-And-Beverage
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8387778Z Deleting the contents of '/home/runner/work/POS-Food-And-Beverage/POS-Food-And-Beverage'
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8397185Z ##[group]Initializing the repository
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8398778Z [command]/usr/bin/git init /home/runner/work/POS-Food-And-Beverage/POS-Food-And-Beverage
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8931670Z hint: Using 'master' as the name for the initial branch. This default branch name
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8933021Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8933842Z hint: to use in all of your new repositories, which will suppress this warning,
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8934511Z hint: call:
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8934862Z hint:
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8935314Z hint: 	git config --global init.defaultBranch <name>
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8935845Z hint:
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8936345Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8937294Z hint: 'development'. The just-created branch can be renamed via this command:
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8938183Z hint:
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8938753Z hint: 	git branch -m <name>
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8939260Z hint:
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8939805Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8940795Z Initialized empty Git repository in /home/runner/work/POS-Food-And-Beverage/POS-Food-And-Beverage/.git/
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8949397Z [command]/usr/bin/git remote add origin https://github.com/LongIch2810/POS-Food-And-Beverage
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8998293Z ##[endgroup]
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.8999017Z ##[group]Disabling automatic garbage collection
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9000865Z [command]/usr/bin/git config --local gc.auto 0
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9036044Z ##[endgroup]
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9036947Z ##[group]Setting up auth
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9041220Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9076325Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9362042Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9398774Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9602735Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9639456Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9840261Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9881075Z ##[endgroup]
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9891402Z ##[group]Fetching the repository
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:27.9893382Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +9cc329977949482966115ef9506434151bb88068:refs/remotes/origin/master
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:28.8789461Z From https://github.com/LongIch2810/POS-Food-And-Beverage
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:28.8791534Z  * [new ref]         9cc329977949482966115ef9506434151bb88068 -> origin/master
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:28.8795548Z ##[endgroup]
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:28.8797114Z ##[group]Determining the checkout info
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:28.8798644Z ##[endgroup]
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:28.8803165Z [command]/usr/bin/git sparse-checkout disable
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:28.8856041Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:28.8889900Z ##[group]Checking out the ref
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:28.8893246Z [command]/usr/bin/git checkout --progress --force -B master refs/remotes/origin/master
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:29.1474586Z Reset branch 'master'
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:29.1477658Z branch 'master' set up to track 'origin/master'.
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:29.1498326Z ##[endgroup]
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:29.1544616Z [command]/usr/bin/git log -1 --format=%H
+Frontend UI (POS_UI)	Checkout repository	2026-10-30T03:50:29.1574008Z 9cc329977949482966115ef9506434151bb88068
+Frontend UI (POS_UI)	Setup Node.js 22	﻿2026-10-30T03:50:29.1895817Z ##[group]Run actions/setup-node@v4
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.1896900Z with:
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.1897597Z   node-version: 22
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.1898339Z   cache: npm
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.1899402Z   cache-dependency-path: POS_UI/package-lock.json
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.1900482Z   always-auth: false
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.1901275Z   check-latest: false
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.1909409Z   token: ***
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.1910126Z ##[endgroup]
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.3100304Z Found in cache @ /opt/hostedtoolcache/node/22.23.4/x64
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.3103640Z (node:2067) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.3107050Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.3109879Z ##[group]Environment details
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.6203674Z node: v22.23.4
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.6204822Z npm: 10.9.9
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.6205603Z yarn: 1.22.22
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.6207418Z ##[endgroup]
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.6220688Z [command]/opt/hostedtoolcache/node/22.23.4/x64/bin/npm config get cache
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.7142547Z /home/runner/.npm
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:29.9918855Z Cache hit for: node-cache-Linux-x64-npm-62cc39459966be8fb86b8550037f318e5bdf0505e26e1700844954a5cd2226f7
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:30.0079739Z (node:2067) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:31.1785376Z Received 19690191 of 19690191 (100.0%), 20.4 MBs/sec
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:31.1785883Z Cache Size: ~19 MB (19690191 B)
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:31.1805205Z [command]/usr/bin/tar -xf /home/runner/work/_temp/dac4e37e-6ed6-4c26-b2a5-0d07118a3850/cache.tzst -P -C /home/runner/work/POS-Food-And-Beverage/POS-Food-And-Beverage --use-compress-program unzstd
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:31.2192570Z Cache restored successfully
+Frontend UI (POS_UI)	Setup Node.js 22	2026-10-30T03:50:31.2204905Z Cache restored from key: node-cache-Linux-x64-npm-62cc39459966be8fb86b8550037f318e5bdf0505e26e1700844954a5cd2226f7
+Frontend UI (POS_UI)	Install dependencies	﻿2026-10-30T03:50:31.2379760Z ##[group]Run npm ci
+Frontend UI (POS_UI)	Install dependencies	2026-10-30T03:50:31.2380004Z ^[[36;1mnpm ci^[[0m
+Frontend UI (POS_UI)	Install dependencies	2026-10-30T03:50:31.2406503Z shell: /usr/bin/bash -e {0}
+Frontend UI (POS_UI)	Install dependencies	2026-10-30T03:50:31.2406995Z ##[endgroup]
+Frontend UI (POS_UI)	Install dependencies	2026-10-30T03:50:33.7689985Z 
+Frontend UI (POS_UI)	Install dependencies	2026-10-30T03:50:33.7697531Z added 73 packages, and audited 74 packages in 2s
+Frontend UI (POS_UI)	Install dependencies	2026-10-30T03:50:33.7697941Z 
+Frontend UI (POS_UI)	Install dependencies	2026-10-30T03:50:33.7698206Z 9 packages are looking for funding
+Frontend UI (POS_UI)	Install dependencies	2026-10-30T03:50:33.7698632Z   run `npm fund` for details
+Frontend UI (POS_UI)	Install dependencies	2026-10-30T03:50:33.7699332Z 
+Frontend UI (POS_UI)	Install dependencies	2026-10-30T03:50:33.7699525Z found 0 vulnerabilities
+Frontend UI (POS_UI)	Typecheck and build production bundle	﻿2026-10-30T03:50:33.8156460Z ##[group]Run npm run build
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:33.8156981Z ^[[36;1mnpm run build^[[0m
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:33.8175072Z shell: /usr/bin/bash -e {0}
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:33.8175290Z ##[endgroup]
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:33.8982478Z 
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:33.8983216Z > pos-ui@0.1.0 build
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:33.8983879Z > node ./node_modules/typescript/bin/tsc --noEmit && node ./node_modules/vite/bin/vite.js build
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:33.8984190Z 
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:37.1482260Z ^[[36mvite v6.4.5 ^[[32mbuilding for production...^[[36m^[[39m
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:37.2024662Z transforming...
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:38.7643269Z ^[[32m✓^[[39m 1998 modules transformed.
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:38.9157672Z rendering chunks...
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:38.9224488Z computing gzip size...
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:38.9342174Z ^[[2mdist/^[[22m^[[32mindex.html                 ^[[39m^[[1m^[[2m  0.91 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   0.51 kB^[[22m
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:38.9342936Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[35mindex-C5HvmAWt.css  ^[[39m^[[1m^[[2m  4.28 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   1.56 kB^[[22m
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:38.9343788Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mindex-TnCzwzPk.js   ^[[39m^[[1m^[[2m438.06 kB^[[22m^[[1m^[[22m^[[2m │ gzip: 108.94 kB^[[22m
+Frontend UI (POS_UI)	Typecheck and build production bundle	2026-10-30T03:50:38.9344435Z ^[[32m✓ built in 1.76s^[[39m
+Frontend UI (POS_UI)	Test authentication client	﻿2026-10-30T03:50:38.9755776Z ##[group]Run npm test
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:38.9756004Z ^[[36;1mnpm test^[[0m
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:38.9773477Z shell: /usr/bin/bash -e {0}
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:38.9773695Z ##[endgroup]
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.0543115Z 
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.0544000Z > pos-ui@0.1.0 test
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.0544423Z > node --experimental-strip-types --test test/*.test.mjs
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.0544647Z 
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.0967978Z TAP version 13
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2395083Z # Subtest: BR-03: proxy errors without JSON show a Vietnamese error
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2448087Z ok 1 - BR-03: proxy errors without JSON show a Vietnamese error
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2467346Z   ---
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2482416Z   duration_ms: 37.219861
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2497328Z   type: 'test'
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2507190Z   ...
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2510244Z # Subtest: locked account and suspended store errors stop session restore without refresh
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2511341Z ok 2 - locked account and suspended store errors stop session restore without refresh
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2512363Z   ---
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2533192Z   duration_ms: 1.452271
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2533756Z   type: 'test'
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2534271Z   ...
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2535017Z # Subtest: login sends credentials to same-origin API without bearer
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2537495Z ok 3 - login sends credentials to same-origin API without bearer
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2538153Z   ---
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2547585Z   duration_ms: 1.250432
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2554247Z   type: 'test'
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2554848Z   ...
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2555452Z # Subtest: expired access restores csrf and refreshes before fetching identity
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2556276Z ok 4 - expired access restores csrf and refreshes before fetching identity
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2557034Z   ---
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2557296Z   duration_ms: 2.306006
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2557599Z   type: 'test'
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2557858Z   ...
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2558401Z # Subtest: password change sends csrf and no current password for first change
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2559220Z ok 5 - password change sends csrf and no current password for first change
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2559734Z   ---
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2559986Z   duration_ms: 0.740046
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2560320Z   type: 'test'
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2560620Z   ...
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2561140Z # Subtest: real session preserves identity and permissions for existing UI
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2561894Z ok 6 - real session preserves identity and permissions for existing UI
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2562378Z   ---
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2562633Z   duration_ms: 1.743522
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2562926Z   type: 'test'
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2563185Z   ...
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2563568Z # Subtest: session logout publishes a notification
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2564082Z ok 7 - session logout publishes a notification
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2564472Z   ---
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2564731Z   duration_ms: 0.93836
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2565024Z   type: 'test'
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.2565287Z   ...
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.5925589Z # Subtest: PB-03 late mutation refresh cannot replace OWNER cursor after changing tabs
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.5928095Z ok 8 - PB-03 late mutation refresh cannot replace OWNER cursor after changing tabs
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.5928681Z   ---
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.5928946Z   duration_ms: 5.601938
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.5929235Z   type: 'test'
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.5929479Z   ...
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6078529Z # Subtest: PB-03 platform request refreshes expired access once and retries
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6079378Z ok 9 - PB-03 platform request refreshes expired access once and retries
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6079843Z   ---
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6080113Z   duration_ms: 39.365333
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6080402Z   type: 'test'
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6080571Z   ...
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6082105Z # Subtest: PB-03 platform request clears revoked session
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6082496Z ok 10 - PB-03 platform request clears revoked session
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6082736Z   ---
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6082911Z   duration_ms: 1.993413
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6083162Z   type: 'test'
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6083436Z   ...
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6083977Z 1..10
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6084145Z # tests 10
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6084312Z # suites 0
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6084475Z # pass 10
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6084642Z # fail 0
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6084798Z # cancelled 0
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6084970Z # skipped 0
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6085126Z # todo 0
+Frontend UI (POS_UI)	Test authentication client	2026-10-30T03:50:39.6085306Z # duration_ms 525.839972
+Frontend UI (POS_UI)	Audit dependencies	﻿2026-10-30T03:50:39.6215615Z ##[group]Run npm audit --audit-level=high
+Frontend UI (POS_UI)	Audit dependencies	2026-10-30T03:50:39.6215914Z ^[[36;1mnpm audit --audit-level=high^[[0m
+Frontend UI (POS_UI)	Audit dependencies	2026-10-30T03:50:39.6233986Z shell: /usr/bin/bash -e {0}
+Frontend UI (POS_UI)	Audit dependencies	2026-10-30T03:50:39.6234213Z ##[endgroup]
+Frontend UI (POS_UI)	Audit dependencies	2026-10-30T03:50:39.9277990Z found 0 vulnerabilities
+Frontend UI (POS_UI)	Post Setup Node.js 22	﻿2026-10-30T03:50:39.9431435Z Post job cleanup.
+Frontend UI (POS_UI)	Post Setup Node.js 22	2026-10-30T03:50:40.0425812Z (node:2250) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Frontend UI (POS_UI)	Post Setup Node.js 22	2026-10-30T03:50:40.0426526Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Frontend UI (POS_UI)	Post Setup Node.js 22	2026-10-30T03:50:40.0429362Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-62cc39459966be8fb86b8550037f318e5bdf0505e26e1700844954a5cd2226f7, not saving cache.
+Frontend UI (POS_UI)	Post Checkout repository	﻿2026-10-30T03:50:40.0580530Z Post job cleanup.
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.1279884Z [command]/usr/bin/git version
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.1318428Z git version 2.56.0
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.1352165Z Temporarily overriding HOME='/home/runner/work/_temp/fbd5fda0-203c-4354-b3e6-0ab958c706a2' before making global git config changes
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.1353358Z Adding repository directory to the temporary git global config as a safe directory
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.1357419Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/POS-Food-And-Beverage/POS-Food-And-Beverage
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.1626856Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.1661963Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.1887323Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.1917903Z http.https://github.com/.extraheader
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.1928006Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.2322543Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.2584376Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Frontend UI (POS_UI)	Post Checkout repository	2026-10-30T03:50:40.2626265Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Frontend UI (POS_UI)	Complete job	﻿2026-10-30T03:50:40.3007922Z Cleaning up orphan processes
+Frontend UI (POS_UI)	Complete job	2026-10-30T03:50:40.3326364Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
