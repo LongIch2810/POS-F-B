@@ -106,7 +106,7 @@ Quy ước chung của REST API cho hệ thống POS và kho. File này **chỉ 
 | ----------------------------- | --------------------------------------------------------------------------------------- | -------------------------- |
 | `must_change_password = true` | Route nghiệp vụ trả `403`; chỉ cho `/auth/change-password`, `/auth/logout`, `/auth/me`, `/auth/refresh`, `/auth/csrf` | `PASSWORD_CHANGE_REQUIRED` |
 | Tài khoản `isActive = false`  | Từ chối đăng nhập và mọi route (BR-02); login báo lỗi chung                              | `ACCOUNT_DISABLED` trên route đã xác thực |
-| Cửa hàng `SUSPENDED`          | Từ chối đăng nhập và mọi route của người dùng thuộc cửa hàng (BR-82); login báo lỗi chung | `STORE_SUSPENDED` trên route đã xác thực |
+| Cửa hàng `SUSPENDED`          | Từ chối đăng nhập và mọi route của người dùng thuộc cửa hàng (BR-82); login báo lỗi chung; khóa store thu hồi phiên nên cookie cũ trả `401 UNAUTHENTICATED` | `STORE_SUSPENDED` nếu phiên còn hiệu lực khi kiểm tra trạng thái |
 | Access cookie còn được gửi nhưng JWT hết hạn | `401`; client thử `/auth/refresh` một lần                                        | `TOKEN_EXPIRED`            |
 | Thiếu hoặc sai access cookie | `401`; client có thể thử `/auth/refresh` một lần vì browser tự bỏ cookie hết hạn           | `UNAUTHENTICATED`          |
 
@@ -127,6 +127,7 @@ Quy ước chung của REST API cho hệ thống POS và kho. File này **chỉ 
 ### Ngữ cảnh cửa hàng (tenant)
 
 - `storeId` **luôn lấy từ danh tính hiện hành sau khi xác minh access cookie và phiên**. Không route nào nhận `storeId` từ body, query hay header để quyết định phạm vi dữ liệu (BR-80).
+- Ngoại lệ về đối tượng quản trị: `POST /users` cấp OWNER theo spec platform nhận `storeId` làm store đích do admin quản trị; chỉ danh tính platform không có tenant và có permission tương ứng được dùng. Giá trị này không thay thế tenant context hay cấp quyền đọc dữ liệu vận hành.
 - Mọi truy vấn dữ liệu thuộc cửa hàng đều lọc theo `storeId` (trực tiếp hoặc qua `branch_id`, `category_id`).
 - Mọi `id` trong request (món, size, topping, nguyên liệu, mã giảm giá, chi nhánh, bàn...) phải thuộc cùng cửa hàng với người gọi. Không thuộc thì trả `404` (không tiết lộ là tồn tại ở cửa hàng khác).
 - Bảng nối (`category_toppings`, công thức) phải có hai đầu cùng cửa hàng.

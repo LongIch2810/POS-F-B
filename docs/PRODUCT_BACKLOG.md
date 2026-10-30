@@ -1,8 +1,8 @@
 # PRODUCT_BACKLOG
 
-**Trạng thái:** bản nháp để Product Owner review. Thứ tự dưới đây là ưu tiên đề xuất cho MVP; chưa phải cam kết sprint hay đặc tả endpoint.
+**Trạng thái:** Product Backlog còn được refinement. Thứ tự dưới đây là ưu tiên đề xuất cho MVP; cam kết Sprint 2 đã được chốt riêng trong [kế hoạch Sprint 2](../sprints/sprint-02/SPRINT.md). Bảng này không thay thế đặc tả endpoint.
 
-Nguồn phạm vi: [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) mục 5; quy tắc chi tiết ở [BUSINESS_RULES.md](BUSINESS_RULES.md). PB-01, PB-02 và lát cắt xác thực của PB-13 đã được Product Owner nghiệm thu; UI đăng nhập dùng API thật, các màn vận hành vẫn là demo mock. Mỗi item cần refinement và spec đã chốt trong `specs/` trước khi code phần tương ứng.
+Nguồn phạm vi: [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) mục 5; quy tắc chi tiết ở [BUSINESS_RULES.md](BUSINESS_RULES.md). PB-01, PB-02 và lát cắt xác thực của PB-13 đã được Product Owner nghiệm thu. Ngày30/10/2026, PB-03 và PB-13 lát cắt quản trị nền tảng được nghiệm thu local theo phạm vi và bằng chứng trong [Sprint 2](../sprints/sprint-02/SPRINT.md). UI đăng nhập/quản trị nền tảng dùng API thật, các màn vận hành vẫn là demo mock. Mỗi item cần refinement và spec đã chốt trong `specs/` trước khi code phần tương ứng.
 
 ## Product Backlog MVP
 
@@ -26,4 +26,4 @@ Nguồn phạm vi: [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) mục 5; quy tắc
 
 Mỗi PB được tách thành item nhỏ khi refinement. Các mục Giai đoạn 2 và Tùy chọn trong product overview nằm ngoài backlog MVP này.
 
-Kế hoạch sprint: [Sprint 1](../sprints/sprint-01/SPRINT.md), [Sprint 2 (đề xuất)](../sprints/sprint-02/SPRINT.md).
+Kế hoạch sprint: [Sprint 1](../sprints/sprint-01/SPRINT.md), [Sprint 2 (đã chốt phạm vi)](../sprints/sprint-02/SPRINT.md).

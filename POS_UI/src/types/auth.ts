@@ -3,6 +3,12 @@
 export type RoleCode = 'PLATFORM_ADMIN' | 'OWNER' | 'MANAGER' | 'CASHIER';
 
 export type PermissionCode =
+  | 'store.read'
+  | 'store.create'
+  | 'store.suspend'
+  | 'user.read_owner'
+  | 'user.create_owner'
+  | 'user.reset_owner_password'
   | 'store.manage' // Quản lý tạo/khóa store (chỉ PLATFORM_ADMIN)
   | 'role.manage_permissions' // Chỉnh sửa quyền dùng chung (chỉ PLATFORM_ADMIN)
   | 'branch.access_all' // Xem toàn bộ chi nhánh của store (chỉ OWNER)

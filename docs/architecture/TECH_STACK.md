@@ -20,11 +20,11 @@ File này ghi **công nghệ đã có trong mã hoặc cấu hình repository**;
 
 | Công nghệ | Vai trò hiện tại |
 | --- | --- |
-| React 18, React DOM 18, TypeScript 5 | UI demo chạy với dữ liệu mô phỏng trong browser |
+| React 18, React DOM 18, TypeScript 5 | UI xác thực và quản trị nền tảng dùng API thật; các màn vận hành còn dữ liệu mô phỏng |
 | Vite 6, plugin React | Dev server và build UI |
 | `lucide-react` | Icon giao diện |
 
-UI demo chưa nối với API PB-02; luồng thật thuộc PB-13.
+PB-13 đã nối luồng xác thực PB-02 và màn quản trị nền tảng PB-03 với API; các lát cắt vận hành khác vẫn là demo.
 
 ## Infrastructure — `POS_INFRA/`
 

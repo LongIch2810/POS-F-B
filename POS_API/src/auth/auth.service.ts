@@ -3,7 +3,7 @@ import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { DataSource, EntityManager } from 'typeorm';
-import { AuthRateEvent, RefreshToken, RolePermission, User } from '../database/entities';
+import { AuthRateEvent, RefreshToken, RolePermission, Store, User } from '../database/entities';
 
 export interface UserSummary {
   id: string;
@@ -119,7 +119,9 @@ export class AuthService {
         password,
         user?.password_hash ?? '$2b$12$u4II0P7LcnkphS2i0FfA7uN9lNZhpF.pQZwQlJS9GGWZrFYW7L5kK',
       );
-      if (!matches || !user?.is_active || user.store?.status === 'SUSPENDED') {
+      const store = user?.store_id ? await manager.getRepository(Store).createQueryBuilder('s')
+        .where('s.id = :id', { id: user.store_id }).setLock('pessimistic_read').getOne() : null;
+      if (!matches || !user?.is_active || store?.status === 'SUSPENDED') {
         await this.recordRate(manager, 'login_ip', keys[0]);
         await this.recordRate(manager, 'login_username', keys[1]);
         return undefined;
@@ -185,11 +187,16 @@ export class AuthService {
     return this.summary(user);
   }
 
-  async authorizeAccess(token: string | undefined, permission: string): Promise<UserSummary> {
-    const { user } = await this.authenticateAccess(token);
+  async authorizeAccess(token: string | undefined, permission: string, csrfHeader?: string, csrfCookie?: string): Promise<UserSummary> {
+    const { user, claims } = await this.authenticateAccess(token);
+    if (csrfHeader !== undefined || csrfCookie !== undefined) this.checkCsrf(claims.sid, csrfHeader, csrfCookie);
     if (user.must_change_password) throw authError(403, 'PASSWORD_CHANGE_REQUIRED', 'Bạn cần đổi mật khẩu trước khi tiếp tục.');
     const summary = await this.summary(user);
-    if ((summary.role === 'PLATFORM_ADMIN' && !permission.startsWith('platform.')) || !summary.permissions.includes(permission)) {
+    const platformPermissions = new Set(['store.read', 'store.create', 'store.suspend',
+      'user.read_owner', 'user.create_owner', 'user.reset_owner_password']);
+    if ((summary.storeId === null && !platformPermissions.has(permission))
+      || (summary.storeId !== null && platformPermissions.has(permission))
+      || !summary.permissions.includes(permission)) {
       throw authError(403, 'PERMISSION_DENIED', 'Bạn không có quyền thực hiện thao tác này.');
     }
     return summary;
@@ -229,6 +236,10 @@ export class AuthService {
         .select('u.id')
         .getOne();
 
+      const userForStore = await userRepo.findOne({ where: { id: metadata.user_id }, select: ['store_id'] });
+      const store = userForStore?.store_id ? await manager.getRepository(Store).createQueryBuilder('s')
+        .where('s.id = :id', { id: userForStore.store_id }).setLock('pessimistic_read').getOne() : null;
+
       await manager.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [metadata.session_id]);
 
       const row = await rtRepo.createQueryBuilder('rt')
@@ -253,7 +264,7 @@ export class AuthService {
 
       if (row.revoked_at || row.expires_at <= new Date()) return { kind: 'invalid' as const };
       if (!row.user!.is_active) return { kind: 'disabled' as const };
-      if (row.user!.store?.status === 'SUSPENDED') return { kind: 'suspended' as const };
+      if (store?.status === 'SUSPENDED') return { kind: 'suspended' as const };
 
       const now = new Date();
       await rtRepo.update(row.id, { revoked_at: now, replaced_at: now });

@@ -383,6 +383,8 @@ Chỉ số báo cáo là một hàng gọn: nhãn nhỏ phía trên, số ở d�
 
 ### 5.8 Khu quản trị nền tảng (`PLATFORM_ADMIN`)
 
+Phạm vi triển khai PB-03 chốt ngày 30/10/2026: dùng hai tab Cửa hàng/Chủ quán trong UI hiện có; hoàn thiện xác nhận lưu mật khẩu tạm. Màn Nhật ký và thông tin chi nhánh bên dưới chuyển sang lát cắt tương ứng; MVP PB-03 vẫn ghi log backend theo BR-86.
+
 Khung riêng, thanh trên ghi "Quản trị nền tảng", không có bộ chọn chi nhánh. Rail chỉ có **Cửa hàng** và **Nhật ký** (BR-86, MVP ghi log đơn giản). **Không có số liệu vận hành** (hóa đơn, ca, kho, doanh thu) ở bất kỳ màn hình nào (BR-81).
 
 | Màn hình               | Nội dung                                                                                                                        |
