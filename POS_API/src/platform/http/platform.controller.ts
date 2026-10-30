@@ -1,31 +1,31 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { AccessGuard, AuthenticatedRequest, RequirePermission } from '../auth/security/access.guard';
-import { authError } from '../auth/auth.service';
-import { dataResponse } from '../http/api-response';
+import { httpError } from '../../http/http-error';
+import { AccessGuard, AuthenticatedRequest, RequirePermission } from '../../auth/security/access.guard';
+import { dataResponse } from '../../http/api-response';
 import { CreateOwnerDto, CreateStoreDto, platformValidationPipe, SuspendStoreDto } from './platform.dto';
-import { PlatformService } from './platform.service';
-import { platformPage } from './platform.pagination';
+import { PlatformService } from '../platform.service';
+import { platformPage } from '../platform.pagination';
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function validId(id: string): string {
-  if (!uuid.test(id)) throw authError(422, 'VALIDATION_ERROR', 'Mã tài nguyên không hợp lệ.');
+  if (!uuid.test(id)) throw httpError(422, 'VALIDATION_ERROR', 'Mã tài nguyên không hợp lệ.');
   return id;
 }
 
 function noInput(request: Request, query: boolean): void {
   if ((!query && Object.keys(request.query).length) || request.body !== undefined
     || Number(request.header('Content-Length')) > 0 || request.header('Transfer-Encoding')) {
-    throw authError(422, 'VALIDATION_ERROR', 'Dữ liệu gửi lên không hợp lệ.');
+    throw httpError(422, 'VALIDATION_ERROR', 'Dữ liệu gửi lên không hợp lệ.');
   }
 }
 
 function jsonInput(request: Request): void {
-  if (Object.keys(request.query).length) throw authError(422, 'VALIDATION_ERROR', 'Dữ liệu gửi lên không hợp lệ.');
+  if (Object.keys(request.query).length) throw httpError(422, 'VALIDATION_ERROR', 'Dữ liệu gửi lên không hợp lệ.');
   if (request.header('Content-Type')?.split(';')[0] !== 'application/json') {
-    throw authError(400, 'BAD_REQUEST', 'Yêu cầu không đọc được.');
+    throw httpError(400, 'BAD_REQUEST', 'Yêu cầu không đọc được.');
   }
 }
 

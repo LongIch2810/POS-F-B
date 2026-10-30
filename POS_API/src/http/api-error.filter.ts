@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { Request, Response } from 'express';
-import { errorResponse } from './http/api-response';
+import { errorResponse } from './api-response';
 
 const errors: Record<number, { code: string; message: string }> = {
   400: { code: 'BAD_REQUEST', message: 'Yêu cầu không đọc được.' },

@@ -3,7 +3,12 @@ import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { DataSource, EntityManager } from 'typeorm';
-import { AuthRateEvent, RefreshToken, RolePermission, Store, User } from '../database/entities';
+import { httpError } from '../http/http-error';
+import { AuthRateEvent } from './entities/auth-rate-event.entity';
+import { RefreshToken } from './entities/refresh-token.entity';
+import { RolePermission } from './entities/role-permission.entity';
+import { Store } from '../platform/entities/store.entity';
+import { User } from './entities/user.entity';
 
 export interface UserSummary {
   id: string;
@@ -17,10 +22,6 @@ export interface UserSummary {
 }
 
 type AccessClaims = jwt.JwtPayload & { sub: string; sid: string };
-
-export function authError(status: number, code: string, message: string): HttpException {
-  return new HttpException({ code, message }, status);
-}
 
 export const tokenHash = (token: string): string => createHash('sha256').update(token).digest('hex');
 
@@ -140,7 +141,7 @@ export class AuthService {
       return user;
     });
 
-    if (!outcome) throw authError(401, 'UNAUTHENTICATED', 'Tài khoản hoặc mật khẩu không chính xác.');
+    if (!outcome) throw httpError(401, 'UNAUTHENTICATED', 'Tài khoản hoặc mật khẩu không chính xác.');
     const access = jwt.sign(
       { sid: sessionId, role: outcome.role!.name, storeId: outcome.store_id, branchId: outcome.branch_id },
       this.jwtSecret(),
@@ -151,7 +152,7 @@ export class AuthService {
   }
 
   async authenticateAccess(token?: string): Promise<{ user: User; claims: AccessClaims }> {
-    if (!token) throw authError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
+    if (!token) throw httpError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
     let claims: AccessClaims;
     try {
       const verified = jwt.verify(token, this.jwtSecret(), { algorithms: ['HS256'] });
@@ -162,8 +163,8 @@ export class AuthService {
         || typeof verified.exp !== 'number') throw new Error('Invalid claims');
       claims = verified as AccessClaims;
     } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) throw authError(401, 'TOKEN_EXPIRED', 'Phiên đăng nhập đã hết hạn.');
-      throw authError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
+      if (error instanceof jwt.TokenExpiredError) throw httpError(401, 'TOKEN_EXPIRED', 'Phiên đăng nhập đã hết hạn.');
+      throw httpError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
     }
 
     const active = await this.db.getRepository(RefreshToken).createQueryBuilder('rt')
@@ -174,11 +175,11 @@ export class AuthService {
       .select('rt.id')
       .getOne();
 
-    if (!active) throw authError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
+    if (!active) throw httpError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
     const user = await this.userById(claims.sub);
-    if (!user) throw authError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
-    if (!user.is_active) throw authError(403, 'ACCOUNT_DISABLED', 'Tài khoản đã bị khóa.');
-    if (user.store?.status === 'SUSPENDED') throw authError(403, 'STORE_SUSPENDED', 'Cửa hàng đang tạm khóa.');
+    if (!user) throw httpError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
+    if (!user.is_active) throw httpError(403, 'ACCOUNT_DISABLED', 'Tài khoản đã bị khóa.');
+    if (user.store?.status === 'SUSPENDED') throw httpError(403, 'STORE_SUSPENDED', 'Cửa hàng đang tạm khóa.');
     return { user, claims };
   }
 
@@ -190,33 +191,33 @@ export class AuthService {
   async authorizeAccess(token: string | undefined, permission: string, csrfHeader?: string, csrfCookie?: string): Promise<UserSummary> {
     const { user, claims } = await this.authenticateAccess(token);
     if (csrfHeader !== undefined || csrfCookie !== undefined) this.checkCsrf(claims.sid, csrfHeader, csrfCookie);
-    if (user.must_change_password) throw authError(403, 'PASSWORD_CHANGE_REQUIRED', 'Bạn cần đổi mật khẩu trước khi tiếp tục.');
+    if (user.must_change_password) throw httpError(403, 'PASSWORD_CHANGE_REQUIRED', 'Bạn cần đổi mật khẩu trước khi tiếp tục.');
     const summary = await this.summary(user);
     const platformPermissions = new Set(['store.read', 'store.create', 'store.suspend',
       'user.read_owner', 'user.create_owner', 'user.reset_owner_password']);
     if ((summary.storeId === null && !platformPermissions.has(permission))
       || (summary.storeId !== null && platformPermissions.has(permission))
       || !summary.permissions.includes(permission)) {
-      throw authError(403, 'PERMISSION_DENIED', 'Bạn không có quyền thực hiện thao tác này.');
+      throw httpError(403, 'PERMISSION_DENIED', 'Bạn không có quyền thực hiện thao tác này.');
     }
     return summary;
   }
 
   private checkCsrf(sessionId: string, header?: string, cookie?: string): void {
-    if (!header || !cookie || header !== cookie) throw authError(403, 'CSRF_INVALID', 'Phiên yêu cầu không hợp lệ. Vui lòng tải lại trang.');
+    if (!header || !cookie || header !== cookie) throw httpError(403, 'CSRF_INVALID', 'Phiên yêu cầu không hợp lệ. Vui lòng tải lại trang.');
     const [nonce, mac] = cookie.split('.');
-    if (!nonce || !mac || !/^[A-Za-z0-9_-]+$/.test(nonce)) throw authError(403, 'CSRF_INVALID', 'Phiên yêu cầu không hợp lệ. Vui lòng tải lại trang.');
+    if (!nonce || !mac || !/^[A-Za-z0-9_-]+$/.test(nonce)) throw httpError(403, 'CSRF_INVALID', 'Phiên yêu cầu không hợp lệ. Vui lòng tải lại trang.');
     const secret = process.env.CSRF_SECRET!;
     const expected = createHmac('sha256', secret).update(`${sessionId}.${nonce}`).digest('base64url');
     const actualBytes = Buffer.from(mac);
     const expectedBytes = Buffer.from(expected);
     if (actualBytes.length !== expectedBytes.length || !timingSafeEqual(actualBytes, expectedBytes)) {
-      throw authError(403, 'CSRF_INVALID', 'Phiên yêu cầu không hợp lệ. Vui lòng tải lại trang.');
+      throw httpError(403, 'CSRF_INVALID', 'Phiên yêu cầu không hợp lệ. Vui lòng tải lại trang.');
     }
   }
 
   async refresh(token: string | undefined, csrfHeader: string | undefined, csrfCookie: string | undefined): Promise<{ user: UserSummary; access: string; refresh: string }> {
-    if (!token) throw authError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
+    if (!token) throw httpError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
     const nextToken = randomBytes(32).toString('base64url');
     const hash = tokenHash(token);
 
@@ -282,9 +283,9 @@ export class AuthService {
     });
 
     if (result.kind !== 'ok') {
-      if (result.kind === 'disabled') throw authError(403, 'ACCOUNT_DISABLED', 'Tài khoản đã bị khóa.');
-      if (result.kind === 'suspended') throw authError(403, 'STORE_SUSPENDED', 'Cửa hàng đang tạm khóa.');
-      throw authError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
+      if (result.kind === 'disabled') throw httpError(403, 'ACCOUNT_DISABLED', 'Tài khoản đã bị khóa.');
+      if (result.kind === 'suspended') throw httpError(403, 'STORE_SUSPENDED', 'Cửa hàng đang tạm khóa.');
+      throw httpError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
     }
 
     const access = jwt.sign(
@@ -296,7 +297,7 @@ export class AuthService {
   }
 
   async getCsrf(token?: string): Promise<string> {
-    if (!token) throw authError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
+    if (!token) throw httpError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
     const hash = tokenHash(token);
     const row = await this.db.getRepository(RefreshToken).createQueryBuilder('rt')
       .innerJoinAndSelect('rt.user', 'u')
@@ -304,9 +305,9 @@ export class AuthService {
       .where('rt.token_hash = :hash AND rt.revoked_at IS NULL AND rt.expires_at > now()', { hash })
       .getOne();
 
-    if (!row) throw authError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
-    if (!row.user!.is_active) throw authError(403, 'ACCOUNT_DISABLED', 'Tài khoản đã bị khóa.');
-    if (row.user!.store?.status === 'SUSPENDED') throw authError(403, 'STORE_SUSPENDED', 'Cửa hàng đang tạm khóa.');
+    if (!row) throw httpError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
+    if (!row.user!.is_active) throw httpError(403, 'ACCOUNT_DISABLED', 'Tài khoản đã bị khóa.');
+    if (row.user!.store?.status === 'SUSPENDED') throw httpError(403, 'STORE_SUSPENDED', 'Cửa hàng đang tạm khóa.');
     return this.csrf(row.session_id);
   }
 
@@ -355,7 +356,7 @@ export class AuthService {
     const { user, claims } = await this.authenticateAccess(accessToken);
     this.checkCsrf(claims.sid, csrfHeader, csrfCookie);
     if (newPassword.length < 12 || bcrypt.truncates(newPassword)) {
-      throw authError(422, 'VALIDATION_ERROR', 'Mật khẩu mới không hợp lệ.');
+      throw httpError(422, 'VALIDATION_ERROR', 'Mật khẩu mới không hợp lệ.');
     }
 
     await this.db.transaction(async (manager) => {
@@ -369,7 +370,7 @@ export class AuthService {
         .setLock('pessimistic_write', undefined, ['u'])
         .getOne();
 
-      if (!current) throw authError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
+      if (!current) throw httpError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
 
       const session = await rtRepo.createQueryBuilder('rt')
         .where('rt.user_id = :userId AND rt.session_id = :sessionId AND rt.revoked_at IS NULL AND rt.expires_at > now()', {
@@ -379,14 +380,14 @@ export class AuthService {
         .select('rt.id')
         .getOne();
 
-      if (!session) throw authError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
-      if (!current.is_active) throw authError(403, 'ACCOUNT_DISABLED', 'Tài khoản đã bị khóa.');
-      if (current.store?.status === 'SUSPENDED') throw authError(403, 'STORE_SUSPENDED', 'Cửa hàng đang tạm khóa.');
+      if (!session) throw httpError(401, 'UNAUTHENTICATED', 'Vui lòng đăng nhập để tiếp tục.');
+      if (!current.is_active) throw httpError(403, 'ACCOUNT_DISABLED', 'Tài khoản đã bị khóa.');
+      if (current.store?.status === 'SUSPENDED') throw httpError(403, 'STORE_SUSPENDED', 'Cửa hàng đang tạm khóa.');
 
       if (!current.must_change_password) {
-        if (!currentPassword) throw authError(422, 'VALIDATION_ERROR', 'Cần nhập mật khẩu hiện tại.');
+        if (!currentPassword) throw httpError(422, 'VALIDATION_ERROR', 'Cần nhập mật khẩu hiện tại.');
         if (!await bcrypt.compare(currentPassword, current.password_hash)) {
-          throw authError(401, 'CURRENT_PASSWORD_INVALID', 'Mật khẩu hiện tại không chính xác.');
+          throw httpError(401, 'CURRENT_PASSWORD_INVALID', 'Mật khẩu hiện tại không chính xác.');
         }
       }
       const hash = await bcrypt.hash(newPassword, 12);

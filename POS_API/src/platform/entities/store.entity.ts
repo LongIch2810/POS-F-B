@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
-import { Branch } from './branch.entity';
-import { User } from './user.entity';
+import { Branch } from '../../database/entities/branch.entity';
+import { User } from '../../auth/entities/user.entity';
 
 export type StoreStatus = 'ACTIVE' | 'SUSPENDED';
 

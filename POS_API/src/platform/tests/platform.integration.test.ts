@@ -4,9 +4,9 @@ import { test } from 'node:test';
 import * as bcrypt from 'bcryptjs';
 import { Test } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
-import { AppModule } from '../app.module';
-import { bootstrapAdmin } from '../bootstrap-admin';
-import { dataSource } from '../database/data-source';
+import { AppModule } from '../../app.module';
+import { bootstrapAdmin } from '../../bootstrap-admin';
+import { dataSource } from '../../database/data-source';
 
 test('PB-03 store, OWNER, suspension, reset and access boundaries', { timeout: 120_000 }, async () => {
   const name = `pos_pb03_test_${randomBytes(6).toString('hex')}`;

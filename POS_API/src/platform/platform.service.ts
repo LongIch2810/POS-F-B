@@ -1,14 +1,14 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'node:crypto';
 import { DataSource, EntityManager } from 'typeorm';
-import { RefreshToken, Role, Store, User } from '../database/entities';
-import { CreateOwnerDto, CreateStoreDto } from './platform.dto';
+import { httpError } from '../http/http-error';
+import { RefreshToken } from '../auth/entities/refresh-token.entity';
+import { Role } from '../auth/entities/role.entity';
+import { Store } from './entities/store.entity';
+import { User } from '../auth/entities/user.entity';
+import { CreateOwnerDto, CreateStoreDto } from './http/platform.dto';
 import { PlatformPage, platformPageResponse } from './platform.pagination';
-
-function platformError(status: number, code: string, message: string): HttpException {
-  return new HttpException({ code, message }, status);
-}
 
 function storeView(store: Store) {
   return { id: store.id, name: store.name, phone: store.phone, email: store.email, address: store.address,
@@ -32,7 +32,7 @@ export class PlatformService {
 
   private async createOwner(manager: EntityManager, input: { storeId: string; username: string; fullName: string }) {
     const role = await manager.getRepository(Role).findOneBy({ name: 'OWNER' });
-    if (!role) throw platformError(503, 'SERVICE_UNAVAILABLE', 'Vai trò chủ cửa hàng chưa sẵn sàng.');
+    if (!role) throw httpError(503, 'SERVICE_UNAVAILABLE', 'Vai trò chủ cửa hàng chưa sẵn sàng.');
     const [{ username }] = await manager.query('SELECT lower(btrim($1::text)) AS username', [input.username]);
     const temporaryPassword = randomBytes(18).toString('base64url');
     const owner = manager.getRepository(User).create({
@@ -44,7 +44,7 @@ export class PlatformService {
       return { owner: await manager.getRepository(User).save(owner), temporaryPassword };
     } catch (error) {
       if ((error as { code?: string }).code === '23505') {
-        throw platformError(409, 'USERNAME_EXISTS', 'Tên đăng nhập đã được sử dụng.');
+        throw httpError(409, 'USERNAME_EXISTS', 'Tên đăng nhập đã được sử dụng.');
       }
       throw error;
     }
@@ -81,8 +81,8 @@ export class PlatformService {
     const store = await this.db.transaction(async (manager) => {
       const repo = manager.getRepository(Store);
       const current = await repo.createQueryBuilder('s').where('s.id = :id', { id }).setLock('pessimistic_write').getOne();
-      if (!current) throw platformError(404, 'NOT_FOUND', 'Không tìm thấy cửa hàng.');
-      if (current.status === status) throw platformError(409, status === 'ACTIVE' ? 'STORE_ALREADY_ACTIVE' : 'STORE_ALREADY_SUSPENDED',
+      if (!current) throw httpError(404, 'NOT_FOUND', 'Không tìm thấy cửa hàng.');
+      if (current.status === status) throw httpError(409, status === 'ACTIVE' ? 'STORE_ALREADY_ACTIVE' : 'STORE_ALREADY_SUSPENDED',
         'Cửa hàng đã ở trạng thái này.');
       current.status = status;
       current.suspended_at = status === 'SUSPENDED' ? new Date() : null;
@@ -119,7 +119,7 @@ export class PlatformService {
   async addOwner(input: CreateOwnerDto, actorId: string, requestId: string) {
     const created = await this.db.transaction(async (manager) => {
       const store = await manager.getRepository(Store).findOneBy({ id: input.storeId });
-      if (!store) throw platformError(404, 'NOT_FOUND', 'Không tìm thấy cửa hàng.');
+      if (!store) throw httpError(404, 'NOT_FOUND', 'Không tìm thấy cửa hàng.');
       return this.createOwner(manager, input);
     });
     this.log('owner.create', actorId, created.owner.id, requestId);
@@ -131,7 +131,7 @@ export class PlatformService {
       const user = await manager.getRepository(User).createQueryBuilder('u')
         .innerJoinAndSelect('u.role', 'r').where('u.id = :id AND r.name = :role', { id, role: 'OWNER' })
         .setLock('pessimistic_write', undefined, ['u']).getOne();
-      if (!user) throw platformError(404, 'NOT_FOUND', 'Không tìm thấy tài khoản chủ cửa hàng.');
+      if (!user) throw httpError(404, 'NOT_FOUND', 'Không tìm thấy tài khoản chủ cửa hàng.');
       const temporaryPassword = randomBytes(18).toString('base64url');
       user.password_hash = await bcrypt.hash(temporaryPassword, 12);
       user.must_change_password = true;

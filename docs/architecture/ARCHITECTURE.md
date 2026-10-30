@@ -13,7 +13,7 @@ Nếu các nguồn mâu thuẫn về kết quả nghiệp vụ hoặc bảo mậ
 | Thư mục | Hiện trạng khi viết tài liệu | Đích MVP |
 | --- | --- | --- |
 | `POS_UI/` | React/TypeScript/Vite có màn hình demo; `src/services` gọi `src/mock/mockEngine.ts`, dữ liệu mô phỏng nằm trong browser | Thay lớp service mô phỏng bằng lời gọi API, giữ feature/UI phù hợp |
-| `POS_API/` | Đã có nền tảng PB-01 và API xác thực/phiên PB-02; chưa có các module nghiệp vụ còn lại | Một ứng dụng NestJS/TypeScript chia module nghiệp vụ |
+| `POS_API/` | Đã có nền tảng PB-01, API xác thực/phiên PB-02 và quản trị nền tảng PB-03; auth/platform theo cùng quy ước module | Một ứng dụng NestJS/TypeScript chia module nghiệp vụ |
 | `POS_INFRA/` | Đã có Docker Compose PostgreSQL local; chưa có cấu hình production | Docker Compose, reverse proxy, cấu hình production và sao lưu |
 
 UI demo, kể cả đăng nhập, thanh toán và trạng thái offline, **không phải** bằng chứng backend hoặc bán hàng offline đã được triển khai. MVP không bán hàng offline. Chỉ làm tính năng MVP trong mục 5 của product overview; giai đoạn 2 và tùy chọn cần yêu cầu riêng.
@@ -62,25 +62,58 @@ Một tiến trình NestJS, một PostgreSQL, các module theo miền nghiệp v
 
 Module được gọi qua service có trách nhiệm rõ ràng; không sửa trực tiếp bảng của module khác từ controller. Thao tác cần nhiều module, đặc biệt **thanh toán/hoàn tất đơn 0đ + trừ kho**, được điều phối trong **một TypeORM transaction** với cùng transaction manager. Không phát job bất đồng bộ cho bước quyết định hóa đơn đã thanh toán hoặc tồn kho đã trừ.
 
-Cấu trúc mã **mục tiêu** theo module nghiệp vụ, tham chiếu [mẫu NestJS chính thức](https://github.com/nestjs/nest/tree/master/sample/01-cats-app/src/cats) (repo NestJS nhiều stars nhất trong nhóm đã khảo sát):
+Cấu trúc mã theo module nghiệp vụ dưới đây được áp dụng cho `auth/` và `platform/`; các module MVP khác theo cùng quy ước khi triển khai:
 
 ```text
 POS_API/src/
   main.ts, app.module.ts
-  auth/                         # module đã có: service, http/, security/, tests/
-  database/                     # kết nối, cấu hình TypeORM, migration và entity nền tảng hiện có
+  bootstrap-admin.ts, swagger-docs.ts, foundation.test.ts
+  http/                         # HTTP dùng chung toàn ứng dụng
+    api-response.ts
+    api-error.filter.ts
+    http-error.ts
+    health.controller.ts
+  auth/
+    auth.module.ts
+    auth.service.ts
+    auth-config.ts
+    http/                       # auth.controller.ts, auth.dto.ts, auth-cookie.ts
+    security/                   # access.guard.ts, local-auth.guard.ts, local.strategy.ts
+    entities/                   # User, Role, Permission, RolePermission, RefreshToken, AuthRateEvent
+    tests/                      # auth-config.test.ts, auth.test.ts, auth.integration.test.ts
+  platform/
+    platform.module.ts
+    platform.service.ts
+    platform.pagination.ts
+    http/
+      platform.controller.ts
+      platform.dto.ts
+    entities/
+      store.entity.ts
+    tests/
+      platform.integration.test.ts
+      platform.pagination.test.ts
+  database/                     # kết nối, đăng ký entity tường minh và migration
     data-source.ts
     database.module.ts
     migrations/
-    entities/
+    entities/                   # Branch tạm ở đây, chờ module Organization được triển khai
   <module-nghiệp-vụ>/           # thêm khi triển khai module tương ứng ở bảng trên
     <module>.module.ts
-    <module>.controller.ts
     <module>.service.ts
-    dto/                         # chỉ khi module có DTO
+    http/                       # controller, DTO và validation request
+      <module>.controller.ts
+      <module>.dto.ts
+    entities/                   # entity thuộc module sở hữu
+    tests/                      # unit/integration test của module
+    security/                   # chỉ khi có guard/strategy riêng
 ```
 
-Giữ controller, service, DTO, entity và test riêng của một nghiệp vụ gần module sở hữu; phần dùng chung toàn ứng dụng ở cấp ứng dụng hoặc `database/` nếu liên quan DB. `database/entities/` tập hợp các entity nền tảng hiện chưa có module nghiệp vụ riêng; khi triển khai module sở hữu, chuyển entity liên quan về module đó. Không tạo thư mục rỗng theo mẫu. `auth/` và `database/` đã được sắp xếp như cây trên; `<module-nghiệp-vụ>/` là cấu trúc dự kiến khi có mã tương ứng.
+Giữ controller, service, DTO, entity và test riêng của một nghiệp vụ gần module sở hữu. Controller xử lý HTTP và gọi service; service giữ nghiệp vụ/transaction và không nhận Express Request/Response. Module chỉ export provider cần cho module khác. DTO có thể nhóm trong một file khi còn nhỏ; chỉ tạo thư mục con có mã thực tế.
+
+`auth/entities/` sở hữu User, Role, Permission, RolePermission, RefreshToken và AuthRateEvent; `platform/entities/` sở hữu Store. Branch tạm ở `database/entities/` đến khi module Organization được triển khai. DataSource đăng ký tập entity tường minh; dùng import trực tiếp và callback TypeORM cho quan hệ, tránh barrel tập hợp entity liên module gây vòng phụ thuộc. Migration vẫn tập trung trong `database/migrations/`; di chuyển entity không phải thay schema hay sửa migration lịch sử.
+
+HTTP dùng chung ở `src/http/`; guard và Passport strategy ở `auth/security/`. Helper `httpError` dùng chung tạo lỗi có cấu trúc, không buộc module nghiệp vụ khác import AuthService chỉ để tạo lỗi. `platform.pagination.ts` ở gốc module vì controller và service cùng dùng; chưa trích thành framework phân trang chung. Không bắt buộc repository wrapper, base controller/service hoặc các tầng application/domain/infrastructure cho module mới.
 
 ### 5.2 Frontend
 

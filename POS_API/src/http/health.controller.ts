@@ -1,6 +1,6 @@
 import { Controller, Get, Inject, ServiceUnavailableException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { dataResponse } from './http/api-response';
+import { dataResponse } from './api-response';
 
 @Controller('api/v1')
 export class HealthController {

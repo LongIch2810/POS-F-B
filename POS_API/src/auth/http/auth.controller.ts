@@ -2,7 +2,8 @@ import { Body, Controller, Get, HttpException, Post, Req, Res, UseGuards } from 
 import { ApiBody, ApiNoContentResponse, ApiOkResponse, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { serialize } from 'cookie';
-import { AuthService, authError } from '../auth.service';
+import { httpError } from '../../http/http-error';
+import { AuthService } from '../auth.service';
 import { dataResponse, EmptyResponseDto, ErrorResponseDto } from '../../http/api-response';
 import { AccessGuard, AuthenticatedRequest } from '../security/access.guard';
 import { authValidationPipe, ChangePasswordRequestDto, LoginRequestDto, SessionResponseDto, UserResponseDto } from './auth.dto';
@@ -105,7 +106,7 @@ export class AuthController {
   private noInput(request: Request): void {
     if (Object.keys(request.query).length || request.body !== undefined
       || Number(request.header('Content-Length')) > 0 || request.header('Transfer-Encoding')) {
-      throw authError(422, 'VALIDATION_ERROR', 'Dữ liệu gửi lên không hợp lệ.');
+      throw httpError(422, 'VALIDATION_ERROR', 'Dữ liệu gửi lên không hợp lệ.');
     }
   }
 

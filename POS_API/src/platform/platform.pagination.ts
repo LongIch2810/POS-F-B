@@ -1,11 +1,11 @@
-import { authError } from '../auth/auth.service';
+import { httpError } from '../http/http-error';
 
 export interface PlatformPage {
   limit: number;
   after?: { createdAt: string; id: string };
 }
 
-const invalid = () => authError(422, 'VALIDATION_ERROR', 'Tham số danh sách không hợp lệ.');
+const invalid = () => httpError(422, 'VALIDATION_ERROR', 'Tham số danh sách không hợp lệ.');
 
 export function platformPage(query: Record<string, unknown>, scope: 'stores' | 'owners'): PlatformPage {
   if (Object.keys(query).some(key => !['limit', 'cursor', 'sort', ...(scope === 'owners' ? ['role'] : [])].includes(key))

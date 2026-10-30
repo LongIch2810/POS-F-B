@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { platformPage, platformPageResponse } from './platform.pagination';
+import { platformPage, platformPageResponse } from '../platform.pagination';
 
 test('PB-03 cursor preserves microseconds and validates list scope and query', () => {
   const rows = [

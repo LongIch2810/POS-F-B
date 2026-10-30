@@ -1,15 +1,13 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import {
-  AuthRateEvent,
-  Branch,
-  Permission,
-  RefreshToken,
-  Role,
-  RolePermission,
-  Store,
-  User,
-} from './entities';
+import { AuthRateEvent } from '../auth/entities/auth-rate-event.entity';
+import { Branch } from './entities/branch.entity';
+import { Permission } from '../auth/entities/permission.entity';
+import { RefreshToken } from '../auth/entities/refresh-token.entity';
+import { Role } from '../auth/entities/role.entity';
+import { RolePermission } from '../auth/entities/role-permission.entity';
+import { Store } from '../platform/entities/store.entity';
+import { User } from '../auth/entities/user.entity';
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) throw new Error('DATABASE_URL is required');

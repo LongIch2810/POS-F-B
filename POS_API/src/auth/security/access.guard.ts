@@ -1,7 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { AuthService, UserSummary, authError } from '../auth.service';
+import { httpError } from '../../http/http-error';
+import { AuthService, UserSummary } from '../auth.service';
 import { authCookie } from '../http/auth-cookie';
 
 export type AuthenticatedRequest = Request & { authUser?: UserSummary };
@@ -18,7 +19,7 @@ export class AccessGuard implements CanActivate {
     const permission = this.reflector.getAllAndOverride<string>('authPermission', [context.getHandler(), context.getClass()]);
     const isMutation = request.method !== 'GET' && request.method !== 'HEAD';
     if (isMutation && (!process.env.PUBLIC_ORIGIN || request.header('Origin') !== process.env.PUBLIC_ORIGIN)) {
-      throw authError(403, 'CSRF_INVALID', 'Phiên yêu cầu không hợp lệ. Vui lòng tải lại trang.');
+      throw httpError(403, 'CSRF_INVALID', 'Phiên yêu cầu không hợp lệ. Vui lòng tải lại trang.');
     }
     request.authUser = permission
       ? await this.auth.authorizeAccess(token, permission,

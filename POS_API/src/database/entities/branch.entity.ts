@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
-import { Store } from './store.entity';
-import { User } from './user.entity';
+import { Store } from '../../platform/entities/store.entity';
+import { User } from '../../auth/entities/user.entity';
 
 @Entity('branches')
 export class Branch {

@@ -3,10 +3,10 @@ import { APP_FILTER } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { randomUUID } from 'node:crypto';
 import { NextFunction, Request, Response } from 'express';
-import { ApiErrorFilter } from './api-error.filter';
+import { ApiErrorFilter } from './http/api-error.filter';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
-import { HealthController } from './health.controller';
+import { HealthController } from './http/health.controller';
 import { PlatformModule } from './platform/platform.module';
 
 @Module({
