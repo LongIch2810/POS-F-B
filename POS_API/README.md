@@ -4,7 +4,7 @@ Yêu cầu: Node.js 22, Docker Desktop và Docker Compose. UI xác thực và qu
 
 1. Tạo `POS_INFRA/.env.local` từ `.env.example` và đặt username, mật khẩu ngẫu nhiên, tên DB. Không commit file này.
 2. Ở gốc repo chạy `docker compose --env-file POS_INFRA/.env.local -f POS_INFRA/compose.local.yml up -d --wait`.
-3. Trong `POS_API/`, chạy `npm ci`. Đặt `DATABASE_URL` trỏ đến DB local, cùng ba biến `BOOTSTRAP_ADMIN_USERNAME`, `BOOTSTRAP_ADMIN_FULL_NAME`, `BOOTSTRAP_ADMIN_PASSWORD` (mật khẩu tối thiểu 12 ký tự). Đặt thêm `PUBLIC_ORIGIN` là origin của web và hai secret riêng `JWT_SECRET`, `CSRF_SECRET` (mỗi secret tối thiểu 32 byte). Giá trị phải là secret riêng của môi trường, không dùng ví dụ cố định.
+3. Trong `POS_API/`, chạy `npm ci`, rồi `Copy-Item .env.example .env` nếu chưa có `.env`. Sửa `DATABASE_URL` trỏ đến DB local, cùng ba biến `BOOTSTRAP_ADMIN_USERNAME`, `BOOTSTRAP_ADMIN_FULL_NAME`, `BOOTSTRAP_ADMIN_PASSWORD` (mật khẩu tối thiểu 12 ký tự). Đặt thêm `PUBLIC_ORIGIN` là origin của web và hai secret riêng `JWT_SECRET`, `CSRF_SECRET` (mỗi secret tối thiểu 32 byte). Giá trị phải là secret riêng của môi trường, không dùng ví dụ cố định. Các lệnh start/migration/test tự nạp `.env` bằng Node22; biến môi trường do shell/Compose cấp được ưu tiên. `.env` đã được Git/Docker bỏ qua.
 4. Chạy `npm run migration:run`, sau đó `npm run start`. Gọi `GET http://localhost:3000/api/v1/health` để kiểm tra. Sau khi admin đầu tiên được tạo, có thể bỏ ba biến bootstrap ở lần chạy sau.
 5. Chạy `npm test` với `DATABASE_URL` của DB local. Test tạo và xóa **database thử riêng** có tên `pos_pb01_test_<ngẫu nhiên>`, `pos_pb02_test_<ngẫu nhiên>` hoặc `pos_pb03_test_<ngẫu nhiên>`; tài khoản DB local cần quyền `CREATE DATABASE`.
 

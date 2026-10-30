@@ -44,6 +44,15 @@ docker compose --env-file POS_INFRA/.env.local -f POS_INFRA/compose.local.yml do
 
 Yêu cầu khi chạy ngoài Docker: Node.js 22, npm và PostgreSQL 17. Xem [hướng dẫn API](POS_API/README.md) để cấu hình `DATABASE_URL`, bootstrap admin, chạy migration và test với database thử riêng. Các lệnh có sẵn:
 
+Mỗi ứng dụng có file môi trường riêng khi chạy ngoài Docker. Nếu chưa có file, tạo từ mẫu:
+
+```powershell
+Copy-Item POS_API/.env.example POS_API/.env
+Copy-Item POS_UI/.env.example POS_UI/.env
+```
+
+Sửa `POS_API/.env` với cấu hình DB/auth và `PUBLIC_ORIGIN`; backend tự nạp file qua lệnh npm. Sửa `VITE_API_TARGET` trong `POS_UI/.env` theo URL backend thực tế; Vite đọc file theo mode, không có URL fallback trong source. Biến do shell hoặc Docker Compose cấp được ưu tiên. Frontend tiếp tục gọi `/api` cùng origin qua proxy để gửi cookie/CSRF đúng thiết kế. Không đặt secret backend trong biến `VITE_*` vì các biến này có thể được đưa vào bundle browser. Các file `.env` thật được Git/Docker bỏ qua.
+
 | Thư mục | Lệnh | Tác dụng |
 | --- | --- | --- |
 | `POS_API/` | `npm ci`, `npm run migration:run`, `npm run start` | Cài dependency, cập nhật schema, chạy API. |
