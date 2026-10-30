@@ -34,8 +34,7 @@ export type NavTab =
   | 'products'
   | 'settings'
   | 'platform_stores'
-  | 'platform_owners'
-  | 'platform_permissions';
+  | 'platform_owners';
 
 interface AppShellProps {
   currentTab: NavTab;
@@ -93,9 +92,8 @@ export const AppShell: React.FC<AppShellProps> = ({ currentTab, onSelectTab, chi
   // Danh sách Navigation Items theo quyền động (BR-05)
   const allNavItems: { id: NavTab; label: string; icon: React.ReactNode; visible: boolean }[] = [
     // Quản trị nền tảng
-    { id: 'platform_stores', label: 'Cửa hàng', icon: <Building2 size={24} />, visible: isPlatformAdmin && has('store.manage') },
-    { id: 'platform_owners', label: 'Chủ quán', icon: <UserCheck size={24} />, visible: isPlatformAdmin && has('store.manage') },
-    { id: 'platform_permissions', label: 'Phân quyền', icon: <ShieldCheck size={24} />, visible: isPlatformAdmin && has('role.manage_permissions') },
+    { id: 'platform_stores', label: 'Cửa hàng', icon: <Building2 size={24} />, visible: isPlatformAdmin && has('store.read') },
+    { id: 'platform_owners', label: 'Chủ quán', icon: <UserCheck size={24} />, visible: isPlatformAdmin && has('user.read_owner') },
 
     // Nghiệp vụ bán hàng & vận hành cửa hàng
     { id: 'pos', label: 'Bán hàng', icon: <ShoppingBag size={24} />, visible: !isPlatformAdmin && has('pos.sell') },

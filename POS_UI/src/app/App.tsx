@@ -63,16 +63,14 @@ const AuthenticatedRouter: React.FC<{ error: string }> = ({ error }) => {
     if (isPlatformAdmin) {
       if (
         currentTab !== 'platform_stores' &&
-        currentTab !== 'platform_owners' &&
-        currentTab !== 'platform_permissions'
+        currentTab !== 'platform_owners'
       ) {
         setCurrentTab('platform_stores');
       }
     } else {
       if (
         currentTab === 'platform_stores' ||
-        currentTab === 'platform_owners' ||
-        currentTab === 'platform_permissions'
+        currentTab === 'platform_owners'
       ) {
         setCurrentTab('pos');
       }
@@ -137,7 +135,6 @@ const AuthenticatedRouter: React.FC<{ error: string }> = ({ error }) => {
             onTabChange={(tab) => {
               if (tab === 'stores') setCurrentTab('platform_stores');
               else if (tab === 'owners') setCurrentTab('platform_owners');
-              else if (tab === 'permissions') setCurrentTab('platform_permissions');
             }}
           />
         );
@@ -148,18 +145,6 @@ const AuthenticatedRouter: React.FC<{ error: string }> = ({ error }) => {
             onTabChange={(tab) => {
               if (tab === 'stores') setCurrentTab('platform_stores');
               else if (tab === 'owners') setCurrentTab('platform_owners');
-              else if (tab === 'permissions') setCurrentTab('platform_permissions');
-            }}
-          />
-        );
-      case 'platform_permissions':
-        return (
-          <PlatformAdminScreen
-            activeTab="permissions"
-            onTabChange={(tab) => {
-              if (tab === 'stores') setCurrentTab('platform_stores');
-              else if (tab === 'owners') setCurrentTab('platform_owners');
-              else if (tab === 'permissions') setCurrentTab('platform_permissions');
             }}
           />
         );

@@ -55,7 +55,7 @@ type ErrorResponse = {
 | Route | Đầu vào | Thành công | Lỗi chính |
 | --- | --- | --- | --- |
 | `POST /login` | JSON `username`, `password` (chuỗi bắt buộc) | `200`, đặt ba cookie; `data.expiresIn=1800`, `data.user` là danh tính hiện hành và `mustChangePassword` | `401 UNAUTHENTICATED` chung cho tài khoản không tồn tại, sai mật khẩu, khóa user/store; `429 TOO_MANY_REQUESTS` |
-| `GET /me` | Access cookie | `200`, `data.user` gồm `id`, `username`, `fullName`, `role`, `storeId`, `branchId`, `permissions`, `mustChangePassword` | `401 UNAUTHENTICATED` hoặc `TOKEN_EXPIRED`; `403 ACCOUNT_DISABLED`/`STORE_SUSPENDED` |
+| `GET /me` | Access cookie | `200`, `data.user` gồm `id`, `username`, `fullName`, `role`, `storeId`, `branchId`, `permissions`, `mustChangePassword` | `401 UNAUTHENTICATED` nếu phiên đã bị thu hồi (kể cả sau khóa store), hoặc `TOKEN_EXPIRED`; `403 ACCOUNT_DISABLED`/`STORE_SUSPENDED` nếu phiên còn hiệu lực |
 | `GET /csrf` | Refresh cookie hợp lệ | `200`, phát lại CSRF cookie, `data` rỗng; không xoay refresh | `401 UNAUTHENTICATED` |
 | `POST /refresh` | Refresh cookie, Origin, CSRF | `200`, xoay refresh và đặt lại access/refresh cookie; `data.expiresIn=1800`, `data.user` | `401 UNAUTHENTICATED`; `429 TOO_MANY_REQUESTS` |
 | `POST /logout` | Origin; refresh cookie và CSRF nếu còn phiên hợp lệ | `204`, thu hồi phiên hiện tại và xóa ba cookie; thiếu/hết hạn refresh vẫn `204` và xóa cookie | `403 CSRF_INVALID` khi phiên còn hiệu lực mà CSRF sai |
@@ -90,7 +90,7 @@ Login giới hạn 5 lần **thất bại** trong 15 phút trượt theo usernam
 - **Quyền, phạm vi, BR:** access cookie hợp lệ; phạm vi từ DB, không từ claim snapshot; BR-02/03/05/79/80/81/84.
 - **Request:** không có body/query; cookie access.
 - **Response:** `200 {"data":{"user":<UserSummary>}}`, trong đó `UserSummary` chỉ gồm `id`, `username`, `fullName`, `role` (mã vai trò), `storeId`, `branchId`, `permissions` (mảng mã quyền), `mustChangePassword`.
-- **Lỗi:** `401 UNAUTHENTICATED` nếu thiếu/sai token hoặc phiên mất; `401 TOKEN_EXPIRED` nếu JWT hết hạn; `403 ACCOUNT_DISABLED`/`STORE_SUSPENDED` theo trạng thái hiện hành.
+- **Lỗi:** `401 UNAUTHENTICATED` nếu thiếu/sai token hoặc phiên mất (bao gồm cookie cũ sau khóa store); `401 TOKEN_EXPIRED` nếu JWT hết hạn; `403 ACCOUNT_DISABLED`/`STORE_SUSPENDED` theo trạng thái hiện hành nếu phiên còn hiệu lực.
 - **Xử lý:** đối chiếu session còn refresh hiện hành, nạp user/store/role/permissions cùng request; không ghi DB.
 - **Ví dụ:** `GET` với access cookie → `200 {"data":{"user":{"id":"<uuid>","username":"admin","fullName":"Quản trị","role":"PLATFORM_ADMIN","storeId":null,"branchId":null,"permissions":[],"mustChangePassword":true}}}`.
 - **Kiểm thử:** BR-02/03/05/79/80/81/84, đổi role/quyền giữa hai request, phiên thu hồi và token hết hạn.

@@ -37,7 +37,7 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
     await assert.rejects(assertSchemaCurrent(db), /pending migrations/);
     await db.runMigrations();
     await assert.doesNotReject(assertSchemaCurrent(db));
-    await db.query(`INSERT INTO roles (id, name) VALUES (gen_random_uuid(), 'PLATFORM_ADMIN')`);
+    await db.query(`INSERT INTO roles (id, name) VALUES (gen_random_uuid(), 'PLATFORM_ADMIN') ON CONFLICT (name) DO NOTHING`);
     const passwordHash = await bcrypt.hash('temporary-password-12', 12);
     await db.query(`INSERT INTO users (id, role_id, full_name, username, password_hash, must_change_password)
       SELECT gen_random_uuid(), id, 'Quản trị', 'admin', $1, true FROM roles WHERE name = 'PLATFORM_ADMIN'`, [passwordHash]);
@@ -125,7 +125,7 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
       assert.equal((await disabled.json()).error.code, 'ACCOUNT_DISABLED');
       await db.query("UPDATE users SET is_active = true WHERE username = 'admin'");
       const [{ id: storeId }] = await db.query("INSERT INTO stores (id, name) VALUES (gen_random_uuid(), 'Test Store') RETURNING id");
-      await db.query("INSERT INTO roles (id, name) VALUES (gen_random_uuid(), 'OWNER')");
+      await db.query("INSERT INTO roles (id, name) VALUES (gen_random_uuid(), 'OWNER') ON CONFLICT (name) DO NOTHING");
       const ownerHash = await bcrypt.hash('owner-password-123', 12);
       await db.query(`INSERT INTO users (id, role_id, store_id, full_name, username, password_hash)
         SELECT gen_random_uuid(), id, $1, 'Chủ cửa hàng', 'owner', $2 FROM roles WHERE name = 'OWNER'`, [storeId, ownerHash]);
@@ -371,14 +371,15 @@ test('PB-02 login creates a hashed refresh session and cookie-only tokens', { ti
         if (lock.isTransactionActive) await lock.rollbackTransaction();
         await lock.release();
       }
-      await assert.rejects(auth.authorizeAccess(access, 'platform.store.create'), (error: any) => error.getResponse().code === 'PERMISSION_DENIED');
-      await db.query("INSERT INTO permissions (id, code) VALUES (gen_random_uuid(), 'platform.store.create')");
+      await db.query(`DELETE FROM role_permissions WHERE role_id = (SELECT id FROM roles WHERE name = 'PLATFORM_ADMIN')
+        AND permission_id = (SELECT id FROM permissions WHERE code = 'store.create')`);
+      await assert.rejects(auth.authorizeAccess(access, 'store.create'), (error: any) => error.getResponse().code === 'PERMISSION_DENIED');
       await db.query(`INSERT INTO role_permissions (role_id, permission_id)
-        SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'PLATFORM_ADMIN' AND p.code = 'platform.store.create'`);
-      assert.equal((await auth.authorizeAccess(access, 'platform.store.create')).username, 'admin');
+        SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'PLATFORM_ADMIN' AND p.code = 'store.create'`);
+      assert.equal((await auth.authorizeAccess(access, 'store.create')).username, 'admin');
       const updatedMe = await fetch(`http://127.0.0.1:${port}/api/v1/auth/me`, { headers: { Cookie: thirdCookieHeader } });
       assert.equal(updatedMe.status, 200);
-      assert.ok((await updatedMe.json()).data.user.permissions.includes('platform.store.create'));
+      assert.ok((await updatedMe.json()).data.user.permissions.includes('store.create'));
       await db.query("INSERT INTO permissions (id, code) VALUES (gen_random_uuid(), 'pos.sell')");
       await db.query(`INSERT INTO role_permissions (role_id, permission_id)
         SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'PLATFORM_ADMIN' AND p.code = 'pos.sell'`);
